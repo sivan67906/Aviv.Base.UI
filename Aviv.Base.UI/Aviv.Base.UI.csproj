@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Lilmod6\Aviv.Base\Aviv.Base.UI\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Lilmod6\Aviv.Base\Aviv.Base.UI\.editorconfig" />
+  </ItemGroup>
+
 </Project>
