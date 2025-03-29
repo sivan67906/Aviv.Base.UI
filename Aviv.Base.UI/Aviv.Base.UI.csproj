@@ -14,4 +14,14 @@
     <None Include="D:\Lilmod6\Aviv.Base\Aviv.Base.UI\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.0" />
+      <PackageReference Include="Radzen.Blazor" Version="6.2.6" />
+      <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Blazor.Inputs" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Blazor.Themes" Version="28.2.11" />
+      <PackageReference Include="WMBlazorOverlayScrollbars" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

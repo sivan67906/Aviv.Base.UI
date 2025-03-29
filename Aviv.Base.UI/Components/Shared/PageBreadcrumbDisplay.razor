@@ -1,0 +1,42 @@
+﻿@using Aviv.Base.UI.Services
+@inject PageBreadcrumbService BreadcrumbService
+@implements IDisposable
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-3 page-header-breadcrumb ms-3 me-3">
+	@if (!string.IsNullOrEmpty(BreadcrumbService.PageHeading))
+	{
+		<h1 class="page-title fw-semibold fs-18 mb-0">@BreadcrumbService.PageHeading</h1>
+	}
+	<div class="ms-md-1 ms-0">
+		<nav>
+			@if (BreadcrumbService.Breadcrumbs.Count > 0)
+			{
+				<ol class="breadcrumb mb-0">
+					@foreach (var item in BreadcrumbService.Breadcrumbs)
+					{
+						if (item.IsActive)
+						{
+							<li class="breadcrumb-item active" aria-current="page">@item.Text</li>
+						}
+						else
+						{
+							<li class="breadcrumb-item"><a href="@item.Url">@item.Text</a></li>
+						}
+					}
+				</ol>
+			}
+		</nav>
+	</div>
+</div>
+
+@code {
+	protected override void OnInitialized()
+	{
+		BreadcrumbService.OnChange += StateHasChanged;
+	}
+
+	public void Dispose()
+	{
+		BreadcrumbService.OnChange -= StateHasChanged;
+	}
+}

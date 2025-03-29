@@ -1,0 +1,47 @@
+﻿/* Top-right alert container */
+.top-right-alert-container {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 9999;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Alert notification styles */
+.custom-alert-icon {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+}
+
+    .custom-alert-icon.show {
+        opacity: 1;
+    }
+
+    .custom-alert-icon svg {
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+    }
+
+/* Animation for slide in from right */
+@keyframes slide-in-right {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Apply animation to custom alerts */
+.top-right-alert-container .alert {
+    animation: slide-in-right 0.3s ease-out;
+    width: 100%;
+}
