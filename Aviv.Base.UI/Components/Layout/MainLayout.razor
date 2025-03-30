@@ -3,93 +3,159 @@
 @inject IJSRuntime JSRuntime
 @using System.Text.Json
 @using Aviv.Base.UI.Components.Shared
-@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager // This line is used to generate 
+@using Microsoft.AspNetCore.Components.Web
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 @inject StateService stateService
-
 @inject SessionService _sessionService
+@inject ILogger<MainLayout> Logger
+@implements IDisposable
 
 <PageTitle>Vendor Management System</PageTitle>
 
-<div class="page">
-       
+<Microsoft.AspNetCore.Components.Web.ErrorBoundary @ref="errorBoundary">
+	<ChildContent>
+		<div class="page">
+			<MainHeader />
 
-        <MainHeader />
+			<NavMenu @ref="navMenuRef" />
 
-        <NavMenu @ref="navMenuRef" />
+			<!-- Start::app-content -->
+			<div class="main-content app-content" @onclick="() => icontextCloseFn()">
+				<PageBreadcrumbDisplay />
+				@Body
+			</div>
 
-        <!-- Start::app-content -->
-	<div class="main-content app-content" @onclick="() => icontextCloseFn()">
-			<PageBreadcrumbDisplay />
-            @Body
-        </div>
+			<Footer />
 
-        <Footer />
-
-    @if (ShowButton)
-    {
-        <!-- Scroll To Top -->
-        <div class="scrollToTop"  @onclick="ScrollToTop">
-            <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
-        </div>
-        <!-- Scroll To Top -->
-    }
-
-</div>
-
-@* <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div> *@
-
-@code {
-
-    NavMenu? navMenuRef;
-    bool ShowButton { get; set; } = false;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await stateService.retrieveFromLocalStorage();
-            await JSRuntime.InvokeVoidAsync("interop.updateScrollVisibility", DotNetObjectReference.Create(this));
-            
-            var dataNavLayout = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-nav-layout");
-            var inner = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
-            if(dataNavLayout == "horizontal" && inner >= 992){
-                navMenuRef?.closeMenuFn();
-            }
-        }
-    }
-    [JSInvokable]
-    public void UpdateScrollVisibility(int scrollHeight)
-    {
-        ShowButton = scrollHeight >= 100;
-        StateHasChanged();
-    }
-    async Task ScrollToTop()
-    {
-        await JSRuntime.InvokeVoidAsync("interop.scrollToTop");
-    }
-}
+			@if (ShowButton)
+			{
+				<!-- Scroll To Top -->
+				<div class="scrollToTop" @onclick="ScrollToTop">
+					<span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+				</div>
+				<!-- Scroll To Top -->
+			}
+		</div>
+	</ChildContent>
+	<ErrorContent Context="ex">
+		<div class="error-container">
+			<h1 class="error-title">Something went wrong</h1>
+			<p class="error-message">@ex.Message</p>
+			<button class="btn btn-primary" @onclick="ResetError">Reset</button>
+		</div>
+	</ErrorContent>
+</Microsoft.AspNetCore.Components.Web.ErrorBoundary>
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-        var currentState = new AppState();
-        var newState = stateService.GetAppState(); 
-        if(!currentState.Equals(newState)){
-        }
-        StateHasChanged();
-        await base.OnInitializedAsync();
-    }
-    
-    // Icon ClickOpen Start
-	private async void icontextCloseFn()
+	private NavMenu? navMenuRef;
+	private bool ShowButton { get; set; } = false;
+	private Microsoft.AspNetCore.Components.Web.ErrorBoundary? errorBoundary;
+	private DotNetObjectReference<MainLayout>? selfReference;
+	private bool isDisposed = false;
+	private const int ResponsiveBreakpoint = 992;
+
+	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
-			var dataToggled = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-toggled");
+			await InitializeStateFromSession();
+			await base.OnInitializedAsync();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Error in OnInitializedAsync");
+		}
+	}
+
+	private async Task InitializeStateFromSession()
+	{
+		var currentState = new AppState();
+		var newState = stateService.GetAppState();
+		if (!currentState.Equals(newState))
+		{
+			// State has changed, update UI
+			StateHasChanged();
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			try
+			{
+				selfReference = DotNetObjectReference.Create(this);
+
+				// Fix: Convert ValueTask to Task using Task.WhenAll
+				await Task.WhenAll(
+					Task.Run(async () => await stateService.retrieveFromLocalStorage()),
+					Task.Run(async () => await JSRuntime.InvokeVoidAsync("interop.updateScrollVisibility", selfReference)),
+					Task.Run(async () => await InitializeLayoutSettings())
+				);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError(ex, "Error in OnAfterRenderAsync");
+			}
+		}
+	}
+
+	private async Task InitializeLayoutSettings()
+	{
+		try
+		{
 			var dataNavLayout = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-nav-layout");
+			var inner = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
+
+			if (dataNavLayout == "horizontal" && inner >= ResponsiveBreakpoint)
+			{
+				navMenuRef?.closeMenuFn();
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Error initializing layout settings: {Message}", ex.Message);
+		}
+	}
+
+	[JSInvokable]
+	public void UpdateScrollVisibility(int scrollY)
+	{
+		if (isDisposed) return;
+
+		ShowButton = scrollY >= 100;
+		StateHasChanged();
+	}
+
+	private async Task ScrollToTop()
+	{
+		if (isDisposed) return;
+
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("interop.scrollToTop");
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Error in ScrollToTop");
+		}
+	}
+
+	private async void icontextCloseFn()
+	{
+		if (isDisposed) return;
+
+		try
+		{
+			// Get multiple attributes in a single JS call to reduce interop overhead
+			var attributes = await JSRuntime.InvokeAsync<Dictionary<string, string>>(
+				"interop.getMultipleAttributes",
+				new object[] { new[] { "data-toggled", "data-nav-layout" } }
+			);
+
+			var dataToggled = attributes.GetValueOrDefault("data-toggled", "");
+			var dataNavLayout = attributes.GetValueOrDefault("data-nav-layout", "");
+
 			var inner = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
 
 			if (dataToggled == "icon-text-close")
@@ -97,18 +163,40 @@
 				await JSRuntime.InvokeAsync<string>("interop.removeAttributeFromHtml", "data-icon-text");
 			}
 
-			if (dataNavLayout == "horizontal" && inner >= 992)
+			if (dataNavLayout == "horizontal" && inner >= ResponsiveBreakpoint)
 			{
 				navMenuRef?.closeMenuFn();
 			}
 		}
 		catch (Exception ex)
 		{
-			// Log the exception
-			Console.WriteLine($"Error in icontextCloseFn: {ex.Message}");
-			// You can replace this with your preferred logging mechanism
-			// e.g., Logger.LogError(ex, "Error occurred in icontextCloseFn");
+			// Log the exception properly
+			Logger.LogError(ex, "Error in icontextCloseFn");
 		}
 	}
-    // Icon Clickopen End
+
+	private void ResetError()
+	{
+		errorBoundary?.Recover();
+	}
+
+	public void Dispose()
+	{
+		isDisposed = true;
+
+		if (selfReference != null)
+		{
+			try
+			{
+				// Clean up JS interop references
+				JSRuntime.InvokeVoidAsync("interop.disposeDotNetReference", selfReference);
+				selfReference.Dispose();
+				selfReference = null;
+			}
+			catch
+			{
+				// Ignore exceptions during disposal
+			}
+		}
+	}
 }
