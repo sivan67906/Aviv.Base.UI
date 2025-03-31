@@ -7,7 +7,7 @@ public class MenuDataService
             menuTitle: "VENDOR ADMINISTRATOR "
         ),
          new MainMenuItems (
-            path: "/dashboard",
+            path: "#",
             type: "link",
             title: "Dashboard",
             icon: "fi fi-ts-airplay",
@@ -30,7 +30,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/ProductManagement/Hierarchy/Category",
+                    path: "#",
                     type: "link",
                     title: "Category",
                     selected: false,
@@ -38,7 +38,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ProductManagement/Hierarchy/SubCategory",
+                    path: "#",
                     type: "link",
                     title: "Sub-Category",
                     selected: false,
@@ -46,7 +46,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ProductManagement/Hierarchy/ProductType",
+                    path: "#",
                     type: "link",
                     title: "Product Type",
                     selected: false,
@@ -54,7 +54,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ProductManagement/Hierarchy/ProductFamily",
+                    path: "#",
                     type: "link",
                     title: "Product Family",
                     selected: false,
@@ -62,7 +62,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ProductManagement/Hierarchy/Brand",
+                    path: "#",
                     type: "link",
                     title: "Brand",
                     selected: false,
@@ -83,7 +83,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Vendor/Products/Index",
+                    path: "#",
                     type: "link",
                     icon: "ft ft-grid",
                     title: "Manage Product",
@@ -92,7 +92,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon1",
+                    path: "#",
                     type: "link",
                     title: "Link-Supplier",
                     selected: false,
@@ -100,7 +100,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/ServiceBasedDetail",
+                    path: "#",
                     type: "link",
                     title: "Service",
                     selected: false,
@@ -108,7 +108,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon2",
+                    path: "#",
                     type: "link",
                     title: "Archived Product",
                     selected: false,
@@ -128,7 +128,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Supplier/Add",
+                    path: "#",
                     type: "link",
                     title: "Manage Supplier",
                     selected: false,
@@ -136,7 +136,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Supplier/Archived",
+                    path: "#",
                     type: "link",
                     title: "Archived Supplier",
                     selected: false,
@@ -156,7 +156,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/WarehouseFacility",
+                    path: "#",
                     type: "link",
                     title: "WarehouseFacility",
                     selected: false,
@@ -180,7 +180,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Vendor/PurchaseRequisition/Index",
+                    path: "#",
                     type: "link",
                     title: "Manage PR",
                     selected: false,
@@ -201,7 +201,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Summary",
+                    path: "#",
                     type: "link",
                     title: "View All POs",
                     selected: false,
@@ -209,7 +209,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrder/Create",
+                    path: "#",
                     type: "link",
                     title: "Create Purchase",
                     selected: false,
@@ -217,7 +217,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Draft",
+                    path: "#",
                     type: "link",
                     title: "Draft Purchase",
                     selected: false,
@@ -225,7 +225,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Pending",
+                    path: "#",
                     type: "link",
                     title: "Pending Approvel",
                     selected: false,
@@ -233,7 +233,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Accepted",
+                    path: "#",
                     type: "link",
                     title: "Acceped POs",
                     selected: false,
@@ -241,7 +241,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Rejected",
+                    path: "#",
                     type: "link",
                     title: "Rejected POs",
                     selected: false,
@@ -249,7 +249,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/ModificationRequested",
+                    path: "#",
                     type: "link",
                     title: "Modification Requested",
                     selected: false,
@@ -257,7 +257,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/InTransit",
+                    path: "#",
                     type: "link",
                     title: "InTransit",
                     selected: false,
@@ -265,7 +265,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Delivered",
+                    path: "#",
                     type: "link",
                     title: "Delivered",
                     selected: false,
@@ -273,7 +273,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Completed",
+                    path: "#",
                     type: "link",
                     title: "Completed",
                     selected: false,
@@ -281,7 +281,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/PurchaseOrders/Approval/Index",
+                    path: "#",
                     type: "link",
                     title: "Approval",
                     selected: false,
@@ -289,7 +289,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon1",
+                    path: "#",
                     type: "link",
                     title: "PO History",
                     selected: false,
@@ -309,7 +309,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Inventories/SalesOrders/Summary",
+                    path: "#",
                     type: "link",
                     title: "View All Sales Order",
                     selected: false,
@@ -317,7 +317,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon2",
+                    path: "#",
                     type: "link",
                     title: "Pending Order",
                     selected: false,
@@ -325,7 +325,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon2",
+                    path: "#",
                     type: "link",
                     title: " Fulfilled Order",
                     selected: false,
@@ -333,7 +333,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon3",
+                    path: "#",
                     type: "link",
                     title: "Cancelled Order",
                     selected: false,
@@ -341,7 +341,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon3",
+                    path: "#",
                     type: "link",
                     title: "Order History",
                     selected: false,
@@ -364,7 +364,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/coming-soon4",
+                    path: "#",
                     type: "link",
                     title: "View Stock Levels",
                     selected: false,
@@ -372,7 +372,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon4",
+                    path: "#",
                     type: "link",
                     title: "Update Stock",
                     selected: false,
@@ -380,7 +380,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendor/CoreStock/Index",
+                    path: "#",
                     type: "link",
                     title: "Core Stock",
                     selected: false,
@@ -388,7 +388,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendor/Warehouse/Index",
+                    path: "#",
                     type: "link",
                     title: "Multi Warehouse",
                     selected: false,
@@ -396,7 +396,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendor/StockMovement/Index",
+                    path: "#",
                     type: "link",
                     title: "Stock Movements",
                     selected: false,
@@ -404,7 +404,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendor/StockReservation/Index",
+                    path: "#",
                     type: "link",
                     title: "Stock Reservation",
                     selected: false,
@@ -412,7 +412,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendor/ReStockRequest/Index",
+                    path: "#",
                     type: "link",
                     title: "ReStock Request",
                     selected: false,
@@ -420,7 +420,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon4",
+                    path: "#",
                     type: "link",
                     title: " Low Stock Alerts",
                     selected: false,
@@ -428,7 +428,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon4",
+                    path: "#",
                     type: "link",
                     title: "Inventory Adjustment",
                     selected: false,
@@ -448,7 +448,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/PurchaseOrders/Invoice/Index",
+                    path: "#",
                     type: "link",
                     title: "Upcoming Invoices",
                     selected: false,
@@ -456,7 +456,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/Invoices/Summary",
+                    path: "#",
                     type: "link",
                     title: "View Invoices",
                     selected: false,
@@ -464,7 +464,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/Invoice/Create",
+                    path: "#",
                     type: "link",
                     title: "Create Invoice",
                     selected: false,
@@ -472,7 +472,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/SalesOrder/Invoices/Summary",
+                    path: "#",
                     type: "link",
                     title: "Pending Payments",
                     selected: false,
@@ -480,7 +480,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Paid Invoices",
                     selected: false,
@@ -488,7 +488,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Payment Reconciliation",
                     selected: false,
@@ -508,7 +508,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Inventories/QualityControl/Summary",
+                    path: "#",
                     type: "link",
                     title: "List of QC",
                     selected: false,
@@ -516,7 +516,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "QC Pending Items",
                     selected: false,
@@ -524,7 +524,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "QC Passed Items",
                     selected: false,
@@ -532,7 +532,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "QC Failed Items",
                     selected: false,
@@ -540,7 +540,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Return Processing",
                     selected: false,
@@ -563,7 +563,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Compliance/QualityControl ",
+                    path: "#",
                     type: "link",
                     title: "Quality Control",
                     selected: false,
@@ -571,7 +571,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/FinancialCostAnalysis/Index",
+                    path: "#",
                     type: "link",
                     title: "Financial Cost Analysis",
                     selected: false,
@@ -579,7 +579,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/LogisticsWarehouseAllocation/Index",
+                    path: "#",
                     type: "link",
                     title: "Logistics Warehouse Allocation",
                     selected: false,
@@ -587,7 +587,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ProductInventory/Index",
+                    path: "#",
                     type: "link",
                     title: "Product Inventory",
                     selected: false,
@@ -595,7 +595,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/RestockingRequest/Index",
+                    path: "#",
                     type: "link",
                     title: "Restocking Request",
                     selected: false,
@@ -603,7 +603,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/RestockingSourceVendor/Index",
+                    path: "#",
                     type: "link",
                     title: "Source Vendor",
                     selected: false,
@@ -611,7 +611,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Create Restock Order",
                     selected: false,
@@ -619,7 +619,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Pending Restock Approvals",
                     selected: false,
@@ -627,7 +627,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Restocked Items History",
                     selected: false,
@@ -647,7 +647,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/PurchaseOrders/Delivery/Index",
+                    path: "#",
                     type: "link",
                     title: "PO Delivery Details",
                     selected: false,
@@ -655,7 +655,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/SalesOrders/Logistics/Summary",
+                    path: "#",
                     type: "link",
                     title: "List of Order",
                     selected: false,
@@ -663,7 +663,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/WarehouseInfo",
+                    path: "#",
                     type: "link",
                     title: "Warehouse",
                     selected: false,
@@ -679,7 +679,7 @@ public class MenuDataService
                     children: new MainMenuItems[]
                     {
                         new MainMenuItems (
-                            path: "/Vendors/WarehouseSupplyChain",
+                            path: "#",
                             type: "link",
                             title: "Warehouse Detail",
                             selected: false,
@@ -687,7 +687,7 @@ public class MenuDataService
                             dirChange: false
                         ),
                         new MainMenuItems (
-                            path: "/Vendors/InventoryHandling",
+                            path: "#",
                             type: "link",
                             title: "Inventory Handling",
                             selected: false,
@@ -695,7 +695,7 @@ public class MenuDataService
                             dirChange: false
                         ),
                         new MainMenuItems (
-                            path: "/Vendors/LogisticsDistribution",
+                            path: "#",
                             type: "link",
                             title: "Distribution Channels",
                             selected: false,
@@ -705,7 +705,7 @@ public class MenuDataService
                     }
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Outgoing Shipments",
                     selected: false,
@@ -713,7 +713,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: " Track Deliveries",
                     selected: false,
@@ -721,7 +721,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/PurchaseOrders/Delivered",
+                    path: "#",
                     type: "link",
                     title: "Delivery Receipts",
                     selected: false,
@@ -729,7 +729,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Shipping Partners",
                     selected: false,
@@ -749,7 +749,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Inventories/CreditNotes/Summary",
+                    path: "#",
                     type: "link",
                     title: "View Credit Notes",
                     selected: false,
@@ -757,7 +757,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/CreditNote/Create",
+                    path: "#",
                     type: "link",
                     title: "Create Credit Note",
                     selected: false,
@@ -765,7 +765,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/DebitNotes/Summary",
+                    path: "#",
                     type: "link",
                     title: "View Debit Note",
                     selected: false,
@@ -773,7 +773,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Inventories/DebitNote/Create",
+                    path: "#",
                     type: "link",
                     title: "Create Debit Note",
                     selected: false,
@@ -781,7 +781,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Pending Approvals",
                     selected: false,
@@ -789,7 +789,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Processed Notes History",
                     selected: false,
@@ -812,7 +812,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Inventories/SalesOrders/Compliance/Summary",
+                    path: "#",
                     type: "link",
                     title: " Sales Logs",
                     selected: false,
@@ -820,7 +820,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: " Transaction Logs",
                     selected: false,
@@ -828,7 +828,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "User Activity Logs",
                     selected: false,
@@ -836,7 +836,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: " Compliance Reports",
                     selected: false,
@@ -856,7 +856,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Vendors/PerformanceRating",
+                    path: "#",
                     type: "link",
                     title: "Vendor Performance",
                     selected: false,
@@ -864,7 +864,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/FinancialRiskAssessment",
+                    path: "#",
                     type: "link",
                     title: "Financial Risk ",
                     selected: false,
@@ -872,7 +872,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/ComplianceRiskAssessment",
+                    path: "#",
                     type: "link",
                     title: "Compliance & Risk",
                     selected: false,
@@ -880,7 +880,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/RelationsAgreement",
+                    path: "#",
                     type: "link",
                     title: "Relations & Agreement",
                     selected: false,
@@ -888,7 +888,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Order Performance",
                     selected: false,
@@ -896,7 +896,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Financial Reports",
                     selected: false,
@@ -919,7 +919,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "User & Role ",
                     selected: false,
@@ -927,7 +927,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Role Permissions",
                     selected: false,
@@ -935,7 +935,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Access Logs",
                     selected: false,
@@ -956,7 +956,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/CurrencyInfo",
+                    path: "#",
                     type: "link",
                     title: "Currency Info",
                     selected: false,
@@ -964,7 +964,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/ManuBrandInfo",
+                    path: "#",
                     type: "link",
                     title: "Brand",
                     selected: false,
@@ -972,7 +972,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/UnitInfo",
+                    path: "#",
                     type: "link",
                     title: "Unit Info",
                     selected: false,
@@ -980,7 +980,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Profile Settings",
                     selected: false,
@@ -988,7 +988,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/LocationHierarchy/Country",
+                    path: "#",
                     type: "link",
                     title: "Country",
                     selected: false,
@@ -996,7 +996,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/LocationHierarchy/State",
+                    path: "#",
                     type: "link",
                     title: "State",
                     selected: false,
@@ -1004,7 +1004,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/LocationHierarchy/City",
+                    path: "#",
                     type: "link",
                     title: "City",
                     selected: false,
@@ -1012,7 +1012,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/LocationHierarchy/Address",
+                    path: "#",
                     type: "link",
                     title: "Address",
                     selected: false,
@@ -1020,7 +1020,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "Notification Preferences",
                     selected: false,
@@ -1028,7 +1028,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/coming-soon",
+                    path: "#",
                     type: "link",
                     title: "API Integrations",
                     selected: false,
@@ -1051,7 +1051,7 @@ public class MenuDataService
             children: new MainMenuItems[]
             {
                 new MainMenuItems (
-                    path: "/Vendors/GeneralInfo/REG12345",
+                    path: "#",
                     type: "link",
                     title: "General Information",
                     selected: false,
@@ -1059,7 +1059,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/BusinessLocationInfo",
+                    path: "#",
                     type: "link",
                     title: "Business Location",
                     selected: false,
@@ -1067,7 +1067,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/FinancialInfo",
+                    path: "#",
                     type: "link",
                     title: "Financial Information",
                     selected: false,
@@ -1075,7 +1075,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/NatureOfBusinessInfo",
+                    path: "#",
                     type: "link",
                     title: "Nature of Business",
                     selected: false,
@@ -1083,7 +1083,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/ContactInfo",
+                    path: "#",
                     type: "link",
                     title: "Contact Information",
                     selected: false,
@@ -1091,7 +1091,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/WorkInfo",
+                    path: "#",
                     type: "link",
                     title: "Work Details",
                     selected: false,
@@ -1099,7 +1099,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/ProductServiceInfo",
+                    path: "#",
                     type: "link",
                     title: "Products & Services",
                     selected: false,
@@ -1107,7 +1107,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/AchievementInfo",
+                    path: "#",
                     type: "link",
                     title: "Achievements",
                     selected: false,
@@ -1115,7 +1115,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/ClientInfo",
+                    path: "#",
                     type: "link",
                     title: "Client Info",
                     selected: false,
@@ -1123,7 +1123,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/TestimonialInfo",
+                    path: "#",
                     type: "link",
                     title: "Testimonial Info",
                     selected: false,
@@ -1131,7 +1131,7 @@ public class MenuDataService
                     dirChange: false
                 ),
                 new MainMenuItems (
-                    path: "/Vendors/DocumentInfo",
+                    path: "#",
                     type: "link",
                     title: "Document Info",
                     selected: false,
