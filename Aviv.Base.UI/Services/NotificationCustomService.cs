@@ -186,6 +186,62 @@ namespace Aviv.Base.UI.Services
         }
 
         /// <summary>
+        /// Shows a delete confirmation dialog and executes the delete action if confirmed
+        /// </summary>
+        /// <param name="deleteAction">The action to execute if deletion is confirmed</param>
+        /// <param name="title">Title for the confirmation dialog</param>
+        /// <param name="text">Message text for the confirmation dialog</param>
+        /// <param name="errorHandler">Optional error handler function</param>
+        /// <returns>A task representing the asynchronous operation</returns>
+        public async Task ConfirmAndExecuteDeleteAsync(
+            Func<Task> deleteAction,
+            string title = "Are you sure?",
+            string text = "You won't be able to revert this!",
+            Func<Exception, Task>? errorHandler = null)
+        {
+            try
+            {
+                object result = await _jsRuntime.InvokeAsync<object>("Swal.fire", new
+                {
+                    title,
+                    text,
+                    icon = "warning",
+                    showCancelButton = true,
+                    confirmButtonColor = "#d33",
+                    cancelButtonColor = "#3085d6",
+                    confirmButtonText = "Yes, delete it!"
+                });
+
+                // Check if the user confirmed the deletion using null-conditional operator
+                if (result?.ToString()?.Contains("\"isConfirmed\":true") == true)
+                {
+                    // Show processing notification
+                    await ShowLineToastAsync("error");
+
+                    // Execute the delete action
+                    await deleteAction();
+
+                    // Show success notification
+                    await ShowSuccessAsync("Item deleted successfully!", true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Confirm delete error: {ex.Message}");
+
+                if (errorHandler != null)
+                {
+                    await errorHandler(ex);
+                }
+                else
+                {
+                    // Default error handling
+                    await ShowErrorAsync($"Error: {ex.Message}", true);
+                }
+            }
+        }
+
+        /// <summary>
         /// Get the JavaScript code for the notification system
         /// </summary>
         /// <returns>The JavaScript code as a string</returns>
