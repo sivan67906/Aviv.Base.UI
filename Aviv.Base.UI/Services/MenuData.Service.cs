@@ -167,7 +167,7 @@ public class MenuDataService
         ),
 
          new MainMenuItems(
-            menuTitle: "PURCHASE & SALES TRANSACTION"
+            menuTitle: "PURCHASE & SALES"
         ),
          new MainMenuItems (
             type: "sub",
@@ -910,7 +910,7 @@ public class MenuDataService
         ),
          new MainMenuItems (
             type: "sub",
-            title: "User & Role Management",
+            title: "User & Role ",
             icon: "fi fi-ts-admin-alt",
             badgeClass: "bg-danger-transparent",
             selected: false,
@@ -921,7 +921,7 @@ public class MenuDataService
                 new MainMenuItems (
                     path: "/coming-soon",
                     type: "link",
-                    title: "User & Role Management",
+                    title: "User & Role ",
                     selected: false,
                     active: false,
                     dirChange: false
