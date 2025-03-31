@@ -118,6 +118,24 @@ namespace Aviv.Base.UI.Services
         }
 
         /// <summary>
+        /// Shows a SweetAlert2 toast notification
+        /// </summary>
+        /// <param name="message">Message to display in the toast</param>
+        /// <param name="type">Type of toast ("success", "error", "warning", "info")</param>
+        /// <param name="duration">Duration in milliseconds to show the toast</param>
+        /// <returns>A task representing the asynchronous operation</returns>
+        public async Task ShowToastAsync(string message, string type = "success", int duration = 3000)
+        {
+            await QueueOrExecuteNotification(async () =>
+            {
+                if (CanUseJsInterop)
+                {
+                    await _jsRuntime.InvokeVoidAsync("showToast", message, type, duration);
+                }
+            });
+        }
+
+        /// <summary>
         /// Show a success notification
         /// </summary>
         /// <param name="message">Optional message for alert</param>
@@ -212,7 +230,7 @@ namespace Aviv.Base.UI.Services
                     confirmButtonText = "Yes, delete it!"
                 });
 
-                // Check if the user confirmed the deletion using null-conditional operator
+                // Check if the user confirmed the deletion
                 if (result?.ToString()?.Contains("\"isConfirmed\":true") == true)
                 {
                     // Show processing notification
@@ -238,6 +256,67 @@ namespace Aviv.Base.UI.Services
                     // Default error handling
                     await ShowErrorAsync($"Error: {ex.Message}", true);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Shows a delete confirmation dialog with customizable success message and executes the delete action if confirmed
+        /// </summary>
+        /// <param name="deleteAction">The action to execute if deletion is confirmed</param>
+        /// <param name="successMessage">Message to show on successful deletion</param>
+        /// <param name="title">Title for the confirmation dialog</param>
+        /// <param name="text">Message text for the confirmation dialog</param>
+        /// <param name="errorHandler">Optional error handler function</param>
+        /// <returns>A task representing the asynchronous operation and whether the delete was confirmed and executed</returns>
+        public async Task<bool> ConfirmAndExecuteDeleteWithCustomMessageAsync(
+            Func<Task> deleteAction,
+            string successMessage = "Item deleted successfully!",
+            string title = "Are you sure?",
+            string text = "You won't be able to revert this!",
+            Func<Exception, Task>? errorHandler = null)
+        {
+            try
+            {
+                object result = await _jsRuntime.InvokeAsync<object>("Swal.fire", new
+                {
+                    title,
+                    text,
+                    icon = "warning",
+                    showCancelButton = true,
+                    confirmButtonColor = "#d33",
+                    cancelButtonColor = "#3085d6",
+                    confirmButtonText = "Yes, delete it!"
+                });
+
+                // Check if the user confirmed the deletion
+                if (result?.ToString()?.Contains("\"isConfirmed\":true") == true)
+                {
+                    // Execute the delete action
+                    await deleteAction();
+
+                    // Show success toast notification
+                    await ShowToastAsync(successMessage, "success");
+
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Confirm delete error: {ex.Message}");
+
+                if (errorHandler != null)
+                {
+                    await errorHandler(ex);
+                }
+                else
+                {
+                    // Default error handling
+                    await ShowToastAsync($"Error: {ex.Message}", "error");
+                }
+
+                return false;
             }
         }
 
@@ -329,6 +408,27 @@ window.showInfo = function(message = '', showAlert = false) {
 window.showLineToast = function(type) {
     window.showNotification(type);
 };
+
+// SweetAlert2 Toast function - Integrated from page-specific implementation
+window.showToast = function (message, type = 'success', duration = 3000) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        content: 'swalmixin-content-class',
+        timer: duration,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    Toast.fire({
+        icon: type,
+        title: message
+    });
+}
 
 function showAlertNotification(type, message) {
     // Map toast types to alert types
