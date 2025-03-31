@@ -104,7 +104,7 @@ public class AppState
     public async Task InitializeFromSession(AppState sessionState, SessionService _sessionService)
     {
         AppState _currentState = new AppState();
-        AppState? stored = await _sessionService.GetInitalAppStateFromSession();
+        AppState? stored = _sessionService.GetInitalAppStateFromSession();
         if (stored != null && _currentState.IsDifferentFrom(stored))
         {
             DataToggledId = DataToggledId;
@@ -188,8 +188,8 @@ public class StateService
         try
         {
             // Retrieve session values asynchronously
-            AppState sessionState = await _sessionService.GetAppStateFromSession();
-            AppState? initialAppState = await _sessionService.GetInitalAppStateFromSession();
+            AppState sessionState = _sessionService.GetAppStateFromSession();
+            AppState? initialAppState = _sessionService.GetInitalAppStateFromSession();
             if (initialAppState == null)
             {
                 await _sessionService.SetInitalAppStateToSession(_currentState);
@@ -229,7 +229,7 @@ public class StateService
     public async Task InitializeLandingAppState()
     {
         // Retrieve session values
-        AppState sessionState = await _sessionService.GetAppStateFromSession();
+        AppState sessionState = _sessionService.GetAppStateFromSession();
         _currentState.NavigationStyles = "horizontal";
         _currentState.MenuStyles = "menu-click";
         // Initialize AppState from session or default values
