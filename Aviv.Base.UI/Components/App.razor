@@ -11,7 +11,7 @@
 	<base href="/" />
 
 	<!-- TITLE -->
-	<title> Vendor Management System </title>
+	<title> OtoSolve </title>
 	<link rel="stylesheet" href="@Assets["lib/bootstrap/css/bootstrap.min.css"]" />
 	<link rel="stylesheet" href="@Assets["lib/sweetalert2/sweetalert2.min.css"]" />
 	<link rel="stylesheet" href="@Assets["assets/css/dragula.min.css"]" />
@@ -77,7 +77,7 @@
 		function CaptureElementAndCallBlazorFunction(event, menuData) {
 			var element = event.currentTarget;
 			var menuId = element.dataset.menuId;
-			window.DotNet.invokeMethodAsync("Aviv.Vendor.SubNavMenu", "TriggerFunction", element, menuData, null);
+			window.DotNet.invokeMethodAsync("Aviv.Base.UI.SubNavMenu", "TriggerFunction", element, menuData, null);
 		}
 	</script>
 
