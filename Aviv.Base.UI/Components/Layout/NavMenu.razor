@@ -367,15 +367,15 @@
 		}
 	}
 
-	private void HandleScrollModeChanged(string isMenuType)
+	private async void HandleScrollModeChanged(string isMenuType)
 	{
 		this.isMenuType = isMenuType;
-		CheckLayout();
+		await CheckLayout();
 	}
 
-	private void HandleVerticalModeChanged(bool isVertical)
+	private async void HandleVerticalModeChanged(bool isVertical)
 	{
-		checkHoriMenuAsync();
+		await checkHoriMenuAsync();
 		StateHasChanged();
 	}
 
