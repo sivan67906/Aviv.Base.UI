@@ -39,7 +39,7 @@
                 <span class="badge @(menuData.BadgeClass) ms-1">@menuData.BadgeValue</span>
             }
         </span>
-        <i class="ft ft-chevron-right side-menu__angle"></i>
+        <i class="fa fa-chevron-right side-menu__angle"></i>
     </a>
     <ul class="slide-menu @(($"child{Level}")) @(menuData.Active ? "double-menu-active" : "") @(menuData.DirChange ? "force-left" : "")" style="@(menuData.Active ? "display : block" : "")">
         @if(Level <= 1){
