@@ -131,6 +131,7 @@ window.interop = (function () {
 
         // Get main sidebar offset - optimized with error handling
         mainSidebarOffset: function (elementRef) {
+        // Function to get the width of the given element reference
             return new Promise((resolve, reject) => {
                 try {
                     const element = document.querySelector(elementRef);
