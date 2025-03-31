@@ -97,7 +97,7 @@ public class SessionService
         }
     }
 
-    public async Task<AppState> GetAppStateFromSession()
+    public AppState GetAppStateFromSession()
     {
         try
         {
@@ -190,7 +190,7 @@ public class SessionService
         }
     }
 
-    public async Task<AppState?> GetInitalAppStateFromSession()
+    public  AppState? GetInitalAppStateFromSession()
     {
         try
         {

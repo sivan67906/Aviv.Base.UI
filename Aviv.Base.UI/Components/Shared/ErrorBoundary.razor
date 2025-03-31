@@ -6,12 +6,12 @@
 
 @code {
 	[Parameter]
-	public RenderFragment ChildContent { get; set; }
+	public RenderFragment? ChildContent { get; set; }
 
 	[Parameter]
-	public RenderFragment<Exception> ErrorContent { get; set; }
+	public RenderFragment<Exception>? ErrorContent { get; set; }
 
-	public Exception CurrentException { get; private set; }
+	public Exception? CurrentException { get; private set; }
 
 	public bool HasError => CurrentException != null;
 

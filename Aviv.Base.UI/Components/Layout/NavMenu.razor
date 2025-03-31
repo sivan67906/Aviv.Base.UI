@@ -15,258 +15,258 @@
 <div id="responsive-overlay" @onclick="responsivecloseFn"></div>
 <aside class="app-sidebar sticky @sidebarClass" id="sidebar" @onmouseenter="() => HoverToggleInnerMenuFn(true)" @onmouseleave="() => HoverToggleInnerMenuFn(false)" @onclick="icontextOpenFn">
 
-	<!-- Start::main-sidebar-header -->
-	<div class="main-sidebar-header">
-		<div class="header-logo">
-			<h3 class="desktop-logo"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
-			<h3 class="toggle-logo"><span class="text-primary">O</span><span class="text-warning">S</span></h3>
-			<h3 class="desktop-dark"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
-			<h3 class="toggle-dark"><span class="text-primary">O</span><span class="text-warning">S</span></h3>
-			<h3 class="desktop-white"><span class="text-primary">Oto</span><span class="text-danger">Solve</span></h3>
-			<h3 class="toggle-white"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
-		</div>
-	</div>
-	<!-- End::main-sidebar-header -->
-	<!-- Start::main-sidebar -->
-	<div class="main-sidebar" id="sidebar-scroll">
-		<BlazorOverlayScrollbars @ref="scrollbarsRef" Configurations="configurations">
-			<BlazorOverlayScrollbarsContent>
-				<!-- Start::nav -->
-				<nav class="main-menu-container nav nav-pills flex-column sub-open">
-					<div class="slide-left" id="slide-left" @onclick="leftArrowFn">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
-							 viewBox="0 0 24 24">
-							<path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path>
-						</svg>
-					</div>
-					<ul class="main-menu">
-						@foreach (var menuItem in MenuDataService.GetMenuData())
-						{
-							<!-- Start::slide__category -->
-							<li class="@GetMenuItemClasses(menuItem)">
-								@if (!string.IsNullOrEmpty(menuItem.MenuTitle))
-								{
-									<span class="category-name">@menuItem.MenuTitle</span>
-								}
-								@if (menuItem.Type == "link")
-								{
-									<a href="@menuItem.Path" @onclick="async () => {
+    <!-- Start::main-sidebar-header -->
+    <div class="main-sidebar-header">
+        <div class="header-logo">
+            <h3 class="desktop-logo"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
+            <h3 class="toggle-logo"><span class="text-primary">O</span><span class="text-warning">S</span></h3>
+            <h3 class="desktop-dark"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
+            <h3 class="toggle-dark"><span class="text-primary">O</span><span class="text-warning">S</span></h3>
+            <h3 class="desktop-white"><span class="text-primary">Oto</span><span class="text-danger">Solve</span></h3>
+            <h3 class="toggle-white"><span class="text-primary">Oto</span><span class="text-warning">Solve</span></h3>
+        </div>
+    </div>
+    <!-- End::main-sidebar-header -->
+    <!-- Start::main-sidebar -->
+    <div class="main-sidebar" id="sidebar-scroll">
+        <BlazorOverlayScrollbars @ref="scrollbarsRef" Configurations="configurations">
+            <BlazorOverlayScrollbarsContent>
+                <!-- Start::nav -->
+                <nav class="main-menu-container nav nav-pills flex-column sub-open">
+                    <div class="slide-left" id="slide-left" @onclick="leftArrowFn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
+                        viewBox="0 0 24 24">
+                            <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path>
+                        </svg>
+                    </div>
+                    <ul class="main-menu">
+                        @foreach (var menuItem in MenuDataService.GetMenuData())
+                        {
+                            <!-- Start::slide__category -->
+                            <li class="@GetMenuItemClasses(menuItem)">
+                                @if (!string.IsNullOrEmpty(menuItem.MenuTitle))
+                                {
+                                    <span class="category-name">@menuItem.MenuTitle</span>
+                                }
+                                @if (menuItem.Type == "link")
+                                {
+                                    <a href="@menuItem.Path" @onclick="async () => {
                                         await SetSubmenu((menuItem, null));
                                         Navigation.NavigateTo(menuItem.Path);
                                     }" @onclick:preventDefault class="side-menu__item @(menuItem.Selected ? "active" : "")">
-										<i class="@(menuItem.Icon) side-menu__icon"></i>
-										<span class="side-menu__label">
-											@menuItem.Title
-											@if (!string.IsNullOrEmpty(menuItem.BadgeValue))
-											{
-												<span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
-											}
-										</span>
-									</a>
-								}
-								@if (menuItem.Type == "external")
-								{
-									<a href="@menuItem.Path" target="_blank" class="side-menu__item" rel="noopener noreferrer">
-										<i class="@(menuItem.Icon) side-menu__icon"></i>
-										<span class="side-menu__label">
-											@menuItem.Title
-											@if (!string.IsNullOrEmpty(menuItem.BadgeValue))
-											{
-												<span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
-											}
-										</span>
-									</a>
-								}
-								@if (menuItem.Type == "empty")
-								{
-									<a href="javascript:void(0)" class="side-menu__item">
-										<i class="@(menuItem.Icon) side-menu__icon"></i>
-										<span class="side-menu__label">
-											@menuItem.Title
-											@if (!string.IsNullOrEmpty(menuItem.BadgeValue))
-											{
-												<span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
-											}
-										</span>
-									</a>
-								}
-								@if (menuItem.Type == "sub")
-								{
-									<a href="javascript:void(0);" class="side-menu__item" @onclick="() => ToggleSubMenu((menuItem, null))">
-										<i class="@(menuItem.Icon) side-menu__icon"></i>
-										<span class="side-menu__label">
-											@menuItem.Title
-											@if (!string.IsNullOrEmpty(menuItem.BadgeValue))
-											{
-												<span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
-											}
-										</span>
-										<i class="ft ft-chevron-right side-menu__angle"></i>
-									</a>
-									@if (menuItem.Children != null && menuItem.Children.Any())
-									{
-										<ul class="slide-menu @(($"child{level}")) @(menuItem.Active ? "double-menu-active" : "") @(menuItem.DirChange ? "force-left" : "")" style="@(menuItem.Active ? "display : block" : "")">
-											@if (level <= 1)
-											{
-												<li class="slide side-menu__label1">
-													<a href="javascript:void(0)">@menuItem.Title</a>
-												</li>
-											}
-											@foreach (var childItem in menuItem.Children)
-											{
-												<li class="@GetMenuItemClasses(childItem) @(childItem.Type == "sub" ? "has-sub" : "")">
-													@if (childItem.Type == "link")
-													{
-														<a href="@childItem.Path" class="side-menu__item @(childItem.Selected ? "active" : "")"
-														   @onclick="async () => {
+                                        <i class="@(menuItem.Icon) side-menu__icon"></i>
+                                        <span class="side-menu__label">
+                                            @menuItem.Title
+                                            @if (!string.IsNullOrEmpty(menuItem.BadgeValue))
+                                            {
+                                                <span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
+                                            }
+                                        </span>
+                                    </a>
+                                }
+                                @if (menuItem.Type == "external")
+                                {
+                                    <a href="@menuItem.Path" target="_blank" class="side-menu__item" rel="noopener noreferrer">
+                                        <i class="@(menuItem.Icon) side-menu__icon"></i>
+                                        <span class="side-menu__label">
+                                            @menuItem.Title
+                                            @if (!string.IsNullOrEmpty(menuItem.BadgeValue))
+                                            {
+                                                <span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
+                                            }
+                                        </span>
+                                    </a>
+                                }
+                                @if (menuItem.Type == "empty")
+                                {
+                                    <a href="javascript:void(0)" class="side-menu__item">
+                                        <i class="@(menuItem.Icon) side-menu__icon"></i>
+                                        <span class="side-menu__label">
+                                            @menuItem.Title
+                                            @if (!string.IsNullOrEmpty(menuItem.BadgeValue))
+                                            {
+                                                <span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
+                                            }
+                                        </span>
+                                    </a>
+                                }
+                                @if (menuItem.Type == "sub")
+                                {
+                                    <a href="javascript:void(0);" class="side-menu__item" @onclick="() => ToggleSubMenu((menuItem, null))">
+                                        <i class="@(menuItem.Icon) side-menu__icon"></i>
+                                        <span class="side-menu__label">
+                                            @menuItem.Title
+                                            @if (!string.IsNullOrEmpty(menuItem.BadgeValue))
+                                            {
+                                                <span class="badge @(menuItem.BadgeClass) ms-1">@menuItem.BadgeValue</span>
+                                            }
+                                        </span>
+                                        <i class="ft ft-chevron-right side-menu__angle"></i>
+                                    </a>
+                                    @if (menuItem.Children != null && menuItem.Children.Any())
+                                    {
+                                        <ul class="slide-menu @(($"child{level}")) @(menuItem.Active ? "double-menu-active" : "") @(menuItem.DirChange ? "force-left" : "")" style="@(menuItem.Active ? "display : block" : "")">
+                                            @if (level <= 1)
+                                            {
+                                                <li class="slide side-menu__label1">
+                                                    <a href="javascript:void(0)">@menuItem.Title</a>
+                                                </li>
+                                            }
+                                            @foreach (var childItem in menuItem.Children)
+                                            {
+                                                <li class="@GetMenuItemClasses(childItem) @(childItem.Type == "sub" ? "has-sub" : "")">
+                                                    @if (childItem.Type == "link")
+                                                    {
+                                                        <a href="@childItem.Path" class="side-menu__item @(childItem.Selected ? "active" : "")"
+                                                        @onclick="async () => {
                                                             await SetSubmenu((childItem, null));
                                                             Navigation.NavigateTo(childItem.Path);
                                                         }" @onclick:preventDefault>
-															@childItem.Title
-															@if (!string.IsNullOrEmpty(childItem.BadgeValue))
-															{
-																<span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
-															}
-														</a>
-													}
-													@if (childItem.Type == "external")
-													{
-														<a href="@childItem.Path" target="_blank" class="side-menu__item" rel="noopener noreferrer">
-															@childItem.Title
-															@if (!string.IsNullOrEmpty(childItem.BadgeValue))
-															{
-																<span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
-															}
-														</a>
-													}
-													@if (childItem.Type == "empty")
-													{
-														<a href="javascript:;" class="side-menu__item">
-															@childItem.Title
-															@if (!string.IsNullOrEmpty(childItem.BadgeValue))
-															{
-																<span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
-															}
-														</a>
-													}
-													@if (childItem.Type == "sub")
-													{
-														<a href="javascript:void(0);" class="side-menu__item" @onclick="() => ToggleSubMenu((childItem, null))">
-															@childItem.Title
-															@if (!string.IsNullOrEmpty(childItem.BadgeValue))
-															{
-																<span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
-															}
-															<i class="ft ft-chevron-right side-menu__angle"></i>
-														</a>
-														@if (childItem.Children != null && childItem.Children.Any())
-														{
-															<ul class="slide-menu @(($"child{level+1}")) @(childItem.Active ? "double-menu-active" : "") @(childItem.DirChange ? "force-left" : "")" style="@(childItem.Active ? "display : block" : "")">
-																@foreach (var grandchildItem in childItem.Children)
-																{
-																	<li class="@GetMenuItemClasses(grandchildItem)">
-																		@if (grandchildItem.Type == "link")
-																		{
-																			<a href="@grandchildItem.Path" class="side-menu__item @(grandchildItem.Selected ? "active" : "")"
-																			   @onclick="async () => {
+                                                            @childItem.Title
+                                                            @if (!string.IsNullOrEmpty(childItem.BadgeValue))
+                                                            {
+                                                                <span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
+                                                            }
+                                                        </a>
+                                                    }
+                                                    @if (childItem.Type == "external")
+                                                    {
+                                                        <a href="@childItem.Path" target="_blank" class="side-menu__item" rel="noopener noreferrer">
+                                                            @childItem.Title
+                                                            @if (!string.IsNullOrEmpty(childItem.BadgeValue))
+                                                            {
+                                                                <span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
+                                                            }
+                                                        </a>
+                                                    }
+                                                    @if (childItem.Type == "empty")
+                                                    {
+                                                        <a href="javascript:;" class="side-menu__item">
+                                                            @childItem.Title
+                                                            @if (!string.IsNullOrEmpty(childItem.BadgeValue))
+                                                            {
+                                                                <span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
+                                                            }
+                                                        </a>
+                                                    }
+                                                    @if (childItem.Type == "sub")
+                                                    {
+                                                        <a href="javascript:void(0);" class="side-menu__item" @onclick="() => ToggleSubMenu((childItem, null))">
+                                                            @childItem.Title
+                                                            @if (!string.IsNullOrEmpty(childItem.BadgeValue))
+                                                            {
+                                                                <span class="badge @(childItem.BadgeClass) ms-1">@childItem.BadgeValue</span>
+                                                            }
+                                                            <i class="ft ft-chevron-right side-menu__angle"></i>
+                                                        </a>
+                                                        @if (childItem.Children != null && childItem.Children.Any())
+                                                        {
+                                                            <ul class="slide-menu @(($"child{level+1}")) @(childItem.Active ? "double-menu-active" : "") @(childItem.DirChange ? "force-left" : "")" style="@(childItem.Active ? "display : block" : "")">
+                                                                @foreach (var grandchildItem in childItem.Children)
+                                                                {
+                                                                    <li class="@GetMenuItemClasses(grandchildItem)">
+                                                                        @if (grandchildItem.Type == "link")
+                                                                        {
+                                                                            <a href="@grandchildItem.Path" class="side-menu__item @(grandchildItem.Selected ? "active" : "")"
+                                                                            @onclick="async () => {
                                                                                 await SetSubmenu((grandchildItem, null));
                                                                                 Navigation.NavigateTo(grandchildItem.Path);
                                                                             }" @onclick:preventDefault>
-																				@grandchildItem.Title
-																				@if (!string.IsNullOrEmpty(grandchildItem.BadgeValue))
-																				{
-																					<span class="badge @(grandchildItem.BadgeClass) ms-1">@grandchildItem.BadgeValue</span>
-																				}
-																			</a>
-																		}
-																	</li>
-																}
-															</ul>
-														}
-													}
-												</li>
-											}
-										</ul>
-									}
-								}
-							</li>
-							<!-- End::slide__category -->
-						}
-					</ul>
-					<div class="slide-right" id="slide-right" @onclick="rightArrowFn">
-						<i class="ft ft-chevron-right side-menu__angle"></i>
-					</div>
-				</nav>
-				<!-- End::nav -->
-			</BlazorOverlayScrollbarsContent>
-		</BlazorOverlayScrollbars>
-	</div>
-	<!-- End::main-sidebar -->
+                                                                                @grandchildItem.Title
+                                                                                @if (!string.IsNullOrEmpty(grandchildItem.BadgeValue))
+                                                                                {
+                                                                                    <span class="badge @(grandchildItem.BadgeClass) ms-1">@grandchildItem.BadgeValue</span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                }
+                            </li>
+                            <!-- End::slide__category -->
+                        }
+                    </ul>
+                    <div class="slide-right" id="slide-right" @onclick="rightArrowFn">
+                        <i class="ft ft-chevron-right side-menu__angle"></i>
+                    </div>
+                </nav>
+                <!-- End::nav -->
+            </BlazorOverlayScrollbarsContent>
+        </BlazorOverlayScrollbars>
+    </div>
+    <!-- End::main-sidebar -->
 
 </aside>
 
 @code {
-	DotNetObjectReference<NavMenu>? dotNetObjectReference;
-	private AppState currentState => stateService.GetAppState();
-	private string sidebarClass = "";
-	private MainMenuItems? topParent;
-	private MainMenuItems? currentItem;
-	public WMBOSConfigurations? configurations;
-	private int screenSize = 1268;
-	private List<int> WindowPreSize = new List<int>();
-	private BlazorOverlayScrollbars? scrollbarsRef;
-	private string? isMenuType = "";
-	private List<MainMenuItems>? menuVal;
-	private int level = 0;
+    DotNetObjectReference<NavMenu>? dotNetObjectReference;
+    private AppState currentState => stateService.GetAppState();
+    private string sidebarClass = "";
+    private MainMenuItems? topParent;
+    private MainMenuItems? currentItem;
+    public WMBOSConfigurations? configurations;
+    private int screenSize = 1268;
+    private List<int> WindowPreSize = new List<int>();
+    private BlazorOverlayScrollbars? scrollbarsRef;
+    private string? isMenuType = "";
+    private List<MainMenuItems>? menuVal;
+    private int level = 0;
 
-	// Cache for JS interop results to reduce redundant calls
-	private Dictionary<string, object> jsCache = new Dictionary<string, object>();
+    // Cache for JS interop results to reduce redundant calls
+    private Dictionary<string, object> jsCache = new Dictionary<string, object>();
 
-	[Inject] private NavScrollService? scrollService { get; set; }
+    [Inject] private NavScrollService? scrollService { get; set; }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			// Subscribe to all events
-			SubscribeToEvents();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Subscribe to all events
+            SubscribeToEvents();
 
-			await CheckLayout();
+            await CheckLayout();
 
-			var currentPath = new Uri(Navigation.Uri).AbsolutePath;
-			currentItem = FindMenuItemByPath(menuVal, currentPath != "/" ? currentPath : "/home");
+            var currentPath = new Uri(Navigation.Uri).AbsolutePath;
+            currentItem = FindMenuItemByPath(menuVal, currentPath != "/" ? currentPath : "/home");
 
-			if (currentItem != null)
-			{
-				// To Activate on initial load
-				await stateService.setCurrentItem(currentItem);
-				await SetSubmenu((currentItem, null));
-			}
+            if (currentItem != null)
+            {
+                // To Activate on initial load
+                await stateService.setCurrentItem(currentItem);
+                await SetSubmenu((currentItem, null));
+            }
 
-			screenSize = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
-			WindowPreSize.Add(screenSize);
+            screenSize = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
+            WindowPreSize.Add(screenSize);
 
-			dotNetObjectReference = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("resizeFunctions.addresizeListener", dotNetObjectReference);
+            dotNetObjectReference = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("resizeFunctions.addresizeListener", dotNetObjectReference);
 
-			if (screenSize < 992)
-			{
-				await JSRuntime.InvokeAsync<string>("interop.addAttributeToHtml", "data-toggled", "close");
-			}
+            if (screenSize < 992)
+            {
+                await JSRuntime.InvokeAsync<string>("interop.addAttributeToHtml", "data-toggled", "close");
+            }
 
-			// Attach scroll event listener
-			await AttachScrollListener();
-		}
-	}
+            // Attach scroll event listener
+            await AttachScrollListener();
+        }
+    }
 
-	private void SubscribeToEvents()
-	{
-		ActionService.OnActionTriggered += HandleActionTriggered;
+    private void SubscribeToEvents()
+    {
+        ActionService.OnActionTriggered += HandleActionTriggered;
 
-		if (scrollService != null)
-		{
-			scrollService.ScrollModeChanged += HandleScrollModeChanged;
-			scrollService.VerticalModeChanged += HandleVerticalModeChanged;
+        if (scrollService != null)
+        {
+            scrollService.ScrollModeChanged += HandleScrollModeChanged;
+            scrollService.VerticalModeChanged += HandleVerticalModeChanged;
 		}
 
 		Navigation.LocationChanged += HandleLocationChanged;
@@ -618,7 +618,7 @@
 			if (targetObject.Active)
 			{
 				// Close other menus at the same level
-				CloseOtherMenus(menuData, targetObject);
+				CloseOtherMenus(menuData!, targetObject);
 			}
 
 			// Get vertical style
@@ -790,9 +790,9 @@
 
 			if (navLayout != "horizontal" || inner < 992)
 			{
-				parent.Active = true;
+				parent!.Active = true;
 			}
-			parent.Selected = true;
+			parent!.Selected = true;
 
 			topParent = parent;
 			if (parent != null)
@@ -816,7 +816,7 @@
 			{
 				foreach (var item in dummyMenuItems)
 				{
-					RemoveActiveOtherMenus(item, targetObject);
+					RemoveActiveOtherMenus(item, targetObject!);
 				}
 			}
 		}

@@ -58,7 +58,7 @@
 	{
 		try
 		{
-			await InitializeStateFromSession();
+			InitializeStateFromSession();
 			await base.OnInitializedAsync();
 		}
 		catch (Exception ex)
@@ -67,7 +67,7 @@
 		}
 	}
 
-	private async Task InitializeStateFromSession()
+	private void InitializeStateFromSession()
 	{
 		var currentState = new AppState();
 		var newState = stateService.GetAppState();
