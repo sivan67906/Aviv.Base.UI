@@ -1,199 +1,163 @@
-window.interop = {
-    getMultipleAttributes: function (attributeNames) {
-        // Ensure that attributeNames is an array
-        if (!Array.isArray(attributeNames)) {
-            throw new TypeError("attributeNames must be an array");
-        }
-        const result = {};
-        attributeNames.forEach(attribute => {
-            result[attribute] = document.documentElement.getAttribute(attribute) || '';
-        });
-        return result;
-    },
-    getElement: function (elementRef) {
-        // Function to get the CSS selector for the given element reference
-        return new Promise((resolve, reject) => {
-            try {
-                const selector = document.querySelector(elementRef);
-                if (selector) {
-                    resolve(true);
-                } else {
-                    reject(false);
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
-    isEleExist: function (elementRef) {
-        // Function to get the CSS selector for the given element reference
-        const selector = document.querySelector(elementRef);
-        if (selector) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    getBoundry: function (elementRef) {
-        const rect = elementRef?.getBoundingClientRect();
-        return rect;
-    },
-    inner: function (arg) {
-        if (arg == "innerWidth") {
-            return window.innerWidth ?? 992;
-        }
-        if (arg == "innerHeight") {
-            return window.innerHeight ?? 992;
-        }
-        return 0
-    },
-    MenuNavElement: function (elementRef) {
-        // Function to get the width of the given element reference
-        return new Promise((resolve, reject) => {
-            try {
-                const element = document.querySelector(elementRef);
-                if (element) {
-                    const scrollWidth = element.scrollWidth; // Get the scrollWidth of the element
-                    const marginInlineStart = Math.ceil(
-                        Number(
-                            window.getComputedStyle(element).marginInlineStart.split("px")[0]
-                        )
-                    ); // Get the scrollWidth of the element
-                    resolve({ scrollWidth, marginInlineStart }); // Return both element and width
-                } else {
-                    reject("Element not found");
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
-    MenuNavmarginInlineStart: function (selector, value) {
-        // Function to get the width of the given element reference
-        return new Promise((resolve, reject) => {
-            try {
-                const element = document.querySelector(selector);
-                if (element) {
-                    element.style.marginInlineStart = value;
-                    resolve(element); // Return both element and width
-                } else {
-                    reject("Element not found");
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
-    mainSidebarOffset: function (elementRef) {
-        // Function to get the width of the given element reference
-        return new Promise((resolve, reject) => {
-            try {
-                const element = document.querySelector(elementRef);
-                if (element) {
-                    const mainSidebarOffset = element.offsetWidth; // Get the scrollWidth of the element
-                    resolve(mainSidebarOffset); // Return both element and width
-                } else {
-                    reject("Element not found");
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
-    addClass: function (elementRef, className) {
-        const element = document.querySelector(elementRef);
-        if (element) {
-            element.classList.add(className);
-        }
-    },
-    removeClass: function (elementRef, className) {
-        const element = document.querySelector(elementRef);
-        if (element) {
-            element.classList.remove(className);
-        }
-    },
-    addClassToHtml: (className) => {
-        document.documentElement.classList.add(className);
-    },
-    setclearCssVariables: function () {
-        document.documentElement.style = "";
-    },
-    setCssVariable: function (variableName, value) {
-        document.documentElement.style.setProperty(variableName, value);
-    },
-    removeCssVariable: function (variableName, value) {
-        document.documentElement.style.removeProperty(variableName, value);
-    },
-    setCustomCssVariable: function (element, variableName, value) {
-        let ele = document.querySelector(element);
-        if (ele) {
-            ele.style.setProperty(variableName, value);
-        }
-    },
-    removeClassFromHtml: (className) => {
-        document.documentElement.classList.remove(className);
-    },
-    getAttributeToHtml: (attributeName) => {
-        return document.documentElement.getAttribute(attributeName);
-    },
-    addAttributeToHtml: (attributeName, attributeValue) => {
-        document.documentElement.setAttribute(attributeName, attributeValue);
-    },
-    removeAttributeFromHtml: (attributeName) => {
-        document.documentElement.removeAttribute(attributeName);
-    },
-    getAttribute: function (elementRef, attributeName) {
-        return new Promise((resolve, reject) => {
-            try {
-                const selector = document.querySelector(elementRef);
-                if (selector) {
-                    resolve(selector.getAttribute(attributeName));
-                } else {
-                    reject("Element not found");
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
-    setAttribute: function (elementRef, attributeName, attributeValue) {
-        return new Promise((resolve, reject) => {
-            try {
-                const selector = document.querySelector(elementRef);
-                if (selector) {
-                    resolve(selector.setAttribute(attributeName, attributeValue));
-                } else {
-                    reject("Element not found");
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    },
+/**
+ * Optimized interop.js - Utility functions for Blazor JavaScript interop
+ */
+window.interop = (function () {
+    // Cache DOM references to improve performance
+    const docElement = document.documentElement;
+    const elementCache = new Map();
 
-    setLocalStorageItem: function (key, value) {
-        localStorage.setItem(key, value);
-    },
-    removeLocalStorageItem: function (key) {
-        localStorage.removeItem(key);
-    },
-    getAllLocalStorageItem: function () {
-        return localStorage;
-    },
-    getLocalStorageItem: function (key) {
-        return localStorage.getItem(key);
-    },
-    clearAllLocalStorage: function () {
-        localStorage.clear();
-    },
-    directionChange: function (dataId) {
-        let element = document.querySelector(`[data-id="${dataId}"]`);
-        let html = document.documentElement;
-        if (element) {
-            const listItem = element.closest("li");
-            if (listItem) {
-                // Find the first sibling <ul> element
+    // Utility functions to reduce code duplication
+    const utils = {
+        // Safely get an element, optionally using cache
+        getElement(selector, useCache = true) {
+            if (useCache && elementCache.has(selector)) {
+                return elementCache.get(selector);
+            }
+
+            const element = document.querySelector(selector);
+
+            if (element && useCache) {
+                elementCache.set(selector, element);
+            }
+
+            return element;
+        },
+
+        // Clear element cache when DOM likely changes
+        clearCache() {
+            elementCache.clear();
+        },
+
+        // Safely execute a function with error handling
+        safeExecute(fn, errorResult = null) {
+            try {
+                return fn();
+            } catch (error) {
+                console.error(`Interop error: ${error.message}`);
+                return errorResult;
+            }
+        },
+
+        // Create a promise wrapper with standardized error handling
+        createPromise(fn) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const result = fn();
+                    resolve(result);
+                } catch (error) {
+                    console.error(`Interop promise error: ${error.message}`);
+                    reject(error);
+                }
+            });
+        }
+    };
+
+    // Element handling functions
+    const elementFunctions = {
+        getElement(elementRef) {
+            return utils.createPromise(() => {
+                const selector = utils.getElement(elementRef);
+                return selector ? true : false;
+            });
+        },
+
+        isEleExist(elementRef) {
+            return utils.safeExecute(() => {
+                return !!utils.getElement(elementRef, false);
+            }, false);
+        },
+
+        getBoundry(elementRef) {
+            return utils.safeExecute(() => {
+                return elementRef?.getBoundingClientRect();
+            });
+        },
+
+        addClass(elementRef, className) {
+            utils.safeExecute(() => {
+                const element = utils.getElement(elementRef);
+                if (element) {
+                    element.classList.add(className);
+                }
+            });
+        },
+
+        removeClass(elementRef, className) {
+            utils.safeExecute(() => {
+                const element = utils.getElement(elementRef);
+                if (element) {
+                    element.classList.remove(className);
+                }
+            });
+        },
+
+        getAttribute(elementRef, attributeName) {
+            return utils.createPromise(() => {
+                const element = utils.getElement(elementRef);
+                if (!element) throw new Error("Element not found");
+                return element.getAttribute(attributeName);
+            });
+        },
+
+        setAttribute(elementRef, attributeName, attributeValue) {
+            return utils.createPromise(() => {
+                const element = utils.getElement(elementRef);
+                if (!element) throw new Error("Element not found");
+                return element.setAttribute(attributeName, attributeValue);
+            });
+        }
+    };
+
+    // Menu navigation specific functions
+    const menuFunctions = {
+        MenuNavElement(elementRef) {
+            return utils.createPromise(() => {
+                const element = utils.getElement(elementRef);
+                if (!element) throw new Error("Element not found");
+
+                const computedStyle = window.getComputedStyle(element);
+                const scrollWidth = element.scrollWidth;
+                const marginInlineStart = Math.ceil(
+                    Number(computedStyle.marginInlineStart.split("px")[0])
+                );
+
+                return { scrollWidth, marginInlineStart };
+            });
+        },
+
+        MenuNavmarginInlineStart(selector, value) {
+            return utils.createPromise(() => {
+                const element = utils.getElement(selector);
+                if (!element) throw new Error("Element not found");
+
+                element.style.marginInlineStart = value;
+                return element;
+            });
+        },
+
+        mainSidebarOffset(elementRef) {
+            return utils.createPromise(() => {
+                const element = utils.getElement(elementRef);
+                if (!element) throw new Error("Element not found");
+
+                return element.offsetWidth;
+            });
+        },
+
+        directionChange(dataId) {
+            return utils.safeExecute(() => {
+                if (!dataId) return false;
+
+                const element = document.querySelector(`[data-id="${dataId}"]`);
+                if (!element) return false;
+
+                const listItem = element.closest("li");
+                if (!listItem) return false;
+
                 const siblingUL = listItem.querySelector("ul");
+                if (!siblingUL) return false;
+
+                // Calculate outer UL width
                 let outterUlWidth = 0;
                 let listItemUL = listItem.closest("ul:not(.main-menu)");
                 while (listItemUL) {
@@ -202,185 +166,197 @@ window.interop = {
                         outterUlWidth += listItemUL.clientWidth;
                     }
                 }
-                if (siblingUL) {
-                    // You've found the sibling <ul> element
-                    let siblingULRect = listItem.getBoundingClientRect();
-                    if (html.getAttribute("dir") == "rtl") {
-                        if (
-                            siblingULRect.left - siblingULRect.width - outterUlWidth + 150 <
-                            0 &&
-                            outterUlWidth < window.innerWidth &&
-                            outterUlWidth + siblingULRect.width + siblingULRect.width <
-                            window.innerWidth
-                        ) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+
+                // Get element boundaries
+                const siblingULRect = listItem.getBoundingClientRect();
+                const isRTL = docElement.getAttribute("dir") === "rtl";
+                const windowWidth = window.innerWidth;
+
+                if (isRTL) {
+                    return siblingULRect.left - siblingULRect.width - outterUlWidth + 150 < 0 &&
+                        outterUlWidth < windowWidth &&
+                        outterUlWidth + siblingULRect.width * 2 < windowWidth;
+                } else {
+                    return outterUlWidth + siblingULRect.right + siblingULRect.width + 50 > windowWidth &&
+                        siblingULRect.right >= 0 &&
+                        outterUlWidth + siblingULRect.width * 2 < windowWidth;
+                }
+            }, false);
+        },
+
+        groupDirChange() {
+            return utils.safeExecute(() => {
+                const elemList = {
+                    added: [],
+                    removed: [],
+                    clearNavDropdown: false
+                };
+
+                const isHorizontalLayout = docElement.getAttribute("data-nav-layout") === "horizontal";
+                const isDesktopWidth = window.innerWidth > 992;
+
+                if (!isHorizontalLayout || !isDesktopWidth) {
+                    return elemList;
+                }
+
+                // Process active menus
+                const activeMenus = document.querySelectorAll(".slide.has-sub.open > ul");
+                activeMenus.forEach(processActiveMenu);
+
+                // Process forced-left items
+                processLeftForceItem();
+
+                // Process all submenu elements
+                processSubmenuElements();
+
+                // Remove duplicates
+                elemList.added = [...new Set(elemList.added)];
+                elemList.removed = [...new Set(elemList.removed)];
+
+                return elemList;
+
+                // Helper functions
+                function processActiveMenu(target) {
+                    const html = docElement;
+                    const listItem = target.closest("li");
+
+                    if (!listItem) return;
+
+                    const dropdownRect = listItem.getBoundingClientRect();
+                    const dropdownWidth = target.getBoundingClientRect().width;
+                    const rightEdge = dropdownRect.right + dropdownWidth;
+                    const leftEdge = dropdownRect.left - dropdownWidth;
+
+                    const isRTL = html.getAttribute("dir") === "rtl";
+
+                    if (isRTL) {
+                        handleRTLMenu(target, dropdownRect, rightEdge, leftEdge, listItem);
                     } else {
-                        if (
-                            outterUlWidth + siblingULRect.right + siblingULRect.width + 50 >
-                            window.innerWidth &&
-                            siblingULRect.right >= 0 &&
-                            outterUlWidth + siblingULRect.width + siblingULRect.width <
-                            window.innerWidth
-                        ) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        handleLTRMenu(target, dropdownRect, rightEdge, leftEdge, listItem);
                     }
                 }
-            }
-        }
-        return false;
-    },
-    groupDirChange: function () {
-        let elemList = {
-            added: [],
-            removed: [],
-            clearNavDropdown: false,
-        };
-        if (
-            document.querySelector("html").getAttribute("data-nav-layout") ===
-            "horizontal" &&
-            window.innerWidth > 992
-        ) {
-            let activeMenus = document.querySelectorAll(".slide.has-sub.open > ul");
-            activeMenus.forEach((e) => {
-                let target = e;
-                let html = document.documentElement;
 
-                const listItem = target.closest("li");
-                // Get the position of the clicked element
-                var dropdownRect = listItem.getBoundingClientRect();
-                var dropdownWidth = target.getBoundingClientRect().width;
-
-                // Calculate the right edge position
-                var rightEdge = dropdownRect.right + dropdownWidth;
-                var leftEdge = dropdownRect.left - dropdownWidth;
-
-                if (html.getAttribute("dir") == "rtl") {
-                    // Check if moving out to the right
-                    if (e.classList.contains("child1")) {
-                        if (dropdownRect.left < 0) {
-                            elemList.clearNavDropdown = true;
-                        }
+                function handleRTLMenu(target, dropdownRect, rightEdge, leftEdge, listItem) {
+                    // Check for child1 menus
+                    if (target.classList.contains("child1") && dropdownRect.left < 0) {
+                        elemList.clearNavDropdown = true;
                     }
+
+                    // Handle edge positioning
                     if (leftEdge < 0) {
                         elemList.added.push(
                             target.previousElementSibling.getAttribute("data-id")
                         );
-                    } else {
-                        if (
-                            listItem.closest("ul").classList.contains("force-left") &&
-                            rightEdge < window.innerWidth
-                        ) {
-                            elemList.added.push(
-                                target.previousElementSibling.getAttribute("data-id")
-                            );
-                        } else {
-                            // Reset classes and position if not moving out
-                            elemList.removed.push(
-                                target.previousElementSibling.getAttribute("data-id")
-                            );
-                        }
-                    }
-                } else {
-                    // Check if moving out to the right
-                    if (e.classList.contains("child1")) {
-                        if (dropdownRect.right > window.innerWidth) {
-                            elemList.clearNavDropdown = true;
-                        }
-                    }
-                    if (rightEdge > window.innerWidth) {
+                    } else if (
+                        listItem.closest("ul")?.classList.contains("force-left") &&
+                        rightEdge < window.innerWidth
+                    ) {
                         elemList.added.push(
                             target.previousElementSibling.getAttribute("data-id")
                         );
                     } else {
-                        if (
-                            listItem.closest("ul").classList.contains("force-left") &&
-                            leftEdge > 0
-                        ) {
-                            elemList.added.push(
-                                target.previousElementSibling.getAttribute("data-id")
-                            );
-                        }
-                        // Check if moving out to the left
-                        else if (leftEdge < 0) {
-                            elemList.removed.push(
-                                target.previousElementSibling.getAttribute("data-id")
-                            );
-                        } else {
-                            elemList.removed.push(
-                                target.previousElementSibling.getAttribute("data-id")
-                            );
-                        }
-                    }
-                }
-            });
-            let leftForceItem = document.querySelector(
-                ".slide-menu.active.force-left"
-            );
-            if (leftForceItem) {
-                if (document.querySelector("html").getAttribute("dir") != "rtl") {
-                    let check = leftForceItem.getBoundingClientRect().right;
-                    if (check < innerWidth) {
                         elemList.removed.push(
-                            leftForceItem.previousElementSibling.getAttribute("data-id")
+                            target.previousElementSibling.getAttribute("data-id")
                         );
-                    } else if (leftForceItem.getBoundingClientRect().left < 0) {
-                        if (
-                            document.documentElement.getAttribute("data-nav-style") ==
-                            "menu-hover" ||
-                            document.documentElement.getAttribute("data-nav-style") ==
-                            "icon-hover" ||
-                            window.innerWidth > 992
-                        ) {
-                            elemList.removed.push(
-                                leftForceItem.previousElementSibling.getAttribute("data-id")
-                            );
-                        }
-                    }
-                } else {
-                    let check =
-                        leftForceItem.getBoundingClientRect().left -
-                        leftForceItem.parentElement.closest(".slide-menu")?.clientWidth -
-                        leftForceItem.getBoundingClientRect().width;
-                    if (check > 0) {
-                        if (
-                            document.documentElement.getAttribute("data-nav-style") ==
-                            "menu-hover" ||
-                            document.documentElement.getAttribute("data-nav-style") ==
-                            "icon-hover" ||
-                            window.innerWidth > 992
-                        ) {
-                            elemList.removed.push(
-                                leftForceItem.previousElementSibling.getAttribute("data-id")
-                            );
-                        }
                     }
                 }
-            }
 
-            let elements = document.querySelectorAll(".main-menu .has-sub ul");
-            elements.forEach((e) => {
-                if (isElementVisible(e)) {
-                    let ele = e.getBoundingClientRect();
-                    if (document.documentElement.getAttribute("dir") == "rtl") {
-                        if (ele.left < 0) {
-                            if (e.classList.contains("child1")) {
+                function handleLTRMenu(target, dropdownRect, rightEdge, leftEdge, listItem) {
+                    // Check for child1 menus
+                    if (target.classList.contains("child1") && dropdownRect.right > window.innerWidth) {
+                        elemList.clearNavDropdown = true;
+                    }
+
+                    // Handle edge positioning
+                    if (rightEdge > window.innerWidth) {
+                        elemList.added.push(
+                            target.previousElementSibling.getAttribute("data-id")
+                        );
+                    } else if (
+                        listItem.closest("ul")?.classList.contains("force-left") &&
+                        leftEdge > 0
+                    ) {
+                        elemList.added.push(
+                            target.previousElementSibling.getAttribute("data-id")
+                        );
+                    } else if (leftEdge < 0) {
+                        elemList.removed.push(
+                            target.previousElementSibling.getAttribute("data-id")
+                        );
+                    } else {
+                        elemList.removed.push(
+                            target.previousElementSibling.getAttribute("data-id")
+                        );
+                    }
+                }
+
+                function processLeftForceItem() {
+                    const leftForceItem = document.querySelector(".slide-menu.active.force-left");
+                    if (!leftForceItem) return;
+
+                    const isRTL = docElement.getAttribute("dir") === "rtl";
+
+                    if (!isRTL) {
+                        const rightEdge = leftForceItem.getBoundingClientRect().right;
+                        const leftEdge = leftForceItem.getBoundingClientRect().left;
+
+                        if (rightEdge < window.innerWidth) {
+                            elemList.removed.push(
+                                leftForceItem.previousElementSibling.getAttribute("data-id")
+                            );
+                        } else if (leftEdge < 0) {
+                            const navStyle = docElement.getAttribute("data-nav-style");
+                            if (
+                                navStyle === "menu-hover" ||
+                                navStyle === "icon-hover" ||
+                                window.innerWidth > 992
+                            ) {
                                 elemList.removed.push(
-                                    e.previousElementSibling.getAttribute("data-id")
-                                );
-                            } else {
-                                elemList.added.push(
-                                    e.previousElementSibling.getAttribute("data-id")
+                                    leftForceItem.previousElementSibling.getAttribute("data-id")
                                 );
                             }
                         }
                     } else {
-                        if (ele.right > innerWidth) {
+                        const parentMenu = leftForceItem.parentElement.closest(".slide-menu");
+                        const leftEdge = leftForceItem.getBoundingClientRect().left;
+                        const width = leftForceItem.getBoundingClientRect().width;
+
+                        const check = leftEdge - (parentMenu?.clientWidth || 0) - width;
+
+                        if (check > 0) {
+                            const navStyle = docElement.getAttribute("data-nav-style");
+                            if (
+                                navStyle === "menu-hover" ||
+                                navStyle === "icon-hover" ||
+                                window.innerWidth > 992
+                            ) {
+                                elemList.removed.push(
+                                    leftForceItem.previousElementSibling.getAttribute("data-id")
+                                );
+                            }
+                        }
+                    }
+                }
+
+                function processSubmenuElements() {
+                    const elements = document.querySelectorAll(".main-menu .has-sub ul");
+                    elements.forEach(e => {
+                        if (!isElementVisible(e)) return;
+
+                        const rect = e.getBoundingClientRect();
+                        const isRTL = docElement.getAttribute("dir") === "rtl";
+
+                        if (isRTL && rect.left < 0) {
+                            if (e.classList.contains("child1")) {
+                                elemList.removed.push(
+                                    e.previousElementSibling.getAttribute("data-id")
+                                );
+                            } else {
+                                elemList.added.push(
+                                    e.previousElementSibling.getAttribute("data-id")
+                                );
+                            }
+                        } else if (!isRTL && rect.right > window.innerWidth) {
                             if (e.classList.contains("child1")) {
                                 elemList.removed.push(
                                     e.previousElementSibling.getAttribute("data-id")
@@ -391,76 +367,236 @@ window.interop = {
                                 );
                             }
                         }
-                    }
+                    });
                 }
+            }, { added: [], removed: [], clearNavDropdown: false });
+        }
+    };
+
+    // Window and viewport functions
+    const windowFunctions = {
+        inner(arg) {
+            if (arg === "innerWidth") {
+                return window.innerWidth ?? 992;
+            }
+            if (arg === "innerHeight") {
+                return window.innerHeight ?? 992;
+            }
+            return 0;
+        },
+
+        updateScrollVisibility(dotnetHelper) {
+            window.onscroll = function () {
+                const scrollHeight = window.scrollY;
+                dotnetHelper.invokeMethodAsync('UpdateScrollVisibility', scrollHeight);
+            };
+        },
+
+        scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        },
+
+        registerScrollListener(dotnetHelper) {
+            // Remove any existing listener first
+            if (window._scrollHandler) {
+                window.removeEventListener('scroll', window._scrollHandler);
+            }
+
+            // Create and store the handler for later cleanup
+            window._scrollHandler = function () {
+                const scrollY = window.scrollY;
+                dotnetHelper.invokeMethodAsync("SetStickyClass", scrollY);
+            };
+
+            window.addEventListener('scroll', window._scrollHandler);
+
+            // Trigger initial check
+            window._scrollHandler();
+        },
+
+        detachScrollListener() {
+            if (window._scrollHandler) {
+                window.removeEventListener('scroll', window._scrollHandler);
+                window._scrollHandler = null;
+            }
+        }
+    };
+
+    // HTML document-level functions
+    const htmlFunctions = {
+        getMultipleAttributes(attributeNames) {
+            return utils.safeExecute(() => {
+                if (!Array.isArray(attributeNames)) {
+                    throw new TypeError("attributeNames must be an array");
+                }
+
+                const result = {};
+                attributeNames.forEach(attribute => {
+                    result[attribute] = docElement.getAttribute(attribute) || '';
+                });
+                return result;
+            }, {});
+        },
+
+        addClassToHtml(className) {
+            docElement.classList.add(className);
+        },
+
+        removeClassFromHtml(className) {
+            docElement.classList.remove(className);
+        },
+
+        getAttributeToHtml(attributeName) {
+            return docElement.getAttribute(attributeName);
+        },
+
+        addAttributeToHtml(attributeName, attributeValue) {
+            docElement.setAttribute(attributeName, attributeValue);
+            // Clear cache since HTML attributes may affect element styles
+            utils.clearCache();
+        },
+
+        removeAttributeFromHtml(attributeName) {
+            docElement.removeAttribute(attributeName);
+            // Clear cache since HTML attributes may affect element styles
+            utils.clearCache();
+        },
+
+        setclearCssVariables() {
+            docElement.style = "";
+            // Clear cache since styling changed
+            utils.clearCache();
+        },
+
+        setCssVariable(variableName, value) {
+            docElement.style.setProperty(variableName, value);
+        },
+
+        removeCssVariable(variableName) {
+            docElement.style.removeProperty(variableName);
+        },
+
+        setCustomCssVariable(element, variableName, value) {
+            const ele = utils.getElement(element);
+            if (ele) {
+                ele.style.setProperty(variableName, value);
+            }
+        }
+    };
+
+    // Local storage functions
+    const storageFunctions = {
+        setLocalStorageItem(key, value) {
+            localStorage.setItem(key, value);
+        },
+
+        getLocalStorageItem(key) {
+            return localStorage.getItem(key);
+        },
+
+        removeLocalStorageItem(key) {
+            localStorage.removeItem(key);
+        },
+
+        getAllLocalStorageItem() {
+            return localStorage;
+        },
+
+        clearAllLocalStorage() {
+            localStorage.clear();
+        }
+    };
+
+    // Bootstrap initialization functions
+    const bootstrapFunctions = {
+        initializeTooltips() {
+            utils.safeExecute(() => {
+                if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) {
+                    console.warn('Bootstrap Tooltip not available');
+                    return;
+                }
+
+                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                [...tooltipTriggerList].map(tooltipTriggerEl =>
+                    new bootstrap.Tooltip(tooltipTriggerEl));
+            });
+        },
+
+        initializePopover() {
+            utils.safeExecute(() => {
+                if (typeof bootstrap === 'undefined' || !bootstrap.Popover) {
+                    console.warn('Bootstrap Popover not available');
+                    return;
+                }
+
+                const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+                [...popoverTriggerList].map(popoverTriggerEl =>
+                    new bootstrap.Popover(popoverTriggerEl));
+            });
+        },
+
+        initCardRemove() {
+            utils.safeExecute(() => {
+                const DIV_CARD = ".card";
+                const cardRemoveBtn = document.querySelectorAll('[data-bs-toggle="card-remove"]');
+
+                cardRemoveBtn.forEach(ele => {
+                    ele.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        const card = this.closest(DIV_CARD);
+                        if (card) {
+                            card.remove();
+                        }
+                        return false;
+                    });
+                });
+            });
+        },
+
+        initCardFullscreen() {
+            utils.safeExecute(() => {
+                const DIV_CARD = ".card";
+                const cardFullscreenBtn = document.querySelectorAll('[data-bs-toggle="card-fullscreen"]');
+
+                cardFullscreenBtn.forEach(ele => {
+                    ele.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        const card = this.closest(DIV_CARD);
+                        if (card) {
+                            card.classList.toggle("card-fullscreen");
+                            card.classList.remove("card-collapsed");
+                        }
+                        return false;
+                    });
+                });
             });
         }
+    };
 
-        elemList.added = [...new Set(elemList.added)];
-        elemList.removed = [...new Set(elemList.removed)];
-        return elemList;
-    },
-    updateScrollVisibility: function (dotnetHelper) {
-        window.onscroll = function () {
-            var scrollHeight = window.scrollY;
-            dotnetHelper.invokeMethodAsync('UpdateScrollVisibility', scrollHeight);
+    // Merge all function groups into a single API
+    return {
+        ...elementFunctions,
+        ...menuFunctions,
+        ...windowFunctions,
+        ...htmlFunctions,
+        ...storageFunctions,
+        ...bootstrapFunctions,
+
+        // Add a method to dispose DotNet references
+        disposeDotNetReference(dotNetRef) {
+            if (dotNetRef && typeof dotNetRef.dispose === 'function') {
+                dotNetRef.dispose();
+            }
         }
-    },
-    scrollToTop: function () {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    },
-    registerScrollListener: function (dotnetHelper) {
-        window.addEventListener('scroll', function () {
-            var scrollY = window.scrollY;
-            dotnetHelper.invokeMethodAsync("SetStickyClass", scrollY);
-        });
+    };
+})();
 
-        // Trigger initial check
-        var scrollY = window.scrollY;
-        dotnetHelper.invokeMethodAsync("SetStickyClass", scrollY);
-    },
-    initializeTooltips: function () {
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
-    },
-    initializePopover: function () {
-        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-        const popoverList = [...popoverTriggerList].map((popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl));
-    },
-    initCardRemove: function () {
-        let DIV_CARD = ".card";
-        let cardRemoveBtn = document.querySelectorAll('[data-bs-toggle="card-remove"]');
-        cardRemoveBtn.forEach((ele) => {
-            ele.addEventListener("click", function (e) {
-                e.preventDefault();
-                let $this = this;
-                let card = $this.closest(DIV_CARD);
-                card.remove();
-                return false;
-            });
-        });
-    },
-    initCardFullscreen: function () {
-        let DIV_CARD = ".card";
-        let cardFullscreenBtn = document.querySelectorAll('[data-bs-toggle="card-fullscreen"]');
-        cardFullscreenBtn.forEach((ele) => {
-            ele.addEventListener("click", function (e) {
-                let $this = this;
-                let card = $this.closest(DIV_CARD);
-                card.classList.toggle("card-fullscreen");
-                card.classList.remove("card-collapsed");
-                e.preventDefault();
-                return false;
-            });
-        });
-    },
-
-};
-
+// Utility function for checking element visibility
 function isElementVisible(element) {
+    if (!element) return false;
     const computedStyle = window.getComputedStyle(element);
-    return computedStyle.display != "none";
+    return computedStyle.display !== "none";
 }
