@@ -1,3 +1,5 @@
+namespace Aviv.Base.UI.Models;
+
 public class MainMenuItems
 {
     public string MenuTitle { get; set; }

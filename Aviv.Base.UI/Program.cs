@@ -5,6 +5,7 @@ using Aviv.Base.UI.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Radzen;
+using Syncfusion.Blazor;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,11 @@ else
         });
 }
 
+// Add services to the container.
+builder.Services.AddSyncfusionBlazor();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 // Register services with appropriate lifetimes
 // Singletons - shared across all users of the application
 builder.Services.AddSingleton<AppState>();
@@ -45,6 +51,7 @@ builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<IActionService, ActionService>();
 builder.Services.AddScoped<MenuDataService>();
 builder.Services.AddScoped<NavScrollService>();
+builder.Services.AddSingleton<ThemePresetService>();
 builder.Services.AddWMBOS();
 builder.Services.AddSession(options =>
 {
@@ -63,6 +70,7 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<NotificationCustomService>();
+builder.Services.AddScoped<ServiceBasedDetailInfoService>();
 
 // Add Memory Cache for performance improvement
 builder.Services.AddMemoryCache();

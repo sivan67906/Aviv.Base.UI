@@ -1,5 +1,286 @@
+using Aviv.Base.UI.Models;
+using Aviv.Base.UI.Services;
+
 public class MenuDataService
 {
+    private readonly ThemePresetService _themePresetService;
+    private readonly ILogger<MenuDataService> _logger;
+    private readonly Dictionary<string, List<MainMenuItems>> _menuSets = [];
+
+    public event Action? OnMenuDataChanged;
+
+    public MenuDataService(ThemePresetService themePresetService, ILogger<MenuDataService> logger)
+    {
+        _themePresetService = themePresetService;
+        _logger = logger;
+        _themePresetService.OnPresetChanged += () =>
+        {
+            OnMenuDataChanged?.Invoke();
+        };
+
+        // Initialize the menu sets
+        InitializeMenuSets();
+    }
+
+    private void InitializeMenuSets()
+    {
+        // Default menu is the original MenuData
+        _menuSets["default"] = MenuData;
+
+        // Product Manager theme menu
+        _menuSets["product_manager"] =
+        [
+            new MainMenuItems(
+                menuTitle: "PRODUCT MANAGEMENT"
+            ),
+            new MainMenuItems(
+                path: "#",
+                type: "link",
+                title: "Dashboard",
+                icon: "fi fi-ts-airplay",
+                badgeClass: "bg-primary-transparent",
+                selected: false,
+                active: false,
+                dirChange: false
+            ),
+            new MainMenuItems(
+                type: "sub",
+                title: "Products",
+                icon: "fi fi-ts-chart-tree-map",
+                badgeClass: "bg-primary-transparent",
+                selected: false,
+                active: false,
+                dirChange: false,
+                children: new MainMenuItems[]
+                {
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "All Products",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Add New Product",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Categories",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Tags",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    )
+                }
+            ),
+            new MainMenuItems(
+                type: "sub",
+                title: "Inventory",
+                icon: "fi fi-ts-inventory-alt",
+                badgeClass: "bg-primary-transparent",
+                selected: false,
+                active: false,
+                dirChange: false,
+                children: new MainMenuItems[]
+                {
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Stock Levels",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Stock Adjustments",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Low Stock Alerts",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    )
+                }
+            ),
+            new MainMenuItems(
+                menuTitle: "REPORTS"
+            ),
+            new MainMenuItems(
+                path: "#",
+                type: "link",
+                title: "Sales Report",
+                icon: "fi fi-ts-chart-line-up",
+                badgeClass: "bg-primary-transparent",
+                selected: false,
+                active: false,
+                dirChange: false
+            )
+            //,
+            //new MainMenuItems(
+            //    path: "#",
+            //    type: "link",
+            //    title: "Back to Main",
+            //    icon: "fi fi-ts-arrow-left",
+            //    badgeClass: "bg-primary-transparent",
+            //    selected: false,
+            //    active: false,
+            //    dirChange: false
+            //)
+        ];
+
+        // Support menu set
+        _menuSets["support"] =
+        [
+            new MainMenuItems(
+                menuTitle: "SUPPORT CENTER"
+            ),
+            new MainMenuItems(
+                path: "#",
+                type: "link",
+                title: "Dashboard",
+                icon: "fi fi-ts-airplay",
+                badgeClass: "bg-success-transparent",
+                selected: false,
+                active: false,
+                dirChange: false
+            ),
+            new MainMenuItems(
+                type: "sub",
+                title: "Tickets",
+                icon: "fi fi-ts-ticket",
+                badgeClass: "bg-success-transparent",
+                selected: false,
+                active: false,
+                dirChange: false,
+                children: new MainMenuItems[]
+                {
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "All Tickets",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Open Tickets",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Closed Tickets",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Create Ticket",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    )
+                }
+            ),
+            new MainMenuItems(
+                type: "sub",
+                title: "Knowledge Base",
+                icon: "fi fi-ts-book-open-reader",
+                badgeClass: "bg-success-transparent",
+                selected: false,
+                active: false,
+                dirChange: false,
+                children: new MainMenuItems[]
+                {
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Articles",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Categories",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    ),
+                    new MainMenuItems(
+                        path: "#",
+                        type: "link",
+                        title: "Search",
+                        selected: false,
+                        active: false,
+                        dirChange: false
+                    )
+                }
+            )
+            //,
+            //new MainMenuItems(
+            //    path: "#",
+            //    type: "link",
+            //    title: "Back to Main",
+            //    icon: "fi fi-ts-arrow-left",
+            //    badgeClass: "bg-success-transparent",
+            //    selected: false,
+            //    active: false,
+            //    dirChange: false
+            //)
+        ];
+    }
+
+    // Override the GetMenuData method to return the appropriate menu set
+    public List<MainMenuItems> GetMenuData()
+    {
+        // Get the active theme preset
+        ThemePreset? activePreset = _themePresetService.GetActivePreset();
+        if (activePreset == null || string.IsNullOrEmpty(activePreset.MenuId))
+        {
+            return MenuData;
+        }
+
+        // Get the menu set for the active theme
+        if (_menuSets.TryGetValue(activePreset.MenuId, out List<MainMenuItems>? menuSet))
+        {
+            return menuSet;
+        }
+
+        // Fallback to default menu
+        _logger.LogWarning("Menu set for theme {ThemeId} not found, using default", activePreset.Id);
+        return MenuData;
+    }
+
+    // Original MenuData property from the existing project
     private readonly List<MainMenuItems> MenuData =
     [
         #region Feather icon
@@ -1143,9 +1424,4 @@ public class MenuDataService
 
         #endregion
     ];
-
-    public List<MainMenuItems> GetMenuData()
-    {
-        return MenuData;
-    }
 }

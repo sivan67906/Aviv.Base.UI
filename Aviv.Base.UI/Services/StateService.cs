@@ -1,5 +1,6 @@
+using Aviv.Base.UI.Models;
+using Aviv.Base.UI.Services;
 using Microsoft.JSInterop;
-using System.Text.Json;
 
 // Make sure to clear the Session if stored. As the values are override by the session value automatically.
 // If any Changes to values then the priority will move to the default values rather than the session.
@@ -157,9 +158,12 @@ public class StateService
     private readonly SessionService _sessionService;
     private readonly AppState _currentState;
     private readonly ILogger<AppState> _logger;
+    private readonly ThemePresetService _themePresetService;
+    private readonly NotificationCustomService _notificationService;
+
 
     // Cache for JS interop calls to reduce redundant calls
-    private readonly Dictionary<string, object> _jsCache = new Dictionary<string, object>();
+    private readonly Dictionary<string, object> _jsCache = [];
     private readonly SemaphoreSlim _jsLock = new SemaphoreSlim(1, 1);
     private bool _isInitialized = false;
 
@@ -172,13 +176,18 @@ public class StateService
     // Event to notify subscribers about state changes
     public event Action? OnStateChanged;
 
-    public StateService(IJSRuntime jsRuntime, SessionService sessionService, AppState appState, ILogger<AppState> logger)
+    public StateService(IJSRuntime jsRuntime, SessionService sessionService, AppState appState,
+        ILogger<AppState> logger, ThemePresetService themePresetService,
+        NotificationCustomService notificationService)
     {
         _jsRuntime = jsRuntime;
         _sessionService = sessionService;
         _currentState = new AppState();
         OnChange = () => { };
         _logger = logger;
+        _themePresetService = themePresetService;
+        _notificationService = notificationService;
+        _themePresetService.OnPresetChanged += () => OnChange?.Invoke();
 
         Task.Run(async () => await InitializeAppStateAsync());
     }
@@ -543,12 +552,12 @@ public class StateService
             _currentState.ThemeBackground1 = val2;
 
             // Group related JS calls to reduce interop overhead
-            var tasks = new List<Task>
-            {
+            List<Task> tasks =
+            [
                 InvokeJSVoidCached("interop.addAttributeToHtml", "data-theme-mode", "dark"),
                 InvokeJSVoidCached("interop.addAttributeToHtml", "data-header-styles", "dark"),
                 InvokeJSVoidCached("interop.addAttributeToHtml", "data-menu-styles", "dark")
-            };
+            ];
 
             await Task.WhenAll(tasks);
 
@@ -560,14 +569,14 @@ public class StateService
             }
 
             // Set CSS variables
-            tasks = new List<Task>
-            {
+            tasks =
+            [
                 InvokeJSVoidCached("interop.setCssVariable", "--body-bg-rgb", val),
                 InvokeJSVoidCached("interop.setCssVariable", "--body-bg-rgb2", val2),
                 InvokeJSVoidCached("interop.setCssVariable", "--light-rgb", val2),
                 InvokeJSVoidCached("interop.setCssVariable", "--form-control-bg", $"rgb({val2})"),
                 InvokeJSVoidCached("interop.setCssVariable", "--input-border", "rgba(255,255,255,0.1)")
-            };
+            ];
 
             await Task.WhenAll(tasks);
 
@@ -619,15 +628,15 @@ public class StateService
         await InvokeJSVoidCached("interop.removeAttributeFromHtml", "style");
 
         // Clear attributes in batches to reduce interop overhead
-        var tasks = new List<Task>
-        {
+        List<Task> tasks =
+        [
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-nav-style"),
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-menu-position"),
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-header-position"),
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-page-style"),
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-width"),
             InvokeJSVoidCached("interop.removeAttributeFromHtml", "data-bg-img")
-        };
+        ];
 
         await Task.WhenAll(tasks);
 
@@ -790,4 +799,82 @@ public class StateService
             _logger.LogError(ex, "Error persisting state");
         }
     }
+
+    // Theme Preset Switching Method
+    // Add this method to the StateService class
+    public async Task SwitchThemePreset(string presetId)
+    {
+        ThemePreset? preset = _themePresetService.GetPreset(presetId);
+        if (preset == null)
+        {
+            _logger.LogWarning("Theme preset {PresetId} not found", presetId);
+            await _notificationService.ShowErrorAsync($"Theme preset '{presetId}' not found", true);
+            return;
+        }
+
+        // Apply the theme settings from the preset
+        AppState settings = preset.ThemeSettings;
+
+        // Apply each setting (order matters for some settings)
+        await directionFn(settings.Direction);
+        await colorthemeFn(settings.ColorTheme, false);
+        await navigationStylesFn(settings.NavigationStyles, false);
+
+        if (!string.IsNullOrEmpty(settings.LayoutStyles))
+        {
+            await layoutStylesFn(settings.LayoutStyles);
+        }
+        else if (!string.IsNullOrEmpty(settings.MenuStyles))
+        {
+            await menuStylesFn(settings.MenuStyles);
+        }
+
+        await pageStyleFn(settings.PageStyles);
+        await widthStylessFn(settings.WidthStyles);
+        await menuPositionFn(settings.MenuPosition);
+        await headerPositionFn(settings.HeaderPosition);
+        await menuColorFn(settings.MenuColor);
+        await headerColorFn(settings.HeaderColor);
+
+        if (!string.IsNullOrEmpty(settings.ThemePrimary))
+        {
+            await themePrimaryFn(settings.ThemePrimary);
+        }
+
+        if (!string.IsNullOrEmpty(settings.ThemeBackground) && !string.IsNullOrEmpty(settings.ThemeBackground1))
+        {
+            await themeBackgroundFn(settings.ThemeBackground, settings.ThemeBackground1, false);
+        }
+
+        if (!string.IsNullOrEmpty(settings.BackgroundImage))
+        {
+            await backgroundImageFn(settings.BackgroundImage);
+        }
+
+        // Set the active preset
+        _themePresetService.SetActivePreset(presetId);
+
+        // Apply theme preset HTML attributes
+        await _themePresetService.ApplyThemePresetAttributes(_jsRuntime);
+
+        // Update state
+        NotifyStateChanged();
+
+        // Show success notification with appropriate message based on theme
+        string message = GetThemeChangeMessage(presetId);
+        await _notificationService.ShowSuccessAsync(message, true);
+    }
+
+    // Helper method to get appropriate message for each theme
+    private string GetThemeChangeMessage(string presetId)
+    {
+        return presetId switch
+        {
+            "default" => "Switched to Main Theme",
+            "product_manager" => "Switched to Product Manager Theme",
+            "support" => "Switched to Support Theme",
+            _ => $"Theme changed to {presetId}"
+        };
+    }
+
 }

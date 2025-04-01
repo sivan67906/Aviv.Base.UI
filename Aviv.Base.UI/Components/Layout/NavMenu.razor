@@ -4,12 +4,15 @@
 @inject StateService stateService
 @inject IActionService ActionService
 @using Aviv.Base.UI.Components.Shared
+@using Aviv.Base.UI.Models
+@using Aviv.Base.UI.Services
 @using Microsoft.JSInterop
 @using System.Text.Json
 @using System.Linq
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Routing
 @using WMBlazorOverlayScrollbars.WMBOS
+@inject ThemePresetService ThemePresetService
 @implements IDisposable
 
 <div id="responsive-overlay" @onclick="ResponsiveCloseFn"></div>
@@ -141,6 +144,9 @@
 			};
 
 		Navigation.LocationChanged += HandleLocationChange;
+
+		// Subscribe to menu data changes
+		MenuDataService.OnMenuDataChanged += HandleMenuDataChanged;
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -197,6 +203,26 @@
 		if (screenSize < 992)
 		{
 			await JSRuntime.InvokeAsync<string>("interop.addAttributeToHtml", "data-toggled", "close");
+		}
+	}
+
+	// Handle menu data changes
+	private async void HandleMenuDataChanged()
+	{
+		if (isDisposed) return;
+
+		try
+		{
+			// Update menu data
+			menuVal = MenuDataService.GetMenuData();
+			await GenerateRandomIds(menuVal);
+
+			// Force UI update
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error in HandleMenuDataChanged: {ex.Message}");
 		}
 	}
 
@@ -1070,6 +1096,9 @@
 				Navigation.LocationChanged -= HandleLocationChanged;
 				Navigation.LocationChanged -= HandleLocationChange;
 			}
+
+			// Unsubscribe from menu data changes
+			MenuDataService.OnMenuDataChanged -= HandleMenuDataChanged;
 
 			// Clean up JS references
 			if (dotNetObjectReference != null)

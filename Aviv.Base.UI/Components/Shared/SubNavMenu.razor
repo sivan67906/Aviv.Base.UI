@@ -1,6 +1,7 @@
 @inject MenuDataService MenuDataService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject StateService stateService
 
 @if (menuData != null && menuData.Children != null && menuData.Children.Any())
 {
@@ -108,6 +109,21 @@
 
 	private async Task NavigateToItem(MainMenuItems menuItem)
 	{
+		// Check for specific menu items that should trigger theme changes
+		if (menuItem.Title == "Product Manager")
+		{
+			await stateService.SwitchThemePreset("product_manager");
+		}
+		else if (menuItem.Title == "Support")
+		{
+			await stateService.SwitchThemePreset("support");
+		}
+		else if (menuItem.Title == "Back to Main")
+		{
+			await stateService.SwitchThemePreset("default");
+		}
+		// Add more conditions for other menu items as needed
+
 		await OnSetSubmenu.InvokeAsync((menuItem, Array.Empty<MainMenuItems>()));
 		Navigation.NavigateTo(menuItem.Path);
 	}

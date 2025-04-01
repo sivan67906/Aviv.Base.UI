@@ -1,5 +1,7 @@
 @inject StateService stateService
 @inject IJSRuntime JSRuntime
+@inject NotificationCustomService NotificationService
+@implements IDisposable
 
 <header class="app-header">
 	<div class="main-header-container container-fluid">
@@ -52,9 +54,10 @@
 					<li><a class="dropdown-item d-flex" href="Vendors/Profile"><i class="ti ti-user-circle fs-18 me-2 op-7"></i>Profile</a></li>
 					<li><a class="dropdown-item d-flex" href="ResetPassword"><i class="ti ti-lock fs-18 me-2 op-7"></i>Change Password</a></li>
 					<li><a class="dropdown-item d-flex" href="mail"><i class="ti ti-inbox fs-18 me-2 op-7"></i>Stock <span class="badge bg-success-transparent ms-auto">25</span></a></li>
-					<li><a class="dropdown-item d-flex border-block-end" href="to-do-list"><i class="ti ti-clipboard-check fs-18 me-2 op-7"></i>Product Manager</a></li>
-					<li><a class="dropdown-item d-flex" href="chat"><i class="ti ti-headset fs-18 me-2 op-7"></i>Support</a></li>
+					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("product_manager")' href="javascript:void(0)"><i class="ti ti-clipboard-check fs-18 me-2 op-7"></i>Product Manager</a></li>
+					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("support")' href="javascript:void(0)"><i class="ti ti-headset fs-18 me-2 op-7"></i>Support</a></li>
 					<li><a class="dropdown-item d-flex" href="FAQ"><i class="ti ti-receipt fs-18 me-2 op-7"></i>FAQ</a></li>
+					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("default")' href="javascript:void(0)"><i class="ti ti-home fs-18 me-2 op-7"></i>Back to Main</a></li>
 					<li><a class="dropdown-item d-flex" href=""><i class="ti ti-logout fs-18 me-2 op-7"></i>Log Out</a></li>
 				</ul>
 			</div>
@@ -65,11 +68,25 @@
 @code {
 	private AppState CurrentState => stateService.GetAppState();
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Initialize notification service
+			await NotificationService.InitializeAsync();
+		}
+	}
+
 	private async void ToggleTheme()
 	{
 		var val = CurrentState.ColorTheme == "light" ? "dark" : "light";
 		await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexcolortheme", val);
 		await stateService.colorthemeFn(val, true);
+	}
+
+	private async Task SwitchTheme(string themeId)
+	{
+		await stateService.SwitchThemePreset(themeId);
 	}
 
 	private async void ToggleMenu()
@@ -182,5 +199,9 @@
 			"detached" => "detached-close",
 			_ => "close"
 		};
+	}
+	public void Dispose()
+	{
+		// Cleanup code if needed
 	}
 }
