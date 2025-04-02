@@ -82,6 +82,11 @@
 		{
 			try
 			{
+
+				// Initialize Radzen theme based on current application theme
+            var currentTheme = stateService.GetAppState().ColorTheme;
+            await JSRuntime.InvokeVoidAsync("toggleRadzenTheme", currentTheme == "dark");
+
 				selfReference = DotNetObjectReference.Create(this);
 
 				// Fix: Convert ValueTask to Task using Task.WhenAll

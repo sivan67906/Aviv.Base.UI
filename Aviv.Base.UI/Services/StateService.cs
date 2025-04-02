@@ -326,6 +326,8 @@ public class StateService
         await InvokeJSVoidCached("interop.addAttributeToHtml", "data-header-styles", val);
         await InvokeJSVoidCached("interop.addAttributeToHtml", "data-menu-styles", val);
 
+        await _jsRuntime.InvokeVoidAsync("toggleRadzenTheme", val == "dark");
+
         if (stateClick)
         {
             if (val == "light")

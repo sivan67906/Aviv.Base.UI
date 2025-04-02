@@ -442,3 +442,35 @@ div:where(.swal2-container) h2:where(.swal2-title) {
         height: 3px;
         box-shadow: 0 -2px 0 #343a40;
     }
+
+/* Dark theme overrides for Radzen components */
+[data-theme-mode="dark"] .rz-grid-table tr td {
+    background-color: rgba(45, 45, 45, 1) !important;
+    color: #fff !important;
+    border-color: rgba(70, 70, 70, 1) !important;
+}
+
+[data-theme-mode="dark"] .rz-grid-table tr th {
+    background-color: rgba(60, 60, 60, 1) !important;
+    color: #fff !important;
+    border-color: rgba(70, 70, 70, 1) !important;
+}
+
+    [data-theme-mode="dark"] .rz-grid-table tr th .rz-column-title {
+        color: #fff !important;
+    }
+
+[data-theme-mode="dark"] .rz-paginator {
+    background-color: rgba(45, 45, 45, 1) !important;
+    color: #fff !important;
+    border-color: rgba(70, 70, 70, 1) !important;
+}
+
+[data-theme-mode="dark"] .rz-paginator-element {
+    color: #fff !important;
+}
+
+[data-theme-mode="dark"] .rz-datatable-data td {
+    background-color: rgba(45, 45, 45, 1) !important;
+    color: #fff !important;
+}

@@ -82,6 +82,9 @@
 		var val = CurrentState.ColorTheme == "light" ? "dark" : "light";
 		await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexcolortheme", val);
 		await stateService.colorthemeFn(val, true);
+
+		// Toggle Radzen theme to match application theme
+		await JSRuntime.InvokeVoidAsync("toggleRadzenTheme", val == "dark");
 	}
 
 	private async Task SwitchTheme(string themeId)

@@ -541,3 +541,15 @@ window.showToastPrd = function (message, type) {
     });
 };
 
+window.toggleRadzenTheme = function (isDarkMode) {
+    const lightTheme = document.getElementById('radzen-theme');
+    const darkTheme = document.getElementById('radzen-theme-dark');
+
+    if (isDarkMode) {
+        lightTheme.setAttribute('disabled', 'disabled');
+        darkTheme.removeAttribute('disabled');
+    } else {
+        darkTheme.setAttribute('disabled', 'disabled');
+        lightTheme.removeAttribute('disabled');
+    }
+};
