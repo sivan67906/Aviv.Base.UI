@@ -70,7 +70,6 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<NotificationCustomService>();
-builder.Services.AddScoped<ServiceBasedDetailInfoService>();
 
 // Add Memory Cache for performance improvement
 builder.Services.AddMemoryCache();

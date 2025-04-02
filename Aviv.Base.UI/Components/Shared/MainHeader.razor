@@ -268,11 +268,11 @@
     private async void OnThemeChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
     {
         string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default fallback value
-        themePrimaryFn(selectedValue); // Calls the async function
+        await themePrimaryFn(selectedValue); // Calls the async function
     }
 
 
-    private async void themePrimaryFn(string val)
+    private async Task themePrimaryFn(string val)
     {
         //Localstorage
         await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexprimaryRGB", val);
