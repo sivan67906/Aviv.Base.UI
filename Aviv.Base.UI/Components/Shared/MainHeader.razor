@@ -59,9 +59,50 @@
 					<li><a class="dropdown-item d-flex" href="FAQ"><i class="ti ti-receipt fs-18 me-2 op-7"></i>FAQ</a></li>
 					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("default")' href="javascript:void(0)"><i class="ti ti-home fs-18 me-2 op-7"></i>Back to Main</a></li>
 					<li><a class="dropdown-item d-flex" href=""><i class="ti ti-logout fs-18 me-2 op-7"></i>Log Out</a></li>
-				</ul>
+                    <li><a class="dropdown-item d-flex" @onclick="ToggleThemeModal"><i class="ti ti-palette fs-18 me-2 op-7"></i>Select Theme</a></li>
+                </ul>
 			</div>
-		</div>
+
+            @if (isThemeModalOpen)
+            {
+                <div class="modal fade show d-block" id="themeModal" tabindex="-1" aria-labelledby="themeModalLabel" style="display: block; background: rgba(0, 0, 0, 0.5);">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="themeModalLabel">Select Theme Color</h5>
+                                <button type="button" class="btn-close" @onclick="ToggleThemeModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <lable>Theme Color</lable>
+                                <select class="form-select" id="themeDropdown" @onchange="OnThemeChange">
+                                    <option value="" selected>--select color--</option>
+                                    <option value="20, 30, 96">Blue</option>
+                                    <option value="8, 78, 115">Teal</option>
+                                    <option value="90, 37, 135">Purple</option>
+                                    <option value="24, 101, 51">Green</option>
+                                    <option value="120, 66, 20">Brown</option>
+                                </select>
+                            </div>
+                            <div class="modal-body">
+                                <lable>Background Color</lable>
+                                <select class="form-select" id="themebgDropdown" @onchange="OnThemebgChange">
+                                    <option value=""selected>--select color--</option>
+                                    <option value="20, 30, 96">Blue</option>
+                                    <option value="8, 78, 115">Teal</option>
+                                    <option value="90, 37, 135">Purple</option>
+                                    <option value="24, 101, 51">Green</option>
+                                    <option value="120, 66, 20">Brown</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" @onclick="ToggleThemeModal">Close</button>
+                                <button type="button" class="btn btn-primary" @onclick="reset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
 	</div>
 </header>
 
@@ -207,4 +248,48 @@
 	{
 		// Cleanup code if needed
 	}
+
+
+    // Kansheyam Theme Color
+
+    private bool isThemeModalOpen = false;
+
+    private void ToggleThemeModal()
+    {
+        isThemeModalOpen = !isThemeModalOpen;
+    }
+
+    private void OnThemebgChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default value as fallback
+        themeBackgroundFn(selectedValue, selectedValue);
+    }
+
+    private async void OnThemeChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default fallback value
+        themePrimaryFn(selectedValue); // Calls the async function
+    }
+
+
+    private async void themePrimaryFn(string val)
+    {
+        //Localstorage
+        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexprimaryRGB", val);
+        await stateService.themePrimaryFn(val);
+        StateHasChanged(); // Force re-render
+    }
+    private async void themeBackgroundFn(string val, string val2)
+    {
+        //Localstorage
+        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor", val);
+        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor1", val2);
+        await stateService.themeBackgroundFn(val, val2, true);
+        StateHasChanged(); // Force re-render
+    }
+    private async void reset()
+    {
+        await stateService.reset();
+        StateHasChanged(); // Force re-render
+    }
 }
