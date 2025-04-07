@@ -39,15 +39,6 @@ input::-moz-placeholder {
 }
 
 /* For Microsoft Edge */
-input::-ms-input-placeholder {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-    color: #8c9097 !important;
-    opacity: 0.8 !important;
-    letter-spacing: 0.01em !important;
-}
-
 input:-moz-placeholder {
     font-size: 14px !important;
     font-weight: 400 !important;
@@ -110,8 +101,6 @@ input:-moz-placeholder {
 .e-multi-select-wrapper .e-chips {
     background-color: #8F69E1 !important; /* Replace with your desired color */
 }
-
-
 
 
 /* Change the background color of the dropdown options */
@@ -534,4 +523,42 @@ div:where(.swal2-container) h2:where(.swal2-title) {
     background-color: rgba(60, 60, 60, 0) !important;
     color: #fff !important;
     border-color: rgba(70, 70, 70, 1) !important;
+}
+
+/* Make pagination buttons round with no background */
+.rz-pager .rz-pager-pages .rz-pager-page {
+    border-radius: 50% !important;
+    background-color: transparent !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #dee2e6 !important;
+    margin: 0 0.25rem !important;
+}
+
+    /* Style for the active/current page */
+    .rz-pager .rz-pager-pages .rz-pager-page.rz-state-active {
+        background-color: transparent !important;
+        color: #007bff !important;
+        border-color: #8F69E1 !important;
+        font-weight: bold !important;
+    }
+
+/* Style for navigation arrows (first, prev, next, last) */
+.rz-pager .rz-pager-first,
+.rz-pager .rz-pager-prev,
+.rz-pager .rz-pager-next,
+.rz-pager .rz-pager-last {
+    border-radius: 50% !important;
+    background-color: transparent !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Hover effect for all pager elements */
+.rz-pager .rz-pager-element:hover {
+    background-color: transparent !important;
+    border-color: #8F69E1 !important;
+    color: #007bff !important;
 }

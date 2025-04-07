@@ -34,7 +34,7 @@ public class MenuDataService
                 menuTitle: "PRODUCT MANAGEMENT"
             ),
             new MainMenuItems(
-                path: "#",
+                path: "/dashboard",
                 type: "link",
                 title: "Dashboard",
                 icon: "fi fi-ts-airplay",
@@ -156,7 +156,7 @@ public class MenuDataService
                 menuTitle: "SUPPORT CENTER"
             ),
             new MainMenuItems(
-                path: "#",
+                path: "/dashboard",
                 type: "link",
                 title: "Dashboard",
                 icon: "fi fi-ts-airplay",
@@ -288,7 +288,7 @@ public class MenuDataService
             menuTitle: "VENDOR ADMINISTRATOR "
         ),
          new MainMenuItems (
-            path: "#",
+            path: "/dashboard",
             type: "link",
             title: "Dashboard",
             icon: "fi fi-ts-airplay",
