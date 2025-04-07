@@ -385,11 +385,30 @@ window.interop = (function () {
             return 0;
         },
 
+        // UPDATED FUNCTION: Improved scroll visibility update with error handling
         updateScrollVisibility(dotnetHelper) {
-            window.onscroll = function () {
-                const scrollHeight = window.scrollY;
-                dotnetHelper.invokeMethodAsync('UpdateScrollVisibility', scrollHeight);
+            // Remove any existing scroll handler
+            if (window._visibilityScrollHandler) {
+                window.removeEventListener('scroll', window._visibilityScrollHandler);
+            }
+
+            // Create new handler with proper error handling
+            window._visibilityScrollHandler = function () {
+                try {
+                    // Ensure we're passing a valid integer
+                    const scrollHeight = Math.round(window.scrollY || 0);
+
+                    // Only call if dotnetHelper is still valid
+                    if (dotnetHelper && typeof dotnetHelper.invokeMethodAsync === 'function') {
+                        dotnetHelper.invokeMethodAsync('UpdateScrollVisibility', scrollHeight);
+                    }
+                } catch (error) {
+                    console.error("Error updating scroll visibility:", error);
+                }
             };
+
+            // Use addEventListener instead of onscroll for better cleanup
+            window.addEventListener('scroll', window._visibilityScrollHandler);
         },
 
         scrollToTop() {
@@ -399,6 +418,7 @@ window.interop = (function () {
             });
         },
 
+        // UPDATED FUNCTION: Improved scroll listener with error handling
         registerScrollListener(dotnetHelper) {
             // Remove any existing listener first
             if (window._scrollHandler) {
@@ -407,8 +427,17 @@ window.interop = (function () {
 
             // Create and store the handler for later cleanup
             window._scrollHandler = function () {
-                const scrollY = window.scrollY;
-                dotnetHelper.invokeMethodAsync("SetStickyClass", scrollY);
+                try {
+                    // Ensure scrollY is a valid integer
+                    const scrollY = Math.round(window.scrollY || 0);
+
+                    // Only call if dotnetHelper is still valid
+                    if (dotnetHelper && typeof dotnetHelper.invokeMethodAsync === 'function') {
+                        dotnetHelper.invokeMethodAsync("SetStickyClass", scrollY);
+                    }
+                } catch (error) {
+                    console.error("Error in scroll handler:", error);
+                }
             };
 
             window.addEventListener('scroll', window._scrollHandler);
@@ -417,10 +446,24 @@ window.interop = (function () {
             window._scrollHandler();
         },
 
+        // UPDATED FUNCTION: Improved detach method for scroll listener
         detachScrollListener() {
             if (window._scrollHandler) {
                 window.removeEventListener('scroll', window._scrollHandler);
                 window._scrollHandler = null;
+            }
+        },
+
+        // NEW FUNCTION: Method to detach all scroll handlers
+        detachAllScrollListeners() {
+            if (window._scrollHandler) {
+                window.removeEventListener('scroll', window._scrollHandler);
+                window._scrollHandler = null;
+            }
+
+            if (window._visibilityScrollHandler) {
+                window.removeEventListener('scroll', window._visibilityScrollHandler);
+                window._visibilityScrollHandler = null;
             }
         }
     };

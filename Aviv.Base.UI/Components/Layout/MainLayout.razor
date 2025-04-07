@@ -192,6 +192,7 @@
 			try
 			{
 				// Clean up JS interop references
+				JSRuntime.InvokeVoidAsync("interop.detachAllScrollListeners");
 				JSRuntime.InvokeVoidAsync("interop.disposeDotNetReference", selfReference);
 				selfReference.Dispose();
 				selfReference = null;
