@@ -562,3 +562,28 @@ div:where(.swal2-container) h2:where(.swal2-title) {
     border-color: #8F69E1 !important;
     color: #007bff !important;
 }
+
+[data-nav-layout="horizontal"] .app-sidebar {
+    justify-content: center !important;
+}
+
+[data-nav-layout="horizontal"] .main-menu {
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+[data-nav-layout="horizontal"] .page-header {
+    text-align: left;
+    margin-right: auto;
+}
+
+[data-nav-layout="horizontal"] .breadcrumb-toolbar {
+    margin-left: auto;
+    justify-content: flex-end;
+    display: flex;
+}
+
+[data-nav-layout="horizontal"] .container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
