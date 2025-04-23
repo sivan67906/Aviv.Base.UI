@@ -1,8 +1,9 @@
 ﻿@using Aviv.Base.UI.Services
 @inject PageBreadcrumbService BreadcrumbService
+@inject StateService stateService
 @implements IDisposable
 
-<div class="d-md-flex d-block align-items-center justify-content-between my-3 page-header-breadcrumb ms-3 me-3">
+<div class="d-md-flex d-block align-items-center justify-content-between my-3 page-header-breadcrumb ms-3 me-3 @(IsHorizontalLayout ? "horizontal-layout-breadcrumb" : "")">
 	@if (!string.IsNullOrEmpty(BreadcrumbService.PageHeading))
 	{
 		<h1 class="page-title fw-semibold fs-18 mb-0">@BreadcrumbService.PageHeading</h1>
@@ -29,7 +30,35 @@
 	</div>
 </div>
 
+<style>
+	.horizontal-layout-breadcrumb {
+		max-width: 1200px;
+		width: 100%;
+		margin-left: auto !important;
+		margin-right: auto !important;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+
+	/* Responsive adjustments */
+	@@media (max-width: 768px) {
+		.page-header-breadcrumb
+
+	{
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.page-header-breadcrumb .breadcrumb {
+		justify-content: center;
+	}
+
+	}
+</style>
+
 @code {
+	private bool IsHorizontalLayout => stateService.GetAppState().NavigationStyles == "horizontal";
+
 	protected override void OnInitialized()
 	{
 		BreadcrumbService.OnChange += StateHasChanged;

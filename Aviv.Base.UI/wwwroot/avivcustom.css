@@ -587,3 +587,28 @@ div:where(.swal2-container) h2:where(.swal2-title) {
     max-width: 1200px;
     margin: 0 auto;
 }
+
+[data-nav-layout="horizontal"] .app-sidebar {
+    justify-content: center !important;
+}
+
+[data-nav-layout="horizontal"] .main-menu {
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+[data-nav-layout="horizontal"] .page-header {
+    text-align: left !important;
+    margin-right: auto !important;
+}
+
+[data-nav-layout="horizontal"] .breadcrumb-toolbar {
+    margin-left: auto !important;
+    justify-content: flex-end !important;
+    display: flex !important;
+}
+
+[data-nav-layout="horizontal"] .container-fluid {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+}
