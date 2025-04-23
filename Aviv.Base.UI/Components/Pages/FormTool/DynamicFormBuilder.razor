@@ -14,950 +14,1097 @@
 
 
 <div class="container-fluid">
-    <!-- Add the notification component -->
-    <NotificationComponent />
+	<!-- Add the notification component -->
+	<NotificationComponent />
 
-    <!-- Main Form -->
-    <EditForm Model="@formModel">
-        <div class="row">
-            <!-- Left Column -->
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                <!-- Form Header Configuration Card -->
-                <div class="card custom-card mb-4">
-                    <div class="card-header">
-                        <div class="card-title">Form Header</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label" for="pageHeader">Page Header <span class="text-danger">*</span></label>
-                                <InputText id="pageHeader" class="form-control custom-input" @bind-Value="PageHeader"
-                                           placeholder="Enter page header" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+	<!-- Main Form -->
+	<EditForm Model="@formModel">
+		<div class="row">
+			<!-- Left Column -->
+			<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+				<!-- Form Header Configuration Card -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Form Header</div>
+					</div>
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-12">
+								<label class="form-label" for="pageHeader">Page Header <span class="text-danger">*</span></label>
+								<InputText id="pageHeader" class="form-control custom-input" @bind-Value="PageHeader"
+										   placeholder="Enter page header" />
+							</div>
+						</div>
+					</div>
+				</div>
 
-                <!-- Breadcrumb Management Card -->
-                <div class="card custom-card mb-4">
-                    <div class="card-header">
-                        <div class="card-title">Breadcrumb Management</div>
-                    </div>
-                    <div class="card-body">
-                        <!-- Current Breadcrumbs Preview -->
-                        <div class="mb-3">
-                            <label class="form-label">Current Breadcrumbs</label>
-                            <div class="border rounded p-2 bg-light">
-                                <nav aria-label="breadcrumb">
-                                    <ol class="breadcrumb mb-0">
-                                        @foreach (var item in formBreadcrumbItems)
-                                        {
-                                            <li class="breadcrumb-item d-flex align-items-center @(item.IsActive ? "active" : "")">
-                                                @if (item.IsActive)
-                                                {
-                                                    <span>@item.Text</span>
-                                                }
-                                                else
-                                                {
-                                                    <a href="@item.Url">@item.Text</a>
-                                                }
-                                                @if (!item.IsActive)
-                                                {
-                                                    <button class="btn btn-sm text-secondary p-0 ms-1" title="Edit" @onclick="() => EditBreadcrumb(item)">
-                                                        <i class="ri-pencil-line"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm text-danger p-0 ms-1" title="Remove" @onclick="() => RemoveBreadcrumb(item)">
-                                                        <i class="ri-delete-bin-line"></i>
-                                                    </button>
-                                                }
-                                            </li>
-                                        }
-                                    </ol>
-                                </nav>
-                            </div>
-                        </div>
+				<!-- Layout Selection Card -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Layout Selection</div>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-12">
+								<label class="form-label">Select Form Layout</label>
+								<div class="d-flex">
+									<div class="form-check me-4">
+										<input class="form-check-input" type="radio" name="formLayout" id="verticalLayout" value="vertical" checked="@(SelectedLayout == "vertical")" @onchange='() => ChangeLayout("vertical")' />
+										<label class="form-check-label" for="verticalLayout">
+											Vertical Layout (Current Layout)
+										</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="formLayout" id="horizontalLayout" value="horizontal" checked="@(SelectedLayout == "horizontal")" @onchange='() => ChangeLayout("horizontal")' />
+										<label class="form-check-label" for="horizontalLayout">
+											Horizontal Layout
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                        <!-- Add/Edit Breadcrumb -->
-                        <div class="row mb-3">
-                            <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
-                                <label class="form-label" for="breadcrumbText">Breadcrumb Text <span class="text-danger">*</span></label>
-                                <InputText id="breadcrumbText" class="form-control custom-input"
-                                           @bind-Value="newBreadcrumbText" placeholder="Enter breadcrumb text" />
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
-                                <label class="form-label" for="breadcrumbUrl">Breadcrumb URL</label>
-                                <InputText id="breadcrumbUrl" class="form-control custom-input"
-                                           @bind-Value="newBreadcrumbUrl" placeholder="Enter URL (optional)" />
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 d-flex align-items-end mt-2 mt-md-0">
-                                @if (isEditingBreadcrumb)
-                                {
-                                    <button class="btn btn-primary w-100" @onclick="UpdateBreadcrumbItem">
-                                        Update
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-primary w-100" @onclick="AddBreadcrumbItem">
-                                        Add
-                                    </button>
-                                }
-                            </div>
-                        </div>
-                        @if (isEditingBreadcrumb)
-                        {
-                            <div class="mb-3">
-                                <button class="btn btn-outline-secondary" @onclick="CancelBreadcrumbEdit">
-                                    <i class="ri-close-line me-1"></i> Cancel Editing
-                                </button>
-                            </div>
-                        }
-                    </div>
-                </div>
+				<!-- Breadcrumb Management Card -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Breadcrumb Management</div>
+					</div>
+					<div class="card-body">
+						<!-- Current Breadcrumbs Preview -->
+						<div class="mb-3">
+							<label class="form-label">Current Breadcrumbs</label>
+							<div class="border rounded p-2 bg-light">
+								<nav aria-label="breadcrumb">
+									<ol class="breadcrumb mb-0">
+										@foreach (var item in formBreadcrumbItems)
+										{
+											<li class="breadcrumb-item d-flex align-items-center @(item.IsActive ? "active" : "")">
+												@if (item.IsActive)
+												{
+													<span>@item.Text</span>
+												}
+												else
+												{
+													<a href="@item.Url">@item.Text</a>
+												}
+												@if (!item.IsActive)
+												{
+													<i class="ri-edit-line text-primary ms-1 cursor-pointer" title="Edit" @onclick="() => EditBreadcrumb(item)"></i>
+													<i class="ri-delete-bin-line text-danger ms-1 cursor-pointer" title="Remove" @onclick="() => RemoveBreadcrumb(item)"></i>
+												}
+											</li>
+										}
+									</ol>
+								</nav>
+							</div>
+						</div>
 
-                <!-- Rest of the left column content remains the same -->
-                <!-- Card Management -->
-                <div class="card custom-card mb-4">
-                    <!-- Card management content remains the same -->
-                    <div class="card-header">
-                        <div class="card-title">Card Management</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
-                                <label class="form-label" for="cardTitle">Card Title <span class="text-danger">*</span></label>
-                                <InputText id="cardTitle" class="form-control custom-input" @bind-Value="NewCardTitle" placeholder="Enter card title" />
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3 mt-md-0">
-                                <label class="form-label" for="cardSize">Card Size</label>
-                                <SfDropDownList TValue="int" TItem="int" id="cardSize" CssClass="custom-input"
-                                                DataSource="CardSizes" Placeholder="--" @bind-Value="NewCardSize" />
-                            </div>
-                        </div>
+						<!-- Add/Edit Breadcrumb -->
+						<div class="row mb-3">
+							<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+								<label class="form-label" for="breadcrumbText">Breadcrumb Text <span class="text-danger">*</span></label>
+								<InputText id="breadcrumbText" class="form-control custom-input"
+										   @bind-Value="newBreadcrumbText" placeholder="Enter breadcrumb text" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+								<label class="form-label" for="breadcrumbUrl">Breadcrumb URL</label>
+								<InputText id="breadcrumbUrl" class="form-control custom-input"
+										   @bind-Value="newBreadcrumbUrl" placeholder="Enter URL (optional)" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 d-flex align-items-end mt-2 mt-md-0">
+								@if (isEditingBreadcrumb)
+								{
+									<button class="btn btn-primary w-100" @onclick="UpdateBreadcrumbItem">
+										Update
+									</button>
+								}
+								else
+								{
+									<button class="btn btn-primary w-100" @onclick="AddBreadcrumbItem">
+										Add
+									</button>
+								}
+							</div>
+						</div>
+						@if (isEditingBreadcrumb)
+						{
+							<div class="mb-3">
+								<button class="btn btn-outline-secondary" @onclick="CancelBreadcrumbEdit">
+									<i class="ri-close-line me-1"></i> Cancel Editing
+								</button>
+							</div>
+						}
+					</div>
+				</div>
 
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <button class="btn btn-primary" @onclick="AddCard">
-                                    <i class="ri-add-line me-1"></i> Add Card
-                                </button>
-                            </div>
-                        </div>
+				<!-- Card Management -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Card Management</div>
+					</div>
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+								<label class="form-label" for="cardTitle">Card Title <span class="text-danger">*</span></label>
+								<InputText id="cardTitle" class="form-control custom-input" @bind-Value="NewCardTitle" placeholder="Enter card title" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3 mt-md-0">
+								<label class="form-label" for="cardSize">Card Size</label>
+								<SfDropDownList TValue="int" TItem="int" id="cardSize" CssClass="custom-input"
+												DataSource="CardSizes" Placeholder="--" @bind-Value="NewCardSize" />
+							</div>
+						</div>
 
-                        <!-- Existing Cards List -->
-                        @if (Cards.Count > 0)
-                        {
-                            <div class="mt-3">
-                                <label class="form-label">Added Cards</label>
-                                <div class="list-group">
-                                    @foreach (var card in Cards)
-                                    {
-                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>@card.CardTitle (Size: @card.CardSize)</span>
-                                            <div>
-                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveCard(card)" title="Remove Card">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+						<div class="row mb-3">
+							<div class="col-12">
+								<button class="btn btn-primary" @onclick="AddCard">
+									<i class="ri-add-line me-1"></i> Add Card
+								</button>
+							</div>
+						</div>
 
-                <!-- Field Configuration Card -->
-                <div class="card custom-card mb-4">
-                    <div class="card-header">
-                        <div class="card-title">Card Field Configuration</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label" for="selectCard">Select Card <span class="text-danger">*</span></label>
-                                <SfDropDownList TValue="string" TItem="string" id="selectCard" CssClass="custom-input"
-                                                DataSource="Cards.Select(x => x.CardTitle).ToList()" Placeholder="--" @bind-Value="SelectedCardTitle" />
-                            </div>
-                        </div>
+						<!-- Existing Cards List -->
+						@if (Cards.Count > 0)
+						{
+							<div class="mt-3">
+								<label class="form-label">Added Cards</label>
+								<div class="list-group">
+									@foreach (var card in Cards)
+									{
+										<div class="list-group-item d-flex justify-content-between align-items-center">
+											<span>@card.CardTitle (Size: @card.CardSize)</span>
+											<div>
+												<i class="ri-edit-line text-primary cursor-pointer me-2" @onclick="() => EditCardProperties(card)" title="Edit Card"></i>
+												<i class="ri-delete-bin-line text-danger cursor-pointer" @onclick="() => RemoveCard(card)" title="Remove Card"></i>
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+					</div>
+				</div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                                <label class="form-label" for="labelName">Label Name <span class="text-danger">*</span></label>
-                                <InputText id="labelName" class="form-control custom-input" @bind-Value="LabelName" placeholder="Enter label name" />
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-3 mt-md-0">
-                                <label class="form-label" for="inputType">Input Type <span class="text-danger">*</span></label>
-                                <SfDropDownList TValue="string" TItem="string" id="inputType" CssClass="custom-input"
-                                                DataSource="InputTypes" Placeholder="--" @bind-Value="InputType" />
-                            </div>
-                        </div>
+				<!-- Field Configuration Card -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Card Field Configuration</div>
+					</div>
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-12">
+								<label class="form-label" for="selectCard">Select Card <span class="text-danger">*</span></label>
+								<SfDropDownList TValue="string" TItem="string" id="selectCard" CssClass="custom-input"
+												DataSource="Cards.Select(x => x.CardTitle).ToList()" Placeholder="--" @bind-Value="SelectedCardTitle" />
+							</div>
+						</div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                                <label class="form-label" for="columnSize">Column Size</label>
-                                <InputNumber id="columnSize" class="form-control custom-input" @bind-Value="ColumnSize" min="1" max="12" />
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 d-flex align-items-end mt-3 mt-md-0">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="isRequiredCheck" @bind="IsFieldRequired" />
-                                    <label class="form-check-label" for="isRequiredCheck">
-                                        Required Field
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+						<div class="row mb-3">
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+								<label class="form-label" for="labelName">Label Name <span class="text-danger">*</span></label>
+								<InputText id="labelName" class="form-control custom-input" @bind-Value="LabelName" placeholder="Enter label name" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-3 mt-md-0">
+								<label class="form-label" for="inputType">Input Type <span class="text-danger">*</span></label>
+								<SfDropDownList TValue="string" TItem="string" id="inputType" CssClass="custom-input"
+												DataSource="InputTypes" Placeholder="--" @bind-Value="InputType" />
+							</div>
+						</div>
 
-                        @if (InputType == "ddl" || InputType == "multiddl" || InputType == "radio" || InputType == "checkbox")
-                        {
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <label class="form-label" for="fieldOptions">Options (comma-separated) <span class="text-danger">*</span></label>
-                                    <InputText id="fieldOptions" class="form-control custom-input" @bind-Value="FieldOptions"
-                                               placeholder="e.g. Option 1, Option 2, Option 3" />
-                                </div>
-                            </div>
-                        }
+						<div class="row mb-3">
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+								<label class="form-label" for="columnSize">Column Size</label>
+								<InputNumber id="columnSize" class="form-control custom-input" @bind-Value="ColumnSize" min="1" max="12" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 d-flex align-items-end mt-3 mt-md-0">
+								<div class="form-check mb-2">
+									<input class="form-check-input" type="checkbox" id="isRequiredCheck" @bind="IsFieldRequired" />
+									<label class="form-check-label" for="isRequiredCheck">
+										Required Field
+									</label>
+								</div>
+							</div>
+						</div>
 
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <button class="btn btn-primary" @onclick="AddField">
-                                    <i class="ri-add-line me-1"></i> Add Field
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+						@if (InputType == "ddl" || InputType == "multiddl" || InputType == "radio" || InputType == "checkbox")
+						{
+							<div class="row mb-3">
+								<div class="col-12">
+									<label class="form-label" for="fieldOptions">Options (comma-separated) <span class="text-danger">*</span></label>
+									<InputText id="fieldOptions" class="form-control custom-input" @bind-Value="FieldOptions"
+											   placeholder="e.g. Option 1, Option 2, Option 3" />
+								</div>
+							</div>
+						}
 
-            <!-- Right Column -->
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                <!-- Form Preview Section with fixed button positioning -->
-                <div class="card custom-card mb-4">
-                    <div class="card-header">
-                        <div class="card-title">Form Preview</div>
-                    </div>
-                    <div class="card-body">
-                        <!-- Header Preview -->
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-2 border-bottom">
-                            <h4 class="mb-2 mb-md-0">@(string.IsNullOrEmpty(PageHeader) ? "Form Title" : PageHeader)</h4>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb mb-0">
-                                    @foreach (var item in formBreadcrumbItems)
-                                    {
-                                        <li class="breadcrumb-item @(item.IsActive ? "active" : "")">
-                                            @if (item.IsActive)
-                                            {
-                                                @item.Text
-                                            }
-                                            else
-                                            {
-                                                <a href="@item.Url">@item.Text</a>
-                                            }
-                                        </li>
-                                    }
-                                </ol>
-                            </nav>
-                        </div>
+						<div class="row mb-3">
+							<div class="col-12">
+								<button class="btn btn-primary" @onclick="AddField">
+									<i class="ri-add-line me-1"></i> Add Field
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-                        <!-- Cards Preview with fixed button positioning -->
-                        <div class="row g-3">
-                            @foreach (var card in Cards)
-                            {
-                                <div class="col-12 col-sm-12 col-md-@card.CardSize col-lg-@card.CardSize col-xl-@card.CardSize mb-3">
-                                    <div class="card">
-                                        <div class="card-header d-flex justify-content-between align-items-center">
-                                            <strong>@card.CardTitle</strong>
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleCardEdit(card)">
-                                                <i class="ri-pencil-line me-1"></i> @(card.IsEditMode ? "Done" : "Edit")
-                                            </button>
-                                        </div>
-                                        <div class="card-body form-preview-card">
-                                            <div class="row">
-                                                @foreach (var field in card.Fields)
-                                                {
-                                                    <div class="col-12 col-sm-12 col-md-@field.ColumnSize col-lg-@field.ColumnSize col-xl-@field.ColumnSize mb-3 position-relative">
-                                                        <div class="@(card.IsEditMode ? "border border-light bg-light rounded p-3" : "")">
-                                                            @if (card.IsEditMode)
-                                                            {
-                                                                <div class="position-absolute top-0 end-0 edit-controls">
-                                                                    <button class="btn btn-sm btn-primary me-1" title="Edit"
-                                                                            @onclick="() => EditField(card, field)">
-                                                                        <i class="ri-pencil-line"></i>
-                                                                    </button>
-                                                                    <button class="btn btn-sm btn-danger" title="Delete"
-                                                                            @onclick="() => DeleteField(card, field)">
-                                                                        <i class="ri-delete-bin-line"></i>
-                                                                    </button>
-                                                                </div>
-                                                            }
+			<!-- Right Column -->
+			<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+				<!-- Form Preview Section with fixed button positioning -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Form Preview</div>
+					</div>
+					<div class="card-body">
+						<!-- Header Preview -->
+						<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-2 border-bottom">
+							<h4 class="mb-2 mb-md-0">@(string.IsNullOrEmpty(PageHeader) ? "Form Title" : PageHeader)</h4>
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb mb-0">
+									@foreach (var item in formBreadcrumbItems)
+									{
+										<li class="breadcrumb-item @(item.IsActive ? "active" : "")">
+											@if (item.IsActive)
+											{
+												@item.Text
+											}
+											else
+											{
+												<a href="@item.Url">@item.Text</a>
+											}
+										</li>
+									}
+								</ol>
+							</nav>
+						</div>
 
-                                                            <label class="form-label">
-                                                                @field.LabelName
-                                                                @if (field.IsRequired)
-                                                                {
-                                                                    <span class="text-danger">*</span>
-                                                                }
-                                                            </label>
-                                                            @switch (field.InputType.ToLower())
-                                                            {
-                                                                case "textbox":
-                                                                    <InputText class="form-control custom-input" @bind-Value="field.Value"
-                                                                               placeholder="@($"Enter {field.LabelName.ToLower()}")" />
-                                                                    break;
+						<!-- Cards Preview with fixed button positioning -->
+						<div class="row g-3">
+							@foreach (var card in Cards)
+							{
+								<div class="col-12 col-sm-12 col-md-@card.CardSize col-lg-@card.CardSize col-xl-@card.CardSize mb-3">
+									<div class="card">
+										<div class="card-header d-flex justify-content-between align-items-center">
+											<strong>@card.CardTitle</strong>
+											<div>
+												<!-- New Card Edit Button -->
+												<i class="ri-edit-line text-primary me-2 cursor-pointer" title="Edit Card Properties"
+												   @onclick="() => EditCardProperties(card)"></i>
+												<i class="ri-settings-line text-secondary cursor-pointer" title="@(card.IsEditMode ? "Done" : "Edit Fields")"
+												   @onclick="() => ToggleCardEdit(card)"></i>
+											</div>
+										</div>
+										<div class="card-body form-preview-card">
+											<div class="row">
+												@foreach (var field in card.Fields)
+												{
+													<div class="col-12 col-sm-12 col-md-@field.ColumnSize col-lg-@field.ColumnSize col-xl-@field.ColumnSize mb-3 position-relative">
+														<div class="@(card.IsEditMode ? "border border-light bg-light rounded p-3" : "")">
+															@if (card.IsEditMode)
+															{
+																<div class="position-absolute top-0 end-0 edit-controls">
+																	<i class="ri-edit-line text-primary cursor-pointer" title="Edit Field"
+																	   @onclick="() => EditField(card, field)"></i>
+																	<i class="ri-delete-bin-line text-danger cursor-pointer ms-2" title="Delete Field"
+																	   @onclick="() => DeleteField(card, field)"></i>
+																</div>
+															}
 
-                                                                case "textarea":
-                                                                    <InputTextArea class="form-control custom-input" @bind-Value="field.Value"
-                                                                                   placeholder="@($"Enter {field.LabelName.ToLower()}")" rows="3" />
-                                                                    break;
+															<label class="form-label">
+																@field.LabelName
+																@if (field.IsRequired)
+																{
+																	<span class="text-danger">*</span>
+																}
+															</label>
+															@switch (field.InputType.ToLower())
+															{
+																case "textbox":
+																	<InputText class="form-control custom-input" @bind-Value="field.Value"
+																			   placeholder="@($"Enter {field.LabelName.ToLower()}")" />
+																	break;
 
-                                                                case "ddl":
-                                                                    var ddlOptions = field.Options?.Split(',') ?? Array.Empty<string>();
-                                                                    <SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
-                                                                                    Placeholder="--" DataSource="ddlOptions" @bind-Value="field.Value">
-                                                                    </SfDropDownList>
-                                                                    break;
+																case "textarea":
+																	<InputTextArea class="form-control custom-input" @bind-Value="field.Value"
+																				   placeholder="@($"Enter {field.LabelName.ToLower()}")" rows="3" />
+																	break;
 
-                                                                case "multiddl":
-                                                                    var multiOptions = field.Options?.Split(',') ?? Array.Empty<string>();
-                                                                    <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
-                                                                                   Placeholder="Select Multiple" DataSource="multiOptions" @bind-Value="field.MultiValue" />
-                                                                    break;
+																case "ddl":
+																	var ddlOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+																	<SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
+																					Placeholder="--" DataSource="ddlOptions" @bind-Value="field.Value">
+																	</SfDropDownList>
+																	break;
 
-                                                                case "radio":
-                                                                    var radioOptions = field.Options?.Split(',') ?? Array.Empty<string>();
-                                                                    <InputRadioGroup @bind-Value="field.Value">
-                                                                        @foreach (var opt in radioOptions)
-                                                                        {
-                                                                            <div class="form-check">
-                                                                                <InputRadio class="form-check-input" Value="@opt" />
-                                                                                <label class="form-check-label">@opt</label>
-                                                                            </div>
-                                                                        }
-                                                                    </InputRadioGroup>
-                                                                    break;
+																case "multiddl":
+																	var multiOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+																	<SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+																				   Placeholder="Select Multiple" DataSource="multiOptions" @bind-Value="field.MultiValue" />
+																	break;
 
-                                                                case "checkbox":
-                                                                    var checkOptions = field.Options?.Split(',') ?? Array.Empty<string>();
-                                                                    @foreach (var opt in checkOptions)
-                                                                    {
-                                                                        <div class="form-check">
-                                                                            <input type="checkbox" class="form-check-input"
-                                                                                   value="@opt"
-                                                                                   @onchange="e => OnCheckboxChanged(e, field, opt)"
-                                                                                   checked="@(field.MultiValue?.Contains(opt) ?? false)" />
-                                                                            <label class="form-check-label">@opt</label>
-                                                                        </div>
-                                                                    }
-                                                                    break;
+																case "tags":
+																	<SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+																				   @bind-Value="field.MultiValue"
+																				   Placeholder="Enter tags"
+																				   Mode="VisualMode.Box"
+																				   AllowCustomValue="true"
+																				   AllowFiltering="true"
+																				   ShowClearButton="true"
+																				   EnableGroupCheckBox="true"
+																				   MaximumSelectionLength="10"
+																				   ShowSelectAll="true">
+																	</SfMultiSelect>
+																	break;
 
-                                                                case "tags":
-                                                                    <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
-                                                                                   @bind-Value="field.MultiValue"
-                                                                                   Placeholder="Enter tags"
-                                                                                   Mode="VisualMode.Box"
-                                                                                   AllowCustomValue="true"
-                                                                                   AllowFiltering="true"
-                                                                                   ShowClearButton="true"
-                                                                                   EnableGroupCheckBox="true"
-                                                                                   MaximumSelectionLength="10"
-                                                                                   ShowSelectAll="true">
-                                                                    </SfMultiSelect>
-                                                                    break;
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+																case "radio":
+																	var radioOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+																	<InputRadioGroup @bind-Value="field.Value">
+																		@foreach (var opt in radioOptions)
+																		{
+																			<div class="form-check">
+																				<InputRadio class="form-check-input" Value="@opt" />
+																				<label class="form-check-label">@opt</label>
+																			</div>
+																		}
+																	</InputRadioGroup>
+																	break;
 
-                        <!-- Empty State if No Cards -->
-                        @if (Cards.Count == 0)
-                        {
-                            <div class="text-center py-5 text-muted">
-                                <i class="ri-layout-4-line" style="font-size: 48px;"></i>
-                                <p class="mt-2">Add cards to start building your form</p>
-                            </div>
-                        }
-                    </div>
-                </div>
+																case "checkbox":
+																	var checkOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+																	@foreach (var opt in checkOptions)
+																	{
+																		<div class="form-check">
+																			<input type="checkbox" class="form-check-input"
+																				   value="@opt"
+																				   @onchange="e => OnCheckboxChanged(e, field, opt)"
+																				   checked="@(field.MultiValue?.Contains(opt) ?? false)" />
+																			<label class="form-check-label">@opt</label>
+																		</div>
+																	}
+																	break;
+															}
+														</div>
+													</div>
+												}
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
 
-                <!-- Publish Section -->
-                <div class="card custom-card mb-4">
-                    <div class="card-header">
-                        <div class="card-title">Publish Form</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-3">Make your form available by publishing it. Published forms can be accessed via a public URL.</p>
+						<!-- Empty State if No Cards -->
+						@if (Cards.Count == 0)
+						{
+							<div class="text-center py-5 text-muted">
+								<i class="ri-layout-4-line" style="font-size: 48px;"></i>
+								<p class="mt-2">Add cards to start building your form</p>
+							</div>
+						}
+					</div>
+				</div>
 
-                        <button class="btn btn-primary w-100 mb-3" @onclick="PublishForm">
-                            <i class="ri-global-line me-2"></i> Publish Form
-                        </button>
+				<!-- Publish Section -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Publish Form</div>
+					</div>
+					<div class="card-body">
+						<p class="mb-3">Make your form available by publishing it. Published forms can be accessed via a public URL.</p>
 
-                        @if (!string.IsNullOrEmpty(PublishedUrl))
-                        {
-                            <div class="card bg-light mt-3">
-                                <div class="card-body p-3">
-                                    <h6 class="card-title">Form Published!</h6>
-                                    <p class="mb-2">Access your form using the link below:</p>
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control" readonly value="@PublishedUrl" id="publishedUrlInput" />
-                                        <button class="btn btn-outline-secondary" type="button" @onclick="CopyUrlToClipboard">
-                                            <i class="ri-file-copy-line"></i>
-                                        </button>
-                                    </div>
-                                    <div class="text-end">
-                                        <a href="@PublishedUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="ri-external-link-line me-1"></i> Open Form
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </EditForm>
+						<button class="btn btn-primary w-100 mb-3" @onclick="PublishForm">
+							<i class="ri-global-line me-2"></i> Publish Form
+							<small class="ms-1">(@(SelectedLayout == "horizontal" ? "Centered Horizontal Layout" : "Standard Vertical Layout"))</small>
+						</button>
+
+						@if (!string.IsNullOrEmpty(PublishedUrl))
+						{
+							<div class="card bg-light mt-3">
+								<div class="card-body p-3">
+									<h6 class="card-title">Form Published!</h6>
+									<p class="mb-2">Access your form using the link below:</p>
+									<div class="input-group mb-2">
+										<input type="text" class="form-control" readonly value="@PublishedUrl" id="publishedUrlInput" />
+										<button class="btn btn-outline-secondary" type="button" @onclick="CopyUrlToClipboard">
+											<i class="ri-file-copy-line"></i>
+										</button>
+									</div>
+									<div class="text-end">
+										<a href="@PublishedUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+											<i class="ri-external-link-line me-1"></i> Open Form
+										</a>
+									</div>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</EditForm>
 </div>
 
 <!-- Edit Field Modal -->
 @if (IsFieldEditModalVisible)
 {
-    <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Field</h5>
-                    <button type="button" class="btn-close" @onclick="CloseFieldEditModal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Label Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control custom-input" @bind="EditingField.LabelName" />
-                    </div>
+	<div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Field</h5>
+					<button type="button" class="btn-close" @onclick="CloseFieldEditModal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Label Name <span class="text-danger">*</span></label>
+						<input type="text" class="form-control custom-input" @bind="EditingField.LabelName" />
+					</div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Column Size</label>
-                        <input type="number" class="form-control custom-input" @bind="EditingField.ColumnSize" min="1" max="12" />
-                    </div>
+					<div class="mb-3">
+						<label class="form-label">Column Size</label>
+						<input type="number" class="form-control custom-input" @bind="EditingField.ColumnSize" min="1" max="12" />
+					</div>
 
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="isRequired" @bind="EditingField.IsRequired" />
-                        <label class="form-check-label" for="isRequired">
-                            Required Field
-                        </label>
-                    </div>
+					<div class="mb-3 form-check">
+						<input type="checkbox" class="form-check-input" id="isRequired" @bind="EditingField.IsRequired" />
+						<label class="form-check-label" for="isRequired">
+							Required Field
+						</label>
+					</div>
 
-                    @if (EditingField != null && (EditingField.InputType == "ddl" || EditingField.InputType == "multiddl" ||
-                   EditingField.InputType == "radio" || EditingField.InputType == "checkbox"))
-                    {
-                        <div class="mb-3">
-                            <label class="form-label">Options (comma-separated) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control custom-input" @bind="EditingField.Options" />
-                        </div>
-                    }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" @onclick="CloseFieldEditModal">Cancel</button>
-                    <button type="button" class="btn btn-primary" @onclick="SaveFieldEdit">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
+					@if (EditingField != null && (EditingField.InputType == "ddl" || EditingField.InputType == "multiddl" ||
+										EditingField.InputType == "radio" || EditingField.InputType == "checkbox"))
+					{
+						<div class="mb-3">
+							<label class="form-label">Options (comma-separated) <span class="text-danger">*</span></label>
+							<input type="text" class="form-control custom-input" @bind="EditingField.Options" />
+						</div>
+					}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" @onclick="CloseFieldEditModal">Cancel</button>
+					<button type="button" class="btn btn-primary" @onclick="SaveFieldEdit">Save Changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+<!-- Card Edit Modal -->
+@if (IsCardEditModalVisible)
+{
+	<div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Card Properties</h5>
+					<button type="button" class="btn-close" @onclick="CloseCardEditModal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Card Title <span class="text-danger">*</span></label>
+						<input type="text" class="form-control custom-input" @bind="EditingCard.CardTitle" />
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Card Size</label>
+						<select class="form-select custom-input" @bind="EditingCard.CardSize">
+							@foreach (var size in CardSizes)
+							{
+								<option value="@size">@size</option>
+							}
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" @onclick="CloseCardEditModal">Cancel</button>
+					<button type="button" class="btn btn-primary" @onclick="SaveCardEdit">Save Changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
 <style>
-    /* Custom card styling to match the lead form example */
-    .custom-card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: 0;
-    }
+	/* Custom card styling to match the lead form example */
+	.custom-card {
+		box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+		border: 0;
+	}
 
-        .custom-card .card-header {
-            background-color: #f8f9fa;
-            padding: 0.75rem 1.25rem;
-            border-bottom: 1px solid #e9ecef;
-        }
+		.custom-card .card-header {
+			background-color: #f8f9fa;
+			padding: 0.75rem 1.25rem;
+			border-bottom: 1px solid #e9ecef;
+		}
 
-        .custom-card .card-title {
-            margin-bottom: 0;
-            font-weight: 500;
-            color: #495057;
-            position: relative;
-            padding-left: 12px;
-        }
+		.custom-card .card-title {
+			margin-bottom: 0;
+			font-weight: 500;
+			color: #495057;
+			position: relative;
+			padding-left: 12px;
+		}
 
-            .custom-card .card-title::before {
-                content: "";
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 4px;
-                background-color: #8F69E1;
-                border-radius: 2px;
-            }
+			.custom-card .card-title::before {
+				content: "";
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				width: 4px;
+				background-color: #8F69E1;
+				border-radius: 2px;
+			}
 
-    .custom-input {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-    }
+	.custom-input {
+		padding: 0.375rem 0.75rem;
+		font-size: 0.875rem;
+		border: 1px solid #ced4da;
+		border-radius: 0.25rem;
+	}
 
-    .text-danger {
-        color: #dc3545 !important;
-    }
+	.text-danger {
+		color: #dc3545 !important;
+	}
 
-    .form-label {
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-        color: #495057;
-    }
+	.form-label {
+		margin-bottom: 0.25rem;
+		font-weight: 500;
+		color: #495057;
+	}
 
-    .breadcrumb-item button {
-        margin-left: 0.25rem;
-        font-size: 0.75rem;
-    }
+	.breadcrumb-item button {
+		margin-left: 0.25rem;
+		font-size: 0.75rem;
+	}
 
-    /* Fix for edit and delete buttons position */
-    .position-relative {
-        position: relative !important;
-        padding-right: 70px !important; /* Add extra padding to accommodate buttons */
-    }
+	/* Fix for edit and delete buttons position */
+	.position-relative {
+		position: relative !important;
+		padding-right: 70px !important; /* Add extra padding to accommodate buttons */
+	}
 
-    .edit-controls {
-        right: 5px !important;
-        top: 5px !important;
-        padding: 5px;
-        z-index: 10;
-    }
+	.edit-controls {
+		right: 5px !important;
+		top: 5px !important;
+		padding: 5px;
+		z-index: 10;
+	}
 
-    .border.border-light.bg-light.rounded.p-3 {
-        position: relative;
-        padding-top: 35px !important; /* Make space for the edit/delete buttons */
-    }
+	.border.border-light.bg-light.rounded.p-3 {
+		position: relative;
+		padding-top: 35px !important; /* Make space for the edit/delete buttons */
+	}
 
-    /* Responsive styling */
-    @@media (max-width: 767.98px) {
-        .breadcrumb
+	/* Responsive styling */
+	@@media (max-width: 767.98px) {
+		.breadcrumb
 
-    {
-        margin-top: 0.5rem;
-    }
+	{
+		margin-top: 0.5rem;
+	}
 
-    }
-    /* Improved button positioning and container styling */
-    .position-relative {
-        position: relative !important;
-        padding-right: 70px !important; /* Add extra padding on the right side to accommodate buttons */
-    }
+	}
 
-    .position-absolute.top-0.end-0 {
-        right: 5px !important; /* Ensure buttons stay within container bounds */
-        display: flex;
-        padding: 5px;
-    }
+	/* Improved button positioning and container styling */
+	.position-relative {
+		position: relative !important;
+		padding-right: 70px !important; /* Add extra padding on the right side to accommodate buttons */
+	}
 
-        .position-absolute.top-0.end-0 button {
-            margin-left: 3px;
-        }
+	.position-absolute.top-0.end-0 {
+		right: 5px !important; /* Ensure buttons stay within container bounds */
+		display: flex;
+		padding: 5px;
+	}
 
-    /* Ensure form preview card has proper padding */
-    .card-body .row .position-relative {
-        overflow: visible;
-        margin-bottom: 15px;
-    }
+		.position-absolute.top-0.end-0 button {
+			margin-left: 3px;
+		}
 
-    /* Improve edit mode styling */
-    .border.border-light.bg-light.rounded.p-3 {
-        position: relative;
-        padding-top: 35px !important; /* Make space for the edit/delete buttons */
-    }
+	/* Ensure form preview card has proper padding */
+	.card-body .row .position-relative {
+		overflow: visible;
+		margin-bottom: 15px;
+	}
 
-    /* Responsive adjustments */
-    @@media (max-width: 576px) {
-        .position-relative
+	/* Improve edit mode styling */
+	.border.border-light.bg-light.rounded.p-3 {
+		position: relative;
+		padding-top: 35px !important; /* Make space for the edit/delete buttons */
+	}
 
-    {
-        padding-right: 60px !important;
-    }
+	/* Responsive adjustments */
+	@@media (max-width: 576px) {
+		.position-relative
 
-    .position-absolute.top-0.end-0 {
-        top: 2px !important;
-    }
+	{
+		padding-right: 60px !important;
+	}
 
-    }
+	.position-absolute.top-0.end-0 {
+		top: 2px !important;
+	}
+
+	}
+
+	/* Styling for edit and delete icons without backgrounds */
+	.ri-edit-line,
+	.ri-delete-bin-line,
+	.ri-settings-line,
+	.ri-pencil-line {
+		cursor: pointer;
+		font-size: 1.15rem;
+		transition: color 0.2s ease-in-out;
+		background: transparent !important;
+		border: none !important;
+		padding: 0 !important;
+		box-shadow: none !important;
+	}
+
+		/* Hover effects */
+		.ri-edit-line:hover,
+		.ri-pencil-line:hover {
+			color: #8F69E1 !important;
+		}
+
+		.ri-delete-bin-line:hover {
+			color: #dc3545 !important;
+		}
+
+		.ri-settings-line:hover {
+			color: #6c757d !important;
+		}
+
+	/* Cursor pointer class */
+	.cursor-pointer {
+		cursor: pointer !important;
+	}
 </style>
 
 @code {
-    private FormViewModel formModel = new FormViewModel();
-    private string PageHeader { get; set; } = "";
-    private string NewCardTitle { get; set; } = "";
-    private int NewCardSize { get; set; } = 12;
-    private string SelectedCardTitle { get; set; } = "";
-    private string LabelName { get; set; } = "";
-    private string InputType { get; set; } = "";
-    private int ColumnSize { get; set; } = 6;
-    private string FieldOptions { get; set; } = "";
-    private bool IsFieldRequired { get; set; } = false;
-    private string PublishedUrl { get; set; } = "";
+	private FormViewModel formModel = new FormViewModel();
+	private string PageHeader { get; set; } = "";
+	private string NewCardTitle { get; set; } = "";
+	private int NewCardSize { get; set; } = 12;
+	private string SelectedCardTitle { get; set; } = "";
+	private string LabelName { get; set; } = "";
+	private string InputType { get; set; } = "";
+	private int ColumnSize { get; set; } = 6;
+	private string FieldOptions { get; set; } = "";
+	private bool IsFieldRequired { get; set; } = false;
+	private string PublishedUrl { get; set; } = "";
+	private string SelectedLayout { get; set; } = "vertical";
 
-    // Breadcrumb management for the current page (fixed)
-    private List<BreadcrumbEntry> pageBreadcrumbItems = new List<BreadcrumbEntry>();
+	// Breadcrumb management for the current page (fixed)
+	private List<BreadcrumbEntry> pageBreadcrumbItems = new List<BreadcrumbEntry>();
 
-    // Breadcrumb management for the form being created
-    private List<BreadcrumbEntry> formBreadcrumbItems = new List<BreadcrumbEntry>();
-    private string newBreadcrumbText = "";
-    private string newBreadcrumbUrl = "";
-    private bool isEditingBreadcrumb = false;
-    private int editingBreadcrumbIndex = -1;
+	// Breadcrumb management for the form being created
+	private List<BreadcrumbEntry> formBreadcrumbItems = new List<BreadcrumbEntry>();
+	private string newBreadcrumbText = "";
+	private string newBreadcrumbUrl = "";
+	private bool isEditingBreadcrumb = false;
+	private int editingBreadcrumbIndex = -1;
 
-    private ObservableCollection<CardModel> Cards = new ObservableCollection<CardModel>();
-    private readonly List<int> CardSizes = Enumerable.Range(1, 12).ToList();
-    private readonly List<string> InputTypes = new List<string> { "textbox", "textarea", "ddl", "multiddl", "radio", "checkbox", "tags" };
+	private ObservableCollection<CardModel> Cards = new ObservableCollection<CardModel>();
+	private readonly List<int> CardSizes = Enumerable.Range(1, 12).ToList();
+	private readonly List<string> InputTypes = new List<string> { "textbox", "textarea", "ddl", "multiddl", "radio", "checkbox", "tags" };
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Set page breadcrumbs correctly
-        BreadcrumbService.SetBreadcrumbPath(
-            "Dynamic Form Builder",
-            ("Home", "/"),
-            ("Form Builder", "/FormTool")
-        );
+	// Properties for card editing
+	private bool IsCardEditModalVisible = false;
+	private CardModel EditingCard = new CardModel();
+	private int EditingCardIndex = -1;
 
-        // Set initial breadcrumbs for the form being created
-        formBreadcrumbItems = new List<BreadcrumbEntry>
-        {
-            new BreadcrumbEntry { Text = "Home", Url = "/", IsActive = false },
-            new BreadcrumbEntry { Text = "Forms", Url = "/forms", IsActive = false },
-            new BreadcrumbEntry { Text = "Create", Url = null, IsActive = true }
-        };
+	protected override async Task OnInitializedAsync()
+	{
+		// Set page breadcrumbs correctly
+		BreadcrumbService.SetBreadcrumbPath(
+			"Dynamic Form Builder",
+			("Home", "/"),
+			("Form Builder", "/FormTool")
+		);
 
-        await base.OnInitializedAsync();
-    }
+		// Set initial breadcrumbs for the form being created
+		formBreadcrumbItems = new List<BreadcrumbEntry>
+		{
+			new BreadcrumbEntry { Text = "Home", Url = "/", IsActive = false },
+			new BreadcrumbEntry { Text = "Forms", Url = "/forms", IsActive = false },
+			new BreadcrumbEntry { Text = "Create", Url = null, IsActive = true }
+		};
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Initialize notification service if available
-            if (NotificationService != null)
-            {
-                await NotificationService.InitializeAsync();
-                await NotificationService.ShowInfoAsync("Create a dynamic form by adding cards and fields.");
-            }
-        }
-    }
+		await base.OnInitializedAsync();
+	}
 
-    private void UpdateServiceBreadcrumbs()
-    {
-        // Only update the breadcrumbs for the current page
-        var pageTitle = "Dynamic Form Builder";
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Initialize notification service if available
+			if (NotificationService != null)
+			{
+				await NotificationService.InitializeAsync();
+				await NotificationService.ShowInfoAsync("Create a dynamic form by adding cards and fields.");
+			}
+		}
+	}
 
-        var breadcrumbArray = pageBreadcrumbItems
-            .Where(b => !b.IsActive)
-            .Select(b => (b.Text, b.Url))
-            .ToList();
+	private void UpdateServiceBreadcrumbs()
+	{
+		// Only update the breadcrumbs for the current page
+		var pageTitle = "Dynamic Form Builder";
 
-        // Add the active breadcrumb at the end
-        var activeBreadcrumb = pageBreadcrumbItems.FirstOrDefault(b => b.IsActive);
-        if (activeBreadcrumb != null)
-        {
-            breadcrumbArray.Add((activeBreadcrumb.Text, activeBreadcrumb.Url));
-        }
+		var breadcrumbArray = pageBreadcrumbItems
+			.Where(b => !b.IsActive)
+			.Select(b => (b.Text, b.Url))
+			.ToList();
 
-        BreadcrumbService.SetBreadcrumbPath(pageTitle, breadcrumbArray.ToArray());
-    }
+		// Add the active breadcrumb at the end
+		var activeBreadcrumb = pageBreadcrumbItems.FirstOrDefault(b => b.IsActive);
+		if (activeBreadcrumb != null)
+		{
+			breadcrumbArray.Add((activeBreadcrumb.Text, activeBreadcrumb.Url));
+		}
 
-    // The rest of the code remains the same
-    private void AddBreadcrumbItem()
-    {
-        if (string.IsNullOrWhiteSpace(newBreadcrumbText))
-            return;
+		BreadcrumbService.SetBreadcrumbPath(pageTitle, breadcrumbArray.ToArray());
+	}
 
-        // Get the currently active breadcrumb in the form's breadcrumbs
-        var activeBreadcrumb = formBreadcrumbItems.FirstOrDefault(b => b.IsActive);
-        if (activeBreadcrumb != null)
-        {
-            // Make it non-active
-            activeBreadcrumb.IsActive = false;
-        }
+	// Layout selection method
+	private void ChangeLayout(string layout)
+	{
+		SelectedLayout = layout;
+		StateHasChanged();
+	}
 
-        // Add the new breadcrumb as active for the form being created
-        formBreadcrumbItems.Add(new BreadcrumbEntry
-            {
-                Text = newBreadcrumbText,
-                Url = string.IsNullOrEmpty(newBreadcrumbUrl) ? null : newBreadcrumbUrl,
-                IsActive = true
-            });
+	// Breadcrumb management methods
+	private void AddBreadcrumbItem()
+	{
+		if (string.IsNullOrWhiteSpace(newBreadcrumbText))
+			return;
 
-        // Reset fields
-        newBreadcrumbText = "";
-        newBreadcrumbUrl = "";
+		// Get the currently active breadcrumb in the form's breadcrumbs
+		var activeBreadcrumb = formBreadcrumbItems.FirstOrDefault(b => b.IsActive);
+		if (activeBreadcrumb != null)
+		{
+			// Make it non-active
+			activeBreadcrumb.IsActive = false;
+		}
 
-        StateHasChanged();
-    }
+		// Add the new breadcrumb as active for the form being created
+		formBreadcrumbItems.Add(new BreadcrumbEntry
+			{
+				Text = newBreadcrumbText,
+				Url = string.IsNullOrEmpty(newBreadcrumbUrl) ? null : newBreadcrumbUrl,
+				IsActive = true
+			});
 
-    // Remaining code unchanged...
-    private void RemoveBreadcrumb(BreadcrumbEntry item)
-    {
-        // Cannot remove the active breadcrumb
-        if (item.IsActive)
-            return;
+		// Reset fields
+		newBreadcrumbText = "";
+		newBreadcrumbUrl = "";
 
-        formBreadcrumbItems.Remove(item);
+		StateHasChanged();
+	}
 
-        StateHasChanged();
-    }
+	private void RemoveBreadcrumb(BreadcrumbEntry item)
+	{
+		// Cannot remove the active breadcrumb
+		if (item.IsActive)
+			return;
 
-    private void EditBreadcrumb(BreadcrumbEntry item)
-    {
-        // Cannot edit the active breadcrumb
-        if (item.IsActive)
-            return;
+		formBreadcrumbItems.Remove(item);
 
-        // Set editing state
-        isEditingBreadcrumb = true;
-        editingBreadcrumbIndex = formBreadcrumbItems.IndexOf(item);
+		StateHasChanged();
+	}
 
-        // Populate edit fields
-        newBreadcrumbText = item.Text;
-        newBreadcrumbUrl = item.Url ?? "";
-    }
+	private void EditBreadcrumb(BreadcrumbEntry item)
+	{
+		// Cannot edit the active breadcrumb
+		if (item.IsActive)
+			return;
 
-    private void UpdateBreadcrumbItem()
-    {
-        if (editingBreadcrumbIndex < 0 || editingBreadcrumbIndex >= formBreadcrumbItems.Count)
-            return;
+		// Set editing state
+		isEditingBreadcrumb = true;
+		editingBreadcrumbIndex = formBreadcrumbItems.IndexOf(item);
 
-        if (string.IsNullOrWhiteSpace(newBreadcrumbText))
-            return;
+		// Populate edit fields
+		newBreadcrumbText = item.Text;
+		newBreadcrumbUrl = item.Url ?? "";
+	}
 
-        // Update the breadcrumb for the form being created
-        formBreadcrumbItems[editingBreadcrumbIndex].Text = newBreadcrumbText;
-        formBreadcrumbItems[editingBreadcrumbIndex].Url = string.IsNullOrEmpty(newBreadcrumbUrl) ? null : newBreadcrumbUrl;
+	private void UpdateBreadcrumbItem()
+	{
+		if (editingBreadcrumbIndex < 0 || editingBreadcrumbIndex >= formBreadcrumbItems.Count)
+			return;
 
-        // Reset editing state
-        CancelBreadcrumbEdit();
+		if (string.IsNullOrWhiteSpace(newBreadcrumbText))
+			return;
 
-        StateHasChanged();
-    }
+		// Update the breadcrumb for the form being created
+		formBreadcrumbItems[editingBreadcrumbIndex].Text = newBreadcrumbText;
+		formBreadcrumbItems[editingBreadcrumbIndex].Url = string.IsNullOrEmpty(newBreadcrumbUrl) ? null : newBreadcrumbUrl;
 
-    private void CancelBreadcrumbEdit()
-    {
-        isEditingBreadcrumb = false;
-        editingBreadcrumbIndex = -1;
-        newBreadcrumbText = "";
-        newBreadcrumbUrl = "";
-    }
+		// Reset editing state
+		CancelBreadcrumbEdit();
 
-    private void AddCard()
-    {
-        if (!string.IsNullOrWhiteSpace(NewCardTitle))
-        {
-            Cards.Add(new CardModel
-                {
-                    CardTitle = NewCardTitle,
-                    CardSize = NewCardSize
-                });
-            NewCardTitle = string.Empty;
-        }
-    }
+		StateHasChanged();
+	}
 
-    private void RemoveCard(CardModel card)
-    {
-        Cards.Remove(card);
-    }
+	private void CancelBreadcrumbEdit()
+	{
+		isEditingBreadcrumb = false;
+		editingBreadcrumbIndex = -1;
+		newBreadcrumbText = "";
+		newBreadcrumbUrl = "";
+	}
 
-    private void AddField()
-    {
-        var card = Cards.FirstOrDefault(c => c.CardTitle == SelectedCardTitle);
-        if (card != null && !string.IsNullOrWhiteSpace(LabelName) && !string.IsNullOrWhiteSpace(InputType))
-        {
-            card.Fields.Add(new FieldModel
-                {
-                    LabelName = LabelName,
-                    InputType = InputType,
-                    ColumnSize = ColumnSize,
-                    Options = FieldOptions,
-                    MultiValue = new List<string>(),
-                    IsRequired = IsFieldRequired
-                });
+	// Card management methods
+	private void AddCard()
+	{
+		if (!string.IsNullOrWhiteSpace(NewCardTitle))
+		{
+			Cards.Add(new CardModel
+				{
+					CardTitle = NewCardTitle,
+					CardSize = NewCardSize
+				});
+			NewCardTitle = string.Empty;
+		}
+	}
 
-            LabelName = string.Empty;
-            InputType = string.Empty;
-            ColumnSize = 6;
-            FieldOptions = string.Empty;
-            IsFieldRequired = false;
-        }
-    }
+	private void RemoveCard(CardModel card)
+	{
+		Cards.Remove(card);
+	}
 
-    private void OnCheckboxChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e, FieldModel field, string option)
-    {
-        bool isChecked = e?.Value?.ToString() == "true";
-        if (field.MultiValue == null)
-        {
-            field.MultiValue = new List<string>();
-        }
+	// Method to edit card properties
+	private void EditCardProperties(CardModel card)
+	{
+		EditingCardIndex = Cards.IndexOf(card);
+		if (EditingCardIndex >= 0)
+		{
+			// Create a new instance to edit (to avoid direct reference modification)
+			EditingCard = new CardModel
+				{
+					CardTitle = card.CardTitle,
+					CardSize = card.CardSize
+				};
 
-        if (isChecked)
-        {
-            if (!field.MultiValue.Contains(option))
-                field.MultiValue.Add(option);
-        }
-        else
-        {
-            field.MultiValue.Remove(option);
-        }
-    }
+			IsCardEditModalVisible = true;
+			StateHasChanged();
+		}
+	}
 
-    // Edit functionality
-    bool IsFieldEditModalVisible = false;
-    CardModel SelectedCard;
-    FieldModel EditingField = new FieldModel();
-    int EditingFieldIndex = -1;
+	// Method to save card edits
+	private void SaveCardEdit()
+	{
+		if (EditingCardIndex >= 0 && !string.IsNullOrWhiteSpace(EditingCard.CardTitle))
+		{
+			// Update the card properties
+			Cards[EditingCardIndex].CardTitle = EditingCard.CardTitle;
+			Cards[EditingCardIndex].CardSize = EditingCard.CardSize;
 
-    void ToggleCardEdit(CardModel card)
-    {
-        card.IsEditMode = !card.IsEditMode;
-        StateHasChanged();
-    }
+			CloseCardEditModal();
+		}
+	}
 
-    void EditField(CardModel card, FieldModel field)
-    {
-        SelectedCard = card;
+	// Method to close the card edit modal
+	private void CloseCardEditModal()
+	{
+		IsCardEditModalVisible = false;
+		EditingCard = new CardModel();
+		EditingCardIndex = -1;
+		StateHasChanged();
+	}
 
-        // Find the index of the field in the card's Fields collection
-        EditingFieldIndex = card.Fields.IndexOf(field);
+	// Field management methods
+	private void AddField()
+	{
+		var card = Cards.FirstOrDefault(c => c.CardTitle == SelectedCardTitle);
+		if (card != null && !string.IsNullOrWhiteSpace(LabelName) && !string.IsNullOrWhiteSpace(InputType))
+		{
+			card.Fields.Add(new FieldModel
+				{
+					LabelName = LabelName,
+					InputType = InputType,
+					ColumnSize = ColumnSize,
+					Options = FieldOptions,
+					MultiValue = new List<string>(),
+					IsRequired = IsFieldRequired
+				});
 
-        if (EditingFieldIndex >= 0)
-        {
-            // Create a new instance to edit (deep copy)
-            EditingField = new FieldModel
-                {
-                    LabelName = field.LabelName,
-                    InputType = field.InputType,
-                    ColumnSize = field.ColumnSize,
-                    Options = field.Options,
-                    Value = field.Value,
-                    IsRequired = field.IsRequired,
-                    MultiValue = field.MultiValue != null
-                        ? new List<string>(field.MultiValue)
-                        : new List<string>()
-                };
+			LabelName = string.Empty;
+			InputType = string.Empty;
+			ColumnSize = 6;
+			FieldOptions = string.Empty;
+			IsFieldRequired = false;
+		}
+	}
 
-            IsFieldEditModalVisible = true;
-            StateHasChanged();
-        }
-    }
+	private void OnCheckboxChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e, FieldModel field, string option)
+	{
+		bool isChecked = e?.Value?.ToString() == "true";
+		if (field.MultiValue == null)
+		{
+			field.MultiValue = new List<string>();
+		}
 
-    void SaveFieldEdit()
-    {
-        if (SelectedCard != null && EditingField != null && EditingFieldIndex >= 0)
-        {
-            // Replace the field at the stored index
-            SelectedCard.Fields[EditingFieldIndex] = EditingField;
-            CloseFieldEditModal();
-        }
-    }
+		if (isChecked)
+		{
+			if (!field.MultiValue.Contains(option))
+				field.MultiValue.Add(option);
+		}
+		else
+		{
+			field.MultiValue.Remove(option);
+		}
+	}
 
-    void CloseFieldEditModal()
-    {
-        IsFieldEditModalVisible = false;
-        EditingField = new FieldModel();
-        EditingFieldIndex = -1;
-        StateHasChanged();
-    }
+	// Field editing functionality
+	bool IsFieldEditModalVisible = false;
+	CardModel SelectedCard;
+	FieldModel EditingField = new FieldModel();
+	int EditingFieldIndex = -1;
 
-    void DeleteField(CardModel card, FieldModel field)
-    {
-        if (card != null && field != null)
-        {
-            card.Fields.Remove(field);
-            StateHasChanged();
-        }
-    }
+	void ToggleCardEdit(CardModel card)
+	{
+		card.IsEditMode = !card.IsEditMode;
+		StateHasChanged();
+	}
 
-    // Publish functionality
-    private async Task PublishForm()
-    {
-        if (Cards.Count == 0)
-        {
-            if (NotificationService != null)
-            {
-                await NotificationService.ShowWarningAsync("Please add at least one card to publish the form.");
-            }
-            return;
-        }
+	void EditField(CardModel card, FieldModel field)
+	{
+		SelectedCard = card;
 
-        // Create a model to represent the form
-        var formData = new FormModel
-            {
-                FormId = Guid.NewGuid().ToString(),
-                PageHeader = PageHeader,
-                BreadcrumbItems = formBreadcrumbItems.Select(b => new BreadcrumbInfo
-                {
-                    Text = b.Text,
-                    Url = b.Url,
-                    IsActive = b.IsActive
-                }).ToList(),
-                Cards = new List<CardModel>()
-            };
+		// Find the index of the field in the card's Fields collection
+		EditingFieldIndex = card.Fields.IndexOf(field);
 
-        // Make a deep copy of the cards to avoid reference issues
-        foreach (var card in Cards)
-        {
-            var newCard = new CardModel
-                {
-                    CardTitle = card.CardTitle,
-                    CardSize = card.CardSize,
-                    Fields = new ObservableCollection<FieldModel>()
-                };
+		if (EditingFieldIndex >= 0)
+		{
+			// Create a new instance to edit (deep copy)
+			EditingField = new FieldModel
+				{
+					LabelName = field.LabelName,
+					InputType = field.InputType,
+					ColumnSize = field.ColumnSize,
+					Options = field.Options,
+					Value = field.Value,
+					IsRequired = field.IsRequired,
+					MultiValue = field.MultiValue != null
+							? new List<string>(field.MultiValue)
+							: new List<string>()
+				};
 
-            foreach (var field in card.Fields)
-            {
-                newCard.Fields.Add(new FieldModel
-                    {
-                        LabelName = field.LabelName,
-                        InputType = field.InputType,
-                        ColumnSize = field.ColumnSize,
-                        Options = field.Options,
-                        Value = field.Value,
-                        IsRequired = field.IsRequired,
-                        MultiValue = field.MultiValue != null
-                            ? new List<string>(field.MultiValue)
-                            : new List<string>()
-                    });
-            }
+			IsFieldEditModalVisible = true;
+			StateHasChanged();
+		}
+	}
 
-            formData.Cards.Add(newCard);
-        }
+	void SaveFieldEdit()
+	{
+		if (SelectedCard != null && EditingField != null && EditingFieldIndex >= 0)
+		{
+			// Replace the field at the stored index
+			SelectedCard.Fields[EditingFieldIndex] = EditingField;
+			CloseFieldEditModal();
+		}
+	}
 
-        // Use the FormService to publish the form
-        PublishedUrl = await FormService.PublishFormAsync(formData, NavigationManager.BaseUri);
+	void CloseFieldEditModal()
+	{
+		IsFieldEditModalVisible = false;
+		EditingField = new FieldModel();
+		EditingFieldIndex = -1;
+		StateHasChanged();
+	}
 
-        // Show success notification
-        if (NotificationService != null)
-        {
-            await NotificationService.ShowSuccessAsync("Form published successfully!");
-        }
+	void DeleteField(CardModel card, FieldModel field)
+	{
+		if (card != null && field != null)
+		{
+			card.Fields.Remove(field);
+			StateHasChanged();
+		}
+	}
 
-        StateHasChanged();
-    }
+	// Publish functionality
+	private async Task PublishForm()
+	{
+		if (Cards.Count == 0)
+		{
+			if (NotificationService != null)
+			{
+				await NotificationService.ShowWarningAsync("Please add at least one card to publish the form.");
+			}
+			return;
+		}
 
-    private async Task CopyUrlToClipboard()
-    {
-        await FormService.CopyToClipboardAsync(PublishedUrl);
+		// Create a model to represent the form
+		var formData = new FormModel
+			{
+				FormId = Guid.NewGuid().ToString(),
+				PageHeader = PageHeader,
+				BreadcrumbItems = formBreadcrumbItems.Select(b => new BreadcrumbInfo
+				{
+					Text = b.Text,
+					Url = b.Url,
+					IsActive = b.IsActive
+				}).ToList(),
+				Cards = new List<CardModel>(),
+			// Add layout information
+				FormLayout = SelectedLayout
+			};
 
-        // Show notification
-        if (NotificationService != null)
-        {
-            await NotificationService.ShowInfoAsync("URL copied to clipboard");
-        }
-    }
+		// Make a deep copy of the cards to avoid reference issues
+		foreach (var card in Cards)
+		{
+			var newCard = new CardModel
+				{
+					CardTitle = card.CardTitle,
+					CardSize = card.CardSize,
+					Fields = new ObservableCollection<FieldModel>()
+				};
+
+			foreach (var field in card.Fields)
+			{
+				newCard.Fields.Add(new FieldModel
+					{
+						LabelName = field.LabelName,
+						InputType = field.InputType,
+						ColumnSize = field.ColumnSize,
+						Options = field.Options,
+						Value = field.Value,
+						IsRequired = field.IsRequired,
+						MultiValue = field.MultiValue != null
+								? new List<string>(field.MultiValue)
+								: new List<string>()
+					});
+			}
+
+			formData.Cards.Add(newCard);
+		}
+
+		// Use the FormService to publish the form
+		PublishedUrl = await FormService.PublishFormAsync(formData, NavigationManager.BaseUri);
+
+		// Show success notification
+		if (NotificationService != null)
+		{
+			await NotificationService.ShowSuccessAsync("Form published successfully!");
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task CopyUrlToClipboard()
+	{
+		await FormService.CopyToClipboardAsync(PublishedUrl);
+
+		// Show notification
+		if (NotificationService != null)
+		{
+			await NotificationService.ShowInfoAsync("URL copied to clipboard");
+		}
+	}
 }

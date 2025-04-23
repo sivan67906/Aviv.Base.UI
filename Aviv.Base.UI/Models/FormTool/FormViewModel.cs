@@ -12,6 +12,9 @@ namespace Aviv.Base.UI.Models.FormTool
         public string PageHeader { get; set; } = string.Empty;
         public List<BreadcrumbInfo> BreadcrumbItems { get; set; } = [];
         public List<CardModel> Cards { get; set; } = [];
+
+        // Property to store the form layout preference (vertical or horizontal)
+        public string FormLayout { get; set; } = "vertical";
     }
 
     /// <summary>
@@ -43,16 +46,6 @@ namespace Aviv.Base.UI.Models.FormTool
         public bool IsRequired { get; set; } = false;
     }
 
-    ///// <summary>
-    ///// Represents a breadcrumb navigation item
-    ///// </summary>
-    //public class BreadcrumbEntry
-    //{
-    //    public string Text { get; set; } = string.Empty;
-    //    public string Url { get; set; } = string.Empty;
-    //    public bool IsActive { get; set; } = false;
-    //}
-
     /// <summary>
     /// Represents a breadcrumb navigation item for serialization
     /// </summary>
@@ -72,6 +65,7 @@ namespace Aviv.Base.UI.Models.FormTool
         public string PageHeader { get; set; } = string.Empty;
         public List<BreadcrumbInfo> BreadcrumbItems { get; set; } = [];
         public List<CardModel> Cards { get; set; } = [];
+        public string FormLayout { get; set; } = "vertical";
     }
 
     /// <summary>

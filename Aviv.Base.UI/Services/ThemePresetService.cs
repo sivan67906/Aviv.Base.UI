@@ -119,6 +119,31 @@ namespace Aviv.Base.UI.Services
                 "support"
             );
             _themePresets.Add(supportPreset.Id, supportPreset);
+
+            ThemePreset publishedFormPreset = new ThemePreset(
+    "published_form",
+    "Published Form Theme",
+    new AppState
+    {
+        ColorTheme = "light",
+        Direction = "ltr",
+        NavigationStyles = "horizontal", // Horizontal layout as requested
+        MenuStyles = "menu-click",
+        LayoutStyles = "",
+        PageStyles = "regular",
+        WidthStyles = "fullwidth",
+        MenuPosition = "fixed",
+        HeaderPosition = "fixed",
+        MenuColor = "light",
+        HeaderColor = "light",
+        ThemePrimary = "143, 105, 225", // Purple theme (#8F69E1)
+        ThemeBackground = "",
+        ThemeBackground1 = "",
+        BackgroundImage = ""
+    },
+    "default" // Use the default menu items
+);
+            _themePresets.Add(publishedFormPreset.Id, publishedFormPreset);
         }
 
         public ThemePreset? GetPreset(string presetId)

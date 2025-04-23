@@ -11,6 +11,9 @@
 @inject PageBreadcrumbService BreadcrumbService
 @inject NotificationCustomService NotificationService
 @inject CustomFormService FormService
+@inject StateService stateService
+@inject ThemePresetService ThemePresetService
+@implements IDisposable
 
 <!-- Breadcrumb Component -->
 <BreadcrumbComponent />
@@ -33,7 +36,7 @@ else if (LoadError)
 }
 else
 {
-    <div class="container-fluid p-0">
+    <div class="container-fluid">
         <EditForm Model="FormData" OnValidSubmit="SubmitForm">
             <div class="row">
                 @foreach (var card in FormData.Cards)
@@ -159,7 +162,7 @@ else
             
             <div class="row">
                 <div class="col-12">
-                    <div class="d-flex justify-content-end mb-4">
+                    <div class="@(IsHorizontalLayout ? "d-flex justify-content-center" : "d-flex justify-content-end") mb-4">
                         <button type="submit" class="btn btn-primary">Submit Form</button>
                     </div>
                 </div>
@@ -262,6 +265,62 @@ else
         background-color: white;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     }
+
+    /* Add styling for edit and delete icons without backgrounds */
+    .ri-edit-line, .ri-delete-bin-line, .ri-settings-line {
+        cursor: pointer;
+        font-size: 1.15rem;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .ri-edit-line:hover {
+        color: #8F69E1 !important;
+    }
+
+    .ri-delete-bin-line:hover {
+        color: #dc3545 !important;
+    }
+
+    .ri-settings-line:hover {
+        color: #6c757d !important;
+    }
+    
+    /* Additional centered layout styling for horizontal mode */
+    [data-nav-layout="horizontal"] .container-fluid {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Page title styling for centered horizontal layout */
+    [data-nav-layout="horizontal"] .page-header-breadcrumb {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+	[data-nav-layout="horizontal"] .app-sidebar {
+		justify-content: center !important;
+	}
+
+	[data-nav-layout="horizontal"] .main-menu {
+		justify-content: center !important;
+		margin: 0 auto !important;
+	}
+
+	[data-nav-layout="horizontal"] .page-header {
+		text-align: left;
+		margin-right: auto;
+	}
+
+	[data-nav-layout="horizontal"] .breadcrumb-toolbar {
+		margin-left: auto;
+		justify-content: flex-end;
+		display: flex;
+	}
+
+	[data-nav-layout="horizontal"] .justify-content-end {
+		justify-content: flex-end !important;
+	}
 </style>
 
 @code {
@@ -272,6 +331,8 @@ else
     private bool LoadError = false;
     private bool IsSubmitted = false;
     private Dictionary<string, string> ValidationErrors = new Dictionary<string, string>();
+    private bool ThemeApplied = false;
+    private bool IsHorizontalLayout => FormData?.FormLayout == "horizontal";
 
     private FormModel FormData { get; set; } = new FormModel();
 
@@ -301,6 +362,17 @@ else
             {
                 LoadError = true;
                 return;
+            }
+            
+            // Apply the appropriate theme based on form layout
+            string themePresetId = FormData.FormLayout == "horizontal" ? "published_form" : "default";
+            await stateService.SwitchThemePreset(themePresetId);
+            ThemeApplied = true;
+            
+            // For horizontal layout, call our JavaScript helper to properly center content
+            if (IsHorizontalLayout)
+            {
+                await JSRuntime.InvokeVoidAsync("themeHelper.applyPublishedFormTheme");
             }
             
             // Update the breadcrumb with the actual form name and items
@@ -485,5 +557,15 @@ else
     private void NavigateToFormBuilder()
     {
         NavigationManager.NavigateTo("/FormTool/DynamicFormBuilder");
+    }
+    
+    public void Dispose()
+    {
+        // If needed, reset to the original theme when leaving the page
+        if (ThemeApplied)
+        {
+            // Not necessary if the user is expected to stay in the published form theme
+            // stateService.SwitchThemePreset("default");
+        }
     }
 }

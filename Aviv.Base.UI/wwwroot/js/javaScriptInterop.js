@@ -643,3 +643,56 @@ function isElementVisible(element) {
     const computedStyle = window.getComputedStyle(element);
     return computedStyle.display !== "none";
 }
+
+// Function to smoothly apply theme transitions
+window.themeHelper = {
+    // Apply visual feedback when switching to published form theme
+    applyPublishedFormTheme: function () {
+        // Add a brief transition effect to indicate theme change
+        document.body.classList.add('theme-transition');
+
+        // Use setTimeout to create a slight delay for visual effect
+        setTimeout(() => {
+            // Remove transition class after change is complete
+            document.body.classList.remove('theme-transition');
+        }, 500);
+
+        // Scroll to top for better user experience
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        // Return true to indicate success
+        return true;
+    },
+
+    // Helper to check current theme
+    isHorizontalLayout: function () {
+        return document.documentElement.getAttribute('data-nav-layout') === 'horizontal';
+    },
+
+    // Helper to get menu height for spacing adjustments
+    getMenuHeight: function () {
+        const menuElement = document.querySelector('.app-sidebar');
+        return menuElement ? menuElement.offsetHeight : 0;
+    }
+};
+
+// Add this CSS to handle the transition effect
+document.addEventListener('DOMContentLoaded', function () {
+    const style = document.createElement('style');
+    style.textContent = `
+        .theme-transition {
+            transition: background-color 0.5s ease, color 0.5s ease;
+            animation: theme-pulse 0.5s ease;
+        }
+        
+        @keyframes theme-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+});
