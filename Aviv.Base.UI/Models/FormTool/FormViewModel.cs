@@ -12,6 +12,7 @@ namespace Aviv.Base.UI.Models.FormTool
         public string PageHeader { get; set; } = string.Empty;
         public List<BreadcrumbInfo> BreadcrumbItems { get; set; } = [];
         public List<CardModel> Cards { get; set; } = [];
+        public List<ButtonModel> Buttons { get; set; } = []; // New property for buttons
 
         // Property to store the form layout preference (vertical or horizontal)
         public string FormLayout { get; set; } = "vertical";
@@ -44,6 +45,17 @@ namespace Aviv.Base.UI.Models.FormTool
         public string Value { get; set; } = string.Empty;
         public List<string> MultiValue { get; set; } = [];
         public bool IsRequired { get; set; } = false;
+    }
+
+    /// <summary>
+    /// Represents a button in a form
+    /// </summary>
+    public class ButtonModel
+    {
+        public string ButtonName { get; set; } = string.Empty;
+        public string ButtonClass { get; set; } = "btn-primary";
+        public string ButtonPosition { get; set; } = "right"; // "left" or "right"
+        public string ButtonIcon { get; set; } = string.Empty; // Optional icon class
     }
 
     /// <summary>

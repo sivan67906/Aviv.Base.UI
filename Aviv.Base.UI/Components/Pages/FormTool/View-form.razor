@@ -39,8 +39,11 @@ else
     <div class="container-fluid">
         <EditForm Model="FormData" OnValidSubmit="SubmitForm">
             <div class="row">
-                @foreach (var card in FormData.Cards)
+                @for (int i = 0; i < FormData.Cards.Count; i++)
                 {
+                    var card = FormData.Cards[i];
+                    var isLastCard = i == FormData.Cards.Count - 1;
+
                     <div class="col-12 col-sm-12 col-md-@card.CardSize col-lg-@card.CardSize col-xl-@card.CardSize mb-4">
                         <div class="card custom-card">
                             <div class="card-header">
@@ -97,7 +100,7 @@ else
                                                     <SfMultiSelect TValue="List<string>" TItem="string"
                                                                    ID="@($"field_{field.LabelName.Replace(" ", "_")}")"
                                                                    CssClass="@(ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired ? "custom-input error-border" : "custom-input")"
-                                                                   Placeholder="Select Multiple"
+                                                                   Placeholder="--"
                                                                    DataSource="multiOptions" @bind-Value="field.MultiValue" />
                                                     break;
 
@@ -135,7 +138,7 @@ else
                                                                    ID="@($"field_{field.LabelName.Replace(" ", "_")}")"
                                                                    CssClass="@(ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired ? "custom-input error-border" : "custom-input")"
                                                                    @bind-Value="field.MultiValue"
-                                                                   Placeholder="Enter tags"
+                                                                   Placeholder="--"
                                                                    Mode="VisualMode.Box"
                                                                    AllowCustomValue="true"
                                                                    AllowFiltering="true"
@@ -155,17 +158,49 @@ else
                                     }
                                 </div>
                             </div>
+                            
+                            @if (isLastCard)
+                            {
+                                <div class="card-footer">
+                                    <div class="@GetButtonContainerClass() py-2">
+                                        <!-- Left-side buttons -->
+                                        @if (FormData.Buttons?.Any(b => b.ButtonPosition == "left") == true)
+                                        {
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach (var button in FormData.Buttons.Where(b => b.ButtonPosition == "left"))
+                                                {
+                                                    <button type="button" class="btn @button.ButtonClass">@button.ButtonName</button>
+                                                }
+                                            </div>
+                                        }
+                                        
+                                        <!-- Center buttons -->
+                                        @if (FormData.Buttons?.Any(b => b.ButtonPosition == "center") == true)
+                                        {
+                                            <div class="d-flex flex-wrap gap-2 mx-auto">
+                                                @foreach (var button in FormData.Buttons.Where(b => b.ButtonPosition == "center"))
+                                                {
+                                                    <button type="button" class="btn @button.ButtonClass">@button.ButtonName</button>
+                                                }
+                                            </div>
+                                        }
+                                        
+                                        <!-- Right-side buttons and Submit -->
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @if (FormData.Buttons?.Any(b => b.ButtonPosition == "right") == true)
+                                            {
+                                                @foreach (var button in FormData.Buttons.Where(b => b.ButtonPosition == "right"))
+                                                {
+                                                    <button type="button" class="btn @button.ButtonClass">@button.ButtonName</button>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
-            </div>
-            
-            <div class="row">
-                <div class="col-12">
-                    <div class="@(IsHorizontalLayout ? "d-flex justify-content-center" : "d-flex justify-content-end") mb-4">
-                        <button type="submit" class="btn btn-primary">Submit Form</button>
-                    </div>
-                </div>
             </div>
         </EditForm>
     </div>
@@ -225,6 +260,12 @@ else
         width: 4px;
         background-color: #8F69E1;
         border-radius: 2px;
+    }
+    
+    .custom-card .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 0.75rem 1.25rem;
     }
     
     .custom-input {
@@ -412,6 +453,48 @@ else
         {
             IsLoading = false;
             StateHasChanged();
+        }
+    }
+    
+    // Helper method to get the appropriate button container class based on button positions
+    private string GetButtonContainerClass()
+    {
+        bool hasLeft = FormData.Buttons?.Any(b => b.ButtonPosition == "left") == true;
+        bool hasCenter = FormData.Buttons?.Any(b => b.ButtonPosition == "center") == true;
+        bool hasRight = FormData.Buttons?.Any(b => b.ButtonPosition == "right") == true || true; // Always true because of Submit button
+
+        if (hasLeft && hasCenter && hasRight)
+        {
+            return "d-flex justify-content-between";
+        }
+        else if (hasLeft && hasCenter && !hasRight)
+        {
+            return "d-flex justify-content-start";
+        }
+        else if (hasLeft && !hasCenter && hasRight)
+        {
+            return "d-flex justify-content-between";
+        }
+        else if (!hasLeft && hasCenter && hasRight)
+        {
+            return "d-flex justify-content-between";
+        }
+        else if (!hasLeft && !hasCenter && hasRight)
+        {
+            return "d-flex justify-content-end";
+        }
+        else if (!hasLeft && hasCenter && !hasRight)
+        {
+            return "d-flex justify-content-center";
+        }
+        else if (hasLeft && !hasCenter && !hasRight)
+        {
+            return "d-flex justify-content-start";
+        }
+        else
+        {
+            // Default case (should not happen with Submit button)
+            return "d-flex justify-content-between";
         }
     }
     

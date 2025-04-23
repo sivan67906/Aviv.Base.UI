@@ -22,120 +22,115 @@
 		<div class="row">
 			<!-- Left Column -->
 			<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<!-- Form Header Configuration Card -->
+				<!-- Combined Form Configuration Card -->
 				<div class="card custom-card mb-4">
 					<div class="card-header">
-						<div class="card-title">Form Header</div>
+						<div class="card-title">Form Configuration</div>
 					</div>
 					<div class="card-body">
-						<div class="row mb-3">
-							<div class="col-12">
-								<label class="form-label" for="pageHeader">Page Header <span class="text-danger">*</span></label>
-								<InputText id="pageHeader" class="form-control custom-input" @bind-Value="PageHeader"
-										   placeholder="Enter page header" />
+						<!-- Form Header Section -->
+						<div class="section-divider">
+							<h5 class="section-title"><i class="ri-file-text-line me-2"></i>Page Header</h5>
+							<div class="row mb-3">
+								<div class="col-12">
+									<label class="form-label" for="pageHeader">Page Header <span class="text-danger">*</span></label>
+									<InputText id="pageHeader" class="form-control custom-input" @bind-Value="PageHeader"
+											   placeholder="Enter page header" />
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
 
-				<!-- Layout Selection Card -->
-				<div class="card custom-card mb-4">
-					<div class="card-header">
-						<div class="card-title">Layout Selection</div>
-					</div>
-					<div class="card-body">
-						<div class="row">
-							<div class="col-12">
-								<label class="form-label">Select Form Layout</label>
-								<div class="d-flex">
-									<div class="form-check me-4">
-										<input class="form-check-input" type="radio" name="formLayout" id="verticalLayout" value="vertical" checked="@(SelectedLayout == "vertical")" @onchange='() => ChangeLayout("vertical")' />
-										<label class="form-check-label" for="verticalLayout">
-											Vertical Layout (Current Layout)
-										</label>
-									</div>
-									<div class="form-check">
-										<input class="form-check-input" type="radio" name="formLayout" id="horizontalLayout" value="horizontal" checked="@(SelectedLayout == "horizontal")" @onchange='() => ChangeLayout("horizontal")' />
-										<label class="form-check-label" for="horizontalLayout">
-											Horizontal Layout
-										</label>
+						<!-- Layout Selection Section -->
+						<div class="section-divider">
+							<h5 class="section-title"><i class="ri-layout-grid-line me-2"></i>Layout Selection</h5>
+							<div class="row">
+								<div class="col-12">
+									<div class="d-flex mt-2">
+										<div class="form-check me-4">
+											<input class="form-check-input" type="radio" name="formLayout" id="verticalLayout" value="vertical" checked="@(SelectedLayout == "vertical")" @onchange='() => ChangeLayout("vertical")' />
+											<label class="form-check-label" for="verticalLayout">
+												Vertical Layout (Standard)
+											</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="formLayout" id="horizontalLayout" value="horizontal" checked="@(SelectedLayout == "horizontal")" @onchange='() => ChangeLayout("horizontal")' />
+											<label class="form-check-label" for="horizontalLayout">
+												Horizontal Layout (Centered)
+											</label>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
 
-				<!-- Breadcrumb Management Card -->
-				<div class="card custom-card mb-4">
-					<div class="card-header">
-						<div class="card-title">Breadcrumb Management</div>
-					</div>
-					<div class="card-body">
-						<!-- Current Breadcrumbs Preview -->
-						<div class="mb-3">
-							<label class="form-label">Current Breadcrumbs</label>
-							<div class="border rounded p-2 bg-light">
-								<nav aria-label="breadcrumb">
-									<ol class="breadcrumb mb-0">
-										@foreach (var item in formBreadcrumbItems)
-										{
-											<li class="breadcrumb-item d-flex align-items-center @(item.IsActive ? "active" : "")">
-												@if (item.IsActive)
-												{
-													<span>@item.Text</span>
-												}
-												else
-												{
-													<a href="@item.Url">@item.Text</a>
-												}
-												@if (!item.IsActive)
-												{
-													<i class="ri-edit-line text-primary ms-1 cursor-pointer" title="Edit" @onclick="() => EditBreadcrumb(item)"></i>
-													<i class="ri-delete-bin-line text-danger ms-1 cursor-pointer" title="Remove" @onclick="() => RemoveBreadcrumb(item)"></i>
-												}
-											</li>
-										}
-									</ol>
-								</nav>
-							</div>
-						</div>
-
-						<!-- Add/Edit Breadcrumb -->
-						<div class="row mb-3">
-							<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
-								<label class="form-label" for="breadcrumbText">Breadcrumb Text <span class="text-danger">*</span></label>
-								<InputText id="breadcrumbText" class="form-control custom-input"
-										   @bind-Value="newBreadcrumbText" placeholder="Enter breadcrumb text" />
-							</div>
-							<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
-								<label class="form-label" for="breadcrumbUrl">Breadcrumb URL</label>
-								<InputText id="breadcrumbUrl" class="form-control custom-input"
-										   @bind-Value="newBreadcrumbUrl" placeholder="Enter URL (optional)" />
-							</div>
-							<div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 d-flex align-items-end mt-2 mt-md-0">
-								@if (isEditingBreadcrumb)
-								{
-									<button class="btn btn-primary w-100" @onclick="UpdateBreadcrumbItem">
-										Update
-									</button>
-								}
-								else
-								{
-									<button class="btn btn-primary w-100" @onclick="AddBreadcrumbItem">
-										Add
-									</button>
-								}
-							</div>
-						</div>
-						@if (isEditingBreadcrumb)
-						{
+						<!-- Breadcrumb Management Section -->
+						<div class="section-divider">
+							<h5 class="section-title"><i class="ri-navigation-line me-2"></i>Breadcrumb Management</h5>
+							<!-- Current Breadcrumbs Preview -->
 							<div class="mb-3">
-								<button class="btn btn-outline-secondary" @onclick="CancelBreadcrumbEdit">
-									<i class="ri-close-line me-1"></i> Cancel Editing
-								</button>
+								<label class="form-label">Current Navigation Path</label>
+								<div class="border rounded p-2 bg-light">
+									<nav aria-label="breadcrumb">
+										<ol class="breadcrumb mb-0">
+											@foreach (var item in formBreadcrumbItems)
+											{
+												<li class="breadcrumb-item d-flex align-items-center @(item.IsActive ? "active" : "")">
+													@if (item.IsActive)
+													{
+														<span>@item.Text</span>
+													}
+													else
+													{
+														<a href="@item.Url">@item.Text</a>
+													}
+													@if (!item.IsActive)
+													{
+														<i class="ri-edit-line text-primary ms-1 cursor-pointer" title="Edit" @onclick="() => EditBreadcrumb(item)"></i>
+														<i class="ri-delete-bin-line text-danger ms-1 cursor-pointer" title="Remove" @onclick="() => RemoveBreadcrumb(item)"></i>
+													}
+												</li>
+											}
+										</ol>
+									</nav>
+								</div>
 							</div>
-						}
+
+							<!-- Add/Edit Breadcrumb -->
+							<div class="row mb-3">
+								<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+									<label class="form-label" for="breadcrumbText">Breadcrumb Text <span class="text-danger">*</span></label>
+									<InputText id="breadcrumbText" class="form-control custom-input"
+											   @bind-Value="newBreadcrumbText" placeholder="Enter breadcrumb text" />
+								</div>
+								<div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+									<label class="form-label" for="breadcrumbUrl">Breadcrumb URL</label>
+									<InputText id="breadcrumbUrl" class="form-control custom-input"
+											   @bind-Value="newBreadcrumbUrl" placeholder="Enter URL (optional)" />
+								</div>
+								<div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 d-flex align-items-end mt-2 mt-md-0">
+									@if (isEditingBreadcrumb)
+									{
+										<button class="btn btn-primary w-100" @onclick="UpdateBreadcrumbItem">
+											Update
+										</button>
+									}
+									else
+									{
+										<button class="btn btn-primary w-100" @onclick="AddBreadcrumbItem">
+											Add
+										</button>
+									}
+								</div>
+							</div>
+							@if (isEditingBreadcrumb)
+							{
+								<div class="mb-3">
+									<button class="btn btn-outline-secondary" @onclick="CancelBreadcrumbEdit">
+										<i class="ri-close-line me-1"></i> Cancel Editing
+									</button>
+								</div>
+							}
+						</div>
 					</div>
 				</div>
 
@@ -145,6 +140,11 @@
 						<div class="card-title">Card Management</div>
 					</div>
 					<div class="card-body">
+						<div class="d-flex align-items-center mb-3">
+							<div class="section-icon"><i class="ri-layout-masonry-line text-primary fs-4 me-2"></i></div>
+							<h5 class="section-title mb-0">Add New Card</h5>
+						</div>
+
 						<div class="row mb-3">
 							<div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
 								<label class="form-label" for="cardTitle">Card Title <span class="text-danger">*</span></label>
@@ -170,11 +170,11 @@
 						{
 							<div class="mt-3">
 								<label class="form-label">Added Cards</label>
-								<div class="list-group">
+								<div class="list-group card-list">
 									@foreach (var card in Cards)
 									{
 										<div class="list-group-item d-flex justify-content-between align-items-center">
-											<span>@card.CardTitle (Size: @card.CardSize)</span>
+											<span><i class="ri-window-line me-2 text-primary"></i>@card.CardTitle (Size: @card.CardSize)</span>
 											<div>
 												<i class="ri-edit-line text-primary cursor-pointer me-2" @onclick="() => EditCardProperties(card)" title="Edit Card"></i>
 												<i class="ri-delete-bin-line text-danger cursor-pointer" @onclick="() => RemoveCard(card)" title="Remove Card"></i>
@@ -190,9 +190,14 @@
 				<!-- Field Configuration Card -->
 				<div class="card custom-card mb-4">
 					<div class="card-header">
-						<div class="card-title">Card Field Configuration</div>
+						<div class="card-title">Field Configuration</div>
 					</div>
 					<div class="card-body">
+						<div class="d-flex align-items-center mb-3">
+							<div class="section-icon"><i class="ri-list-settings-line text-primary fs-4 me-2"></i></div>
+							<h5 class="section-title mb-0">Add Fields to Card</h5>
+						</div>
+
 						<div class="row mb-3">
 							<div class="col-12">
 								<label class="form-label" for="selectCard">Select Card <span class="text-danger">*</span></label>
@@ -248,14 +253,84 @@
 						</div>
 					</div>
 				</div>
+
+				<!-- Button Management Card -->
+				<div class="card custom-card mb-4">
+					<div class="card-header">
+						<div class="card-title">Button Management</div>
+					</div>
+					<div class="card-body">
+						<div class="d-flex align-items-center mb-3">
+							<div class="section-icon"><i class="ri-button-line text-primary fs-4 me-2"></i></div>
+							<h5 class="section-title mb-0">Configure Form Buttons</h5>
+						</div>
+
+						<!-- Current Buttons Preview -->
+						<div class="mb-3">
+							<label class="form-label">Current Buttons</label>
+							<div class="border rounded p-2 bg-light button-preview">
+								<div class="d-flex flex-wrap gap-2">
+									@foreach (var button in FormButtons)
+									{
+										<div class="btn @button.ButtonClass d-flex align-items-center">
+											@button.ButtonName
+											<i class="ri-edit-line text-primary ms-2 cursor-pointer" title="Edit" @onclick="() => EditButton(button)"></i>
+											<i class="ri-delete-bin-line text-danger ms-1 cursor-pointer" title="Remove" @onclick="() => RemoveButton(button)"></i>
+										</div>
+									}
+								</div>
+							</div>
+						</div>
+
+						<!-- Add/Edit Button -->
+						<div class="row mb-3">
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+								<label class="form-label" for="buttonName">Button Name <span class="text-danger">*</span></label>
+								<InputText id="buttonName" class="form-control custom-input"
+										   @bind-Value="newButtonName" placeholder="Enter button name" />
+							</div>
+							<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+								<label class="form-label" for="buttonClass">Button Style</label>
+								<SfDropDownList TValue="string" TItem="string" id="buttonClass" CssClass="custom-input"
+												DataSource="ButtonClasses" Placeholder="--" @bind-Value="newButtonClass" />
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-12">
+								<label class="form-label" for="buttonPosition">Button Position</label>
+								<SfDropDownList TValue="string" TItem="string" id="buttonPosition" CssClass="custom-input"
+												DataSource="ButtonPositions" Placeholder="--" @bind-Value="newButtonPosition" />
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-12 d-flex">
+								@if (isEditingButton)
+								{
+									<button class="btn btn-primary" @onclick="UpdateButtonItem">
+										Update
+									</button>
+									<button class="btn btn-outline-secondary ms-2" @onclick="CancelButtonEdit">
+										<i class="ri-close-line me-1"></i> Cancel
+									</button>
+								}
+								else
+								{
+									<button class="btn btn-primary" @onclick="AddButtonItem">
+										<i class="ri-add-line me-1"></i> Add Button
+									</button>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<!-- Right Column -->
 			<div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
 				<!-- Form Preview Section with fixed button positioning -->
-				<div class="card custom-card mb-4">
-					<div class="card-header">
-						<div class="card-title">Form Preview</div>
+				<div class="card custom-card mb-4 sticky-preview">
+					<div class="card-header bg-primary-subtle">
+						<div class="card-title text-primary">Form Preview</div>
 					</div>
 					<div class="card-body">
 						<!-- Header Preview -->
@@ -341,13 +416,13 @@
 																case "multiddl":
 																	var multiOptions = field.Options?.Split(',') ?? Array.Empty<string>();
 																	<SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
-																				   Placeholder="Select Multiple" DataSource="multiOptions" @bind-Value="field.MultiValue" />
+																				   Placeholder="--" DataSource="multiOptions" @bind-Value="field.MultiValue" />
 																	break;
 
 																case "tags":
 																	<SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
 																				   @bind-Value="field.MultiValue"
-																				   Placeholder="Enter tags"
+																				   Placeholder="--"
 																				   Mode="VisualMode.Box"
 																				   AllowCustomValue="true"
 																				   AllowFiltering="true"
@@ -390,6 +465,70 @@
 												}
 											</div>
 										</div>
+										<!-- Card Buttons Section -->
+										@if (FormButtons.Any())
+										{
+											<div class="card-footer p-3 mt-3">
+												<div class="d-flex @(GetButtonContainerClass())">
+													<!-- Left buttons -->
+													@if (FormButtons.Any(b => b.ButtonPosition == "left"))
+													{
+														<div class="d-flex gap-2">
+															@foreach (var button in FormButtons.Where(b => b.ButtonPosition == "left"))
+															{
+																<div class="btn @button.ButtonClass position-relative">
+																	@button.ButtonName
+																	<div class="position-absolute top-0 end-0 p-1">
+																		<i class="ri-edit-line text-primary cursor-pointer" title="Edit Button"
+																		   @onclick="() => EditButton(button)"></i>
+																		<i class="ri-delete-bin-line text-danger cursor-pointer ms-1" title="Delete Button"
+																		   @onclick="() => RemoveButton(button)"></i>
+																	</div>
+																</div>
+															}
+														</div>
+													}
+
+													<!-- Center buttons -->
+													@if (FormButtons.Any(b => b.ButtonPosition == "center"))
+													{
+														<div class="d-flex gap-2 mx-auto">
+															@foreach (var button in FormButtons.Where(b => b.ButtonPosition == "center"))
+															{
+																<div class="btn @button.ButtonClass position-relative">
+																	@button.ButtonName
+																	<div class="position-absolute top-0 end-0 p-1">
+																		<i class="ri-edit-line text-primary cursor-pointer" title="Edit Button"
+																		   @onclick="() => EditButton(button)"></i>
+																		<i class="ri-delete-bin-line text-danger cursor-pointer ms-1" title="Delete Button"
+																		   @onclick="() => RemoveButton(button)"></i>
+																	</div>
+																</div>
+															}
+														</div>
+													}
+
+													<!-- Right buttons -->
+													@if (FormButtons.Any(b => b.ButtonPosition == "right"))
+													{
+														<div class="d-flex gap-2">
+															@foreach (var button in FormButtons.Where(b => b.ButtonPosition == "right"))
+															{
+																<div class="btn @button.ButtonClass position-relative">
+																	@button.ButtonName
+																	<div class="position-absolute top-0 end-0 p-1">
+																		<i class="ri-edit-line text-primary cursor-pointer" title="Edit Button"
+																		   @onclick="() => EditButton(button)"></i>
+																		<i class="ri-delete-bin-line text-danger cursor-pointer ms-1" title="Delete Button"
+																		   @onclick="() => RemoveButton(button)"></i>
+																	</div>
+																</div>
+															}
+														</div>
+													}
+												</div>
+											</div>
+										}
 									</div>
 								</div>
 							}
@@ -398,7 +537,7 @@
 						<!-- Empty State if No Cards -->
 						@if (Cards.Count == 0)
 						{
-							<div class="text-center py-5 text-muted">
+							<div class="text-center py-5 text-muted empty-state">
 								<i class="ri-layout-4-line" style="font-size: 48px;"></i>
 								<p class="mt-2">Add cards to start building your form</p>
 							</div>
@@ -408,22 +547,22 @@
 
 				<!-- Publish Section -->
 				<div class="card custom-card mb-4">
-					<div class="card-header">
-						<div class="card-title">Publish Form</div>
+					<div class="card-header bg-success-subtle">
+						<div class="card-title text-success">Publish Form</div>
 					</div>
 					<div class="card-body">
 						<p class="mb-3">Make your form available by publishing it. Published forms can be accessed via a public URL.</p>
 
-						<button class="btn btn-primary w-100 mb-3" @onclick="PublishForm">
+						<button class="btn btn-success w-100 mb-3" @onclick="PublishForm">
 							<i class="ri-global-line me-2"></i> Publish Form
 							<small class="ms-1">(@(SelectedLayout == "horizontal" ? "Centered Horizontal Layout" : "Standard Vertical Layout"))</small>
 						</button>
 
 						@if (!string.IsNullOrEmpty(PublishedUrl))
 						{
-							<div class="card bg-light mt-3">
+							<div class="card bg-light mt-3 published-url-card">
 								<div class="card-body p-3">
-									<h6 class="card-title">Form Published!</h6>
+									<h6 class="card-title"><i class="ri-check-line text-success me-1"></i> Form Published!</h6>
 									<p class="mb-2">Access your form using the link below:</p>
 									<div class="input-group mb-2">
 										<input type="text" class="form-control" readonly value="@PublishedUrl" id="publishedUrlInput" />
@@ -453,7 +592,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">Edit Field</h5>
+					<h5 class="modal-title"><i class="ri-edit-line me-2"></i>Edit Field</h5>
 					<button type="button" class="btn-close" @onclick="CloseFieldEditModal"></button>
 				</div>
 				<div class="modal-body">
@@ -499,7 +638,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">Edit Card Properties</h5>
+					<h5 class="modal-title"><i class="ri-window-line me-2"></i>Edit Card Properties</h5>
 					<button type="button" class="btn-close" @onclick="CloseCardEditModal"></button>
 				</div>
 				<div class="modal-body">
@@ -510,12 +649,8 @@
 
 					<div class="mb-3">
 						<label class="form-label">Card Size</label>
-						<select class="form-select custom-input" @bind="EditingCard.CardSize">
-							@foreach (var size in CardSizes)
-							{
-								<option value="@size">@size</option>
-							}
-						</select>
+						<SfDropDownList TValue="int" TItem="int" CssClass="custom-input"
+										DataSource="CardSizes" Placeholder="--" @bind-Value="EditingCard.CardSize" />
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -527,17 +662,63 @@
 	</div>
 }
 
+<!-- Button Edit Modal -->
+@if (IsButtonEditModalVisible)
+{
+	<div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title"><i class="ri-button-line me-2"></i>Edit Button Properties</h5>
+					<button type="button" class="btn-close" @onclick="CloseButtonEditModal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Button Name <span class="text-danger">*</span></label>
+						<input type="text" class="form-control custom-input" @bind="EditingButton.ButtonName" />
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Button Style</label>
+						<SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
+										DataSource="ButtonClasses" Placeholder="--" @bind-Value="EditingButton.ButtonClass" />
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Button Position</label>
+						<SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
+										DataSource="ButtonPositions" Placeholder="--" @bind-Value="EditingButton.ButtonPosition" />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" @onclick="CloseButtonEditModal">Cancel</button>
+					<button type="button" class="btn btn-primary" @onclick="SaveButtonEdit">Save Changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
 <style>
 	/* Custom card styling to match the lead form example */
 	.custom-card {
 		box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 		border: 0;
+		border-radius: 0.5rem;
+		margin-bottom: 1.5rem;
+		transition: transform 0.2s, box-shadow 0.2s;
 	}
+
+		.custom-card:hover {
+			box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+		}
 
 		.custom-card .card-header {
 			background-color: #f8f9fa;
 			padding: 0.75rem 1.25rem;
 			border-bottom: 1px solid #e9ecef;
+			border-top-left-radius: 0.5rem;
+			border-top-right-radius: 0.5rem;
 		}
 
 		.custom-card .card-title {
@@ -559,16 +740,45 @@
 				border-radius: 2px;
 			}
 
+	/* Section styling */
+	.section-divider {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid #e9ecef;
+	}
+
+		.section-divider:last-child {
+			border-bottom: none;
+			margin-bottom: 0;
+			padding-bottom: 0;
+		}
+
+	.section-title {
+		font-size: 1rem;
+		font-weight: 500;
+		color: #495057;
+		margin-bottom: 1rem;
+	}
+
+	.section-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Form controls */
 	.custom-input {
 		padding: 0.375rem 0.75rem;
 		font-size: 0.875rem;
 		border: 1px solid #ced4da;
 		border-radius: 0.25rem;
+		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 	}
 
-	.text-danger {
-		color: #dc3545 !important;
-	}
+		.custom-input:focus {
+			border-color: #8F69E1;
+			box-shadow: 0 0 0 0.2rem rgba(143, 105, 225, 0.25);
+		}
 
 	.form-label {
 		margin-bottom: 0.25rem;
@@ -576,30 +786,63 @@
 		color: #495057;
 	}
 
-	.breadcrumb-item button {
-		margin-left: 0.25rem;
-		font-size: 0.75rem;
+	/* Form preview section */
+	.sticky-preview {
+		position: sticky;
+		top: 1rem;
 	}
 
-	/* Fix for edit and delete buttons position */
-	.position-relative {
-		position: relative !important;
-		padding-right: 70px !important; /* Add extra padding to accommodate buttons */
+	.empty-state {
+		padding: 2rem;
+		border: 2px dashed #dee2e6;
+		border-radius: 0.5rem;
 	}
 
-	.edit-controls {
-		right: 5px !important;
-		top: 5px !important;
-		padding: 5px;
-		z-index: 10;
+	.card-list .list-group-item {
+		transition: background-color 0.2s;
 	}
 
-	.border.border-light.bg-light.rounded.p-3 {
+		.card-list .list-group-item:hover {
+			background-color: #f8f9fa;
+		}
+
+	.button-preview .btn {
 		position: relative;
-		padding-top: 35px !important; /* Make space for the edit/delete buttons */
+		padding-right: 2.5rem;
 	}
 
-	/* Responsive styling */
+		.button-preview .btn i {
+			opacity: 0;
+			transition: opacity 0.2s;
+		}
+
+		.button-preview .btn:hover i {
+			opacity: 1;
+		}
+
+	.published-url-card {
+		animation: fadeIn 0.5s;
+	}
+
+	@@keyframes fadeIn {
+		from
+
+	{
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+
+	}
+
+	/* Cursor pointer class */
+	.cursor-pointer {
+		cursor: pointer !important;
+	}
+
+	/* Responsive adjustments */
 	@@media (max-width: 767.98px) {
 		.breadcrumb
 
@@ -607,81 +850,61 @@
 		margin-top: 0.5rem;
 	}
 
+	.sticky-preview {
+		position: static;
 	}
 
-	/* Improved button positioning and container styling */
-	.position-relative {
-		position: relative !important;
-		padding-right: 70px !important; /* Add extra padding on the right side to accommodate buttons */
 	}
 
-	.position-absolute.top-0.end-0 {
-		right: 5px !important; /* Ensure buttons stay within container bounds */
+	/* Edit controls styling */
+	.edit-controls {
+		position: absolute;
+		top: 5px;
+		right: 5px;
 		display: flex;
 		padding: 5px;
+		z-index: 10;
 	}
 
-		.position-absolute.top-0.end-0 button {
-			margin-left: 3px;
-		}
-
-	/* Ensure form preview card has proper padding */
-	.card-body .row .position-relative {
-		overflow: visible;
-		margin-bottom: 15px;
+	/* Modal enhancement */
+	.modal-content {
+		border-radius: 0.5rem;
+		border: none;
 	}
 
-	/* Improve edit mode styling */
-	.border.border-light.bg-light.rounded.p-3 {
-		position: relative;
-		padding-top: 35px !important; /* Make space for the edit/delete buttons */
+	.modal-header {
+		background-color: #f8f9fa;
+		border-top-left-radius: 0.5rem;
+		border-top-right-radius: 0.5rem;
 	}
 
-	/* Responsive adjustments */
-	@@media (max-width: 576px) {
-		.position-relative
-
-	{
-		padding-right: 60px !important;
+	/* Button styling */
+	.btn .position-absolute {
+		opacity: 0;
+		transition: opacity 0.2s;
+		background: rgba(255,255,255,0.9);
+		border-radius: 4px;
 	}
 
-	.position-absolute.top-0.end-0 {
-		top: 2px !important;
+	.btn:hover .position-absolute {
+		opacity: 1;
 	}
 
+	/* Success and Primary accent colors */
+	.bg-primary-subtle {
+		background-color: rgba(143, 105, 225, 0.1);
 	}
 
-	/* Styling for edit and delete icons without backgrounds */
-	.ri-edit-line,
-	.ri-delete-bin-line,
-	.ri-settings-line,
-	.ri-pencil-line {
-		cursor: pointer;
-		font-size: 1.15rem;
-		transition: color 0.2s ease-in-out;
-		background: transparent !important;
-		border: none !important;
-		padding: 0 !important;
-		box-shadow: none !important;
+	.bg-success-subtle {
+		background-color: rgba(40, 167, 69, 0.1);
 	}
 
-		/* Hover effects */
-		.ri-edit-line:hover,
-		.ri-pencil-line:hover {
-			color: #8F69E1 !important;
-		}
+	.text-primary {
+		color: #8F69E1 !important;
+	}
 
-		.ri-delete-bin-line:hover {
-			color: #dc3545 !important;
-		}
-
-		.ri-settings-line:hover {
-			color: #6c757d !important;
-		}
-
-	/* Cursor pointer class */
-	.cursor-pointer {
-		cursor: pointer !important;
+	.text-success {
+		color: #28a745 !important;
 	}
 </style>
 
@@ -698,6 +921,44 @@
 	private bool IsFieldRequired { get; set; } = false;
 	private string PublishedUrl { get; set; } = "";
 	private string SelectedLayout { get; set; } = "vertical";
+
+	// Button management properties
+	private List<ButtonModel> FormButtons { get; set; } = [];
+	private string newButtonName = "";
+	private string newButtonClass = "btn-primary";
+	private string newButtonPosition = "right";
+	private bool isEditingButton = false;
+	private ButtonModel EditingButton { get; set; } = new ButtonModel();
+	private int editingButtonIndex = -1;
+	private bool IsButtonEditModalVisible = false;
+
+	// Button class and position options
+	private List<string> ButtonClasses = new List<string>
+	{
+		"btn-primary",
+		"btn-secondary",
+		"btn-success",
+		"btn-danger",
+		"btn-warning",
+		"btn-info",
+		"btn-light",
+		"btn-dark",
+		"btn-outline-primary",
+		"btn-outline-secondary",
+		"btn-outline-success",
+		"btn-outline-danger",
+		"btn-outline-warning",
+		"btn-outline-info",
+		"btn-outline-light",
+		"btn-outline-dark"
+	};
+
+	private List<string> ButtonPositions = new List<string>
+	{
+		"left",
+		"center",
+		"right"
+	};
 
 	// Breadcrumb management for the current page (fixed)
 	private List<BreadcrumbEntry> pageBreadcrumbItems = new List<BreadcrumbEntry>();
@@ -769,6 +1030,35 @@
 		}
 
 		BreadcrumbService.SetBreadcrumbPath(pageTitle, breadcrumbArray.ToArray());
+	}
+
+	// Helper method to get the appropriate button container class based on button positions
+	private string GetButtonContainerClass()
+	{
+		bool hasLeft = FormButtons.Any(b => b.ButtonPosition == "left");
+		bool hasCenter = FormButtons.Any(b => b.ButtonPosition == "center");
+		bool hasRight = FormButtons.Any(b => b.ButtonPosition == "right");
+
+		if (hasLeft && hasRight)
+		{
+			return "justify-content-between";
+		}
+		else if (hasLeft && hasCenter && !hasRight)
+		{
+			return "justify-content-start";
+		}
+		else if (!hasLeft && !hasCenter && hasRight)
+		{
+			return "justify-content-end";
+		}
+		else if (!hasLeft && hasCenter && !hasRight)
+		{
+			return "justify-content-center";
+		}
+		else
+		{
+			return "justify-content-between";
+		}
 	}
 
 	// Layout selection method
@@ -857,6 +1147,107 @@
 		editingBreadcrumbIndex = -1;
 		newBreadcrumbText = "";
 		newBreadcrumbUrl = "";
+	}
+
+	// Button management methods
+	private void AddButtonItem()
+	{
+		if (string.IsNullOrWhiteSpace(newButtonName))
+		{
+			NotificationService?.ShowWarningAsync("Button name is required");
+			return;
+		}
+
+		FormButtons.Add(new ButtonModel
+			{
+				ButtonName = newButtonName,
+				ButtonClass = newButtonClass,
+				ButtonPosition = newButtonPosition
+			});
+
+		// Reset fields
+		ResetButtonFields();
+
+		NotificationService?.ShowSuccessAsync("Button added successfully");
+		StateHasChanged();
+	}
+
+	private void RemoveButton(ButtonModel button)
+	{
+		FormButtons.Remove(button);
+		NotificationService?.ShowInfoAsync("Button removed");
+		StateHasChanged();
+	}
+
+	private void EditButton(ButtonModel button)
+	{
+		EditingButton = new ButtonModel
+			{
+				ButtonName = button.ButtonName,
+				ButtonClass = button.ButtonClass,
+				ButtonPosition = button.ButtonPosition
+			};
+
+		editingButtonIndex = FormButtons.IndexOf(button);
+		IsButtonEditModalVisible = true;
+		StateHasChanged();
+	}
+
+	private void SaveButtonEdit()
+	{
+		if (editingButtonIndex >= 0 && !string.IsNullOrWhiteSpace(EditingButton.ButtonName))
+		{
+			// Update the button
+			FormButtons[editingButtonIndex] = EditingButton;
+			CloseButtonEditModal();
+			NotificationService?.ShowSuccessAsync("Button updated successfully");
+		}
+		else
+		{
+			NotificationService?.ShowWarningAsync("Button name is required");
+		}
+	}
+
+	private void CloseButtonEditModal()
+	{
+		IsButtonEditModalVisible = false;
+		editingButtonIndex = -1;
+		StateHasChanged();
+	}
+
+	private void ResetButtonFields()
+	{
+		newButtonName = "";
+		newButtonClass = "btn-primary";
+		newButtonPosition = "right";
+		isEditingButton = false;
+	}
+
+	private void UpdateButtonItem()
+	{
+		if (string.IsNullOrWhiteSpace(newButtonName))
+		{
+			NotificationService?.ShowWarningAsync("Button name is required");
+			return;
+		}
+
+		if (editingButtonIndex >= 0 && editingButtonIndex < FormButtons.Count)
+		{
+			FormButtons[editingButtonIndex].ButtonName = newButtonName;
+			FormButtons[editingButtonIndex].ButtonClass = newButtonClass;
+			FormButtons[editingButtonIndex].ButtonPosition = newButtonPosition;
+
+			// Reset editing state
+			CancelButtonEdit();
+			NotificationService?.ShowSuccessAsync("Button updated successfully");
+		}
+	}
+
+	private void CancelButtonEdit()
+	{
+		isEditingButton = false;
+		editingButtonIndex = -1;
+		ResetButtonFields();
 	}
 
 	// Card management methods
@@ -992,8 +1383,8 @@
 					Value = field.Value,
 					IsRequired = field.IsRequired,
 					MultiValue = field.MultiValue != null
-							? new List<string>(field.MultiValue)
-							: new List<string>()
+										? new List<string>(field.MultiValue)
+										: new List<string>()
 				};
 
 			IsFieldEditModalVisible = true;
@@ -1053,7 +1444,9 @@
 				}).ToList(),
 				Cards = new List<CardModel>(),
 			// Add layout information
-				FormLayout = SelectedLayout
+				FormLayout = SelectedLayout,
+			// Add buttons to published form
+				Buttons = FormButtons
 			};
 
 		// Make a deep copy of the cards to avoid reference issues
@@ -1077,8 +1470,8 @@
 						Value = field.Value,
 						IsRequired = field.IsRequired,
 						MultiValue = field.MultiValue != null
-								? new List<string>(field.MultiValue)
-								: new List<string>()
+											? new List<string>(field.MultiValue)
+											: new List<string>()
 					});
 			}
 
