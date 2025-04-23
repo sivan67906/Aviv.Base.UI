@@ -1,0 +1,529 @@
+@page "/FormTool/JsontoFormGenerator"
+@using System.Text.Json
+@using Aviv.Base.UI.Models.FormTool
+@using Aviv.Base.UI.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor.DropDowns
+@inject IJSRuntime JSRuntime
+@inject NotificationCustomService NotificationService
+@inject CustomFormService FormService
+@inject NavigationManager NavigationManager
+@inject PageBreadcrumbService BreadcrumbService
+
+<div class="container-fluid">
+    <!-- Add the notification component -->
+    <NotificationComponent />
+
+    <div class="row">
+        <!-- Left Column - JSON Input -->
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <!-- JSON Input Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header">
+                    <div class="card-title">JSON Configuration</div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Paste your form JSON configuration below to generate a working form.</p>
+                    <div class="mb-3">
+                        <label class="form-label" for="jsonInput">Form JSON <span class="text-danger">*</span></label>
+                        <textarea id="jsonInput" class="form-control custom-input" rows="12"
+                                  style="font-family: monospace;"
+                                  @bind="JsonInput"
+                                  placeholder="Paste your form JSON here..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button class="btn btn-primary" @onclick="LoadJsonForm">
+                                <i class="ri-code-box-line me-1"></i> Load Form from JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Data Card - Displays after submission -->
+            @if (SubmittedData?.Any() == true)
+            {
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Submitted Form Data</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var field in SubmittedData)
+                            {
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <strong>@field.Label:</strong>
+                                    <span>
+                                        @if (field.InputType is "multiddl" or "checkbox" or "tags")
+                                        {
+                                            @string.Join(", ", field.MultiValue ?? new List<string>())
+                                        }
+                                        else
+                                        {
+                                            @field.Value
+                                        }
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <!-- Sample JSON Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-title">Sample JSON Format</div>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="LoadSampleJson">
+                        <i class="ri-file-copy-line me-1"></i> Use Sample
+                    </button>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-2">Your JSON should follow this structure:</p>
+                    <pre class="bg-light p-3 rounded" style="font-size: 12px; overflow: auto; max-height: 300px;">
+{
+  "PageHeader": "Contact Form",
+  "Rows": [
+    {
+      "Fields": [
+        {
+          "Label": "Full Name",
+          "InputType": "textbox",
+          "ColSize": 6,
+          "IsRequired": true
+        },
+        {
+          "Label": "Email",
+          "InputType": "textbox",
+          "ColSize": 6,
+          "IsRequired": true
+        },
+        {
+          "Label": "Department",
+          "InputType": "dropdown",
+          "ColSize": 6,
+          "OptionsRaw": "Sales,Marketing,Support,IT",
+          "Options": ["Sales", "Marketing", "Support", "IT"]
+        }
+      ]
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Generated Form -->
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            @if (Page.Rows.FirstOrDefault()?.Fields?.Any() == true)
+            {
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">@Page.PageHeader</div>
+                    </div>
+                    <div class="card-body">
+                        <form @onsubmit="HandleSubmit">
+                            <div class="row">
+                                @foreach (var field in Page.Rows.First().Fields)
+                                {
+                                    <div class="col-md-@field.ColSize mb-3">
+                                        <label class="form-label">
+                                            @field.Label
+                                            @if (field.IsRequired)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
+                                        </label>
+                                        @switch (field.InputType)
+                                        {
+                                            case "textbox":
+                                                <InputText class="form-control custom-input" @bind-Value="field.Value"
+                                                           placeholder="@($"Enter {field.Label.ToLower()}")" required="@field.IsRequired" />
+                                                break;
+                                            case "textarea":
+                                                <InputTextArea class="form-control custom-input" @bind-Value="field.Value"
+                                                               placeholder="@($"Enter {field.Label.ToLower()}")" rows="3" required="@field.IsRequired" />
+                                                break;
+                                            case "dropdown":
+                                                <SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
+                                                                DataSource="field.Options" Placeholder="--" @bind-Value="field.Value" />
+                                                break;
+                                            case "multiddl":
+                                                <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+                                                               DataSource="field.Options" Placeholder="Select Multiple" @bind-Value="field.MultiValue" />
+                                                break;
+                                            case "tags":
+                                                <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+                                                               @bind-Value="field.MultiValue"
+                                                               DataSource="AllTags"
+                                                               Placeholder="Enter tags"
+                                                               Mode="VisualMode.Box"
+                                                               AllowCustomValue="true"
+                                                               AllowFiltering="true"
+                                                               ShowClearButton="true"
+                                                               Delimiter="," />
+                                                break;
+                                            case "radio":
+                                                <InputRadioGroup @bind-Value="field.Value" Name="@field.Label">
+                                                    @foreach (var opt in field.Options)
+                                                    {
+                                                        <div class="form-check">
+                                                            <InputRadio class="form-check-input" Value="@opt" required="@field.IsRequired" />
+                                                            <label class="form-check-label">@opt</label>
+                                                        </div>
+                                                    }
+                                                </InputRadioGroup>
+                                                break;
+                                            case "checkbox":
+                                                @foreach (var opt in field.Options)
+                                                {
+                                                    if (!field.CheckboxValues.ContainsKey(opt))
+                                                        field.CheckboxValues[opt] = false;
+
+                                                    <div class="form-check">
+                                                        <InputCheckbox class="form-check-input" @bind-Value="field.CheckboxValues[opt]" />
+                                                        <label class="form-check-label">@opt</label>
+                                                    </div>
+                                                }
+                                                break;
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-check-line me-1"></i> Submit Form
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="ResetForm">
+                                    <i class="ri-refresh-line me-1"></i> Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Form Preview</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center py-5 text-muted">
+                            <i class="ri-file-code-line" style="font-size: 48px;"></i>
+                            <p class="mt-2">Load JSON from the left panel to generate a form</p>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Form Tools Card -->
+            @if (Page.Rows.FirstOrDefault()?.Fields?.Any() == true)
+            {
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Form Tools</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <button class="btn btn-outline-primary w-100" @onclick='() => NavigationManager.NavigateTo("/FormTool/FormtoJsonGenerator")'>
+                                    <i class="ri-edit-box-line me-1"></i> Form to Json Builder
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-info w-100" @onclick='() => NavigationManager.NavigateTo("/FormTool/DynamicFormBuilder")'>
+                                    <i class="ri-layout-line me-1"></i> Dynamic Form Builder
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-secondary w-100" @onclick="CloneForm">
+                                    <i class="ri-file-copy-line me-1"></i> Clone Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom card styling to match the form builder example */
+    .custom-card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 0;
+    }
+
+        .custom-card .card-header {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .custom-card .card-title {
+            margin-bottom: 0;
+            font-weight: 500;
+            color: #495057;
+            position: relative;
+            padding-left: 12px;
+        }
+
+            .custom-card .card-title::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background-color: #8F69E1;
+                border-radius: 2px;
+            }
+
+    .custom-input {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .form-label {
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    /* Add responsive styling for mobile devices */
+    @@media (max-width: 767.98px) {
+        .breadcrumb
+
+    {
+        margin-top: 0.5rem;
+    }
+
+    }
+</style>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Set page breadcrumbs correctly
+        BreadcrumbService.SetBreadcrumbPath(
+            "Json to Form Generator",
+            ("Home", "/"),
+            ("Json to Form Generator", null!)
+        );
+    }
+    private DynamicPage Page = new DynamicPage
+        {
+            PageHeader = "My Form",
+            Rows = new List<DynamicCardRow> { new DynamicCardRow() }
+        };
+
+    private List<string> AllTags = new List<string>();
+    private string JsonInput = "";
+
+    private List<DynamicFieldForm> SubmittedData = new List<DynamicFieldForm>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize notification service if available
+            if (NotificationService != null)
+            {
+                await NotificationService.InitializeAsync();
+                await NotificationService.ShowInfoAsync("Paste your form JSON to generate a working form.");
+            }
+        }
+    }
+
+    private void LoadJsonForm()
+    {
+        if (string.IsNullOrWhiteSpace(JsonInput))
+        {
+            NotificationService?.ShowWarningAsync("Please enter JSON data to load a form.");
+            return;
+        }
+
+        try
+        {
+            var page = JsonSerializer.Deserialize<DynamicPage>(JsonInput);
+
+            if (page?.Rows != null && page.Rows.Any())
+            {
+                Page = page;
+
+                foreach (var field in Page.Rows.SelectMany(r => r.Fields))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.OptionsRaw))
+                    {
+                        field.Options = field.OptionsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                    }
+
+                    // Initialize collections if null
+                    if (field.MultiValue == null)
+                        field.MultiValue = new List<string>();
+
+                    if (field.CheckboxValues == null)
+                        field.CheckboxValues = new Dictionary<string, bool>();
+                }
+
+                SubmittedData = new List<DynamicFieldForm>();
+                NotificationService?.ShowSuccessAsync("Form loaded successfully!");
+            }
+            else
+            {
+                NotificationService?.ShowWarningAsync("Invalid form structure. Please check your JSON format.");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService?.ShowErrorAsync($"Error parsing JSON: {ex.Message}");
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        // Check if any required fields are empty
+        bool hasEmptyRequired = Page.Rows.First().Fields
+            .Where(f => f.IsRequired)
+            .Any(f => string.IsNullOrWhiteSpace(f.Value) &&
+                      (f.MultiValue == null || !f.MultiValue.Any()) &&
+                      (f.InputType != "checkbox" || !f.CheckboxValues.Any(c => c.Value)));
+
+        if (hasEmptyRequired)
+        {
+            NotificationService?.ShowWarningAsync("Please fill in all required fields.");
+            return;
+        }
+
+        // Process checkbox values to MultiValue for consistency in the output
+        foreach (var field in Page.Rows.First().Fields.Where(f => f.InputType == "checkbox"))
+        {
+            field.MultiValue = field.CheckboxValues
+                .Where(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .ToList();
+        }
+
+        // Create a copy of the submitted data
+        SubmittedData = Page.Rows.First().Fields
+            .Select(f => new DynamicFieldForm
+                {
+                    Label = f.Label,
+                    InputType = f.InputType,
+                    ColSize = f.ColSize,
+                    Value = f.Value,
+                    Options = new List<string>(f.Options ?? new List<string>()),
+                    OptionsRaw = f.OptionsRaw,
+                    IsRequired = f.IsRequired,
+                    MultiValue = new List<string>(f.MultiValue ?? new List<string>()),
+                    CheckboxValues = new Dictionary<string, bool>(f.CheckboxValues ?? new Dictionary<string, bool>())
+                }).ToList();
+
+        NotificationService?.ShowSuccessAsync("Form submitted successfully!");
+    }
+
+    private void ResetForm()
+    {
+        // Reset all field values while keeping the structure
+        foreach (var field in Page.Rows.First().Fields)
+        {
+            field.Value = "";
+            field.MultiValue = new List<string>();
+
+            if (field.CheckboxValues != null)
+            {
+                var keys = field.CheckboxValues.Keys.ToList();
+                foreach (var key in keys)
+                {
+                    field.CheckboxValues[key] = false;
+                }
+            }
+        }
+
+        SubmittedData = new List<DynamicFieldForm>();
+        NotificationService?.ShowInfoAsync("Form has been reset.");
+    }
+
+    private void LoadSampleJson()
+    {
+        JsonInput = @"{
+  ""PageHeader"": ""Contact Form"",
+  ""Rows"": [
+    {
+      ""Fields"": [
+        {
+          ""Label"": ""Full Name"",
+          ""InputType"": ""textbox"",
+          ""ColSize"": 6,
+          ""IsRequired"": true
+        },
+        {
+          ""Label"": ""Email"",
+          ""InputType"": ""textbox"",
+          ""ColSize"": 6,
+          ""IsRequired"": true
+        },
+        {
+          ""Label"": ""Phone Number"",
+          ""InputType"": ""textbox"",
+          ""ColSize"": 6,
+          ""IsRequired"": false
+        },
+        {
+          ""Label"": ""Department"",
+          ""InputType"": ""dropdown"",
+          ""ColSize"": 6,
+          ""OptionsRaw"": ""Sales,Marketing,Support,IT,HR,Finance"",
+          ""Options"": [""Sales"", ""Marketing"", ""Support"", ""IT"", ""HR"", ""Finance""]
+        },
+        {
+          ""Label"": ""Message"",
+          ""InputType"": ""textarea"",
+          ""ColSize"": 12,
+          ""IsRequired"": true
+        },
+        {
+          ""Label"": ""Preferred Contact Method"",
+          ""InputType"": ""radio"",
+          ""ColSize"": 6,
+          ""OptionsRaw"": ""Email,Phone,Both"",
+          ""Options"": [""Email"", ""Phone"", ""Both""]
+        },
+        {
+          ""Label"": ""Interested Services"",
+          ""InputType"": ""checkbox"",
+          ""ColSize"": 6,
+          ""OptionsRaw"": ""Consulting,Training,Support,Development"",
+          ""Options"": [""Consulting"", ""Training"", ""Support"", ""Development""]
+        }
+      ]
+    }
+  ]
+}";
+
+        NotificationService?.ShowInfoAsync("Sample JSON loaded. Click 'Load Form from JSON' to generate the form.");
+    }
+
+    private async Task CloneForm()
+    {
+        if (Page.Rows.FirstOrDefault()?.Fields?.Any() != true)
+        {
+            NotificationService?.ShowWarningAsync("No form to clone.");
+            return;
+        }
+
+        string formJson = JsonSerializer.Serialize(Page, new JsonSerializerOptions { WriteIndented = true });
+        await FormService.CopyToClipboardAsync(formJson);
+
+        NotificationService?.ShowSuccessAsync("Form JSON copied to clipboard. You can use it to create a new form in the Form Builder.", true);
+    }
+}

@@ -71,6 +71,8 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<NotificationCustomService>();
 
+builder.Services.AddScoped<CustomFormService>();
+
 // Add Memory Cache for performance improvement
 builder.Services.AddMemoryCache();
 
@@ -125,7 +127,7 @@ builder.Services.AddCors(options =>
 WebApplication app = builder.Build();
 
 // Register Syncfusion license
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX1cdXRVQmZfWUF/V0Q=");
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzc5NjUwOUAzMjM5MmUzMDJlMzAzYjMyMzkzYlNoSVA2dzFrVFdMU2dIbHJhNmlvajYxT2VxZzByOFNSNjQrNXFFeHVDUGM9");
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

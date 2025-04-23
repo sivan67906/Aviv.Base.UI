@@ -1,0 +1,366 @@
+@page "/FormTool/FormtoJsonGenerator"
+@using Aviv.Base.UI.Models.FormTool
+@using Aviv.Base.UI.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor.DropDowns
+@inject IJSRuntime JSRuntime
+@inject PageBreadcrumbService BreadcrumbService
+@inject NotificationCustomService NotificationService
+@inject CustomFormService FormService
+
+<div class="container-fluid">
+    <!-- Add the notification component -->
+    <NotificationComponent />
+
+    <div class="row">
+        <!-- Left Column - Form Configuration -->
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <!-- Form Header Configuration Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header">
+                    <div class="card-title">Form Header</div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label" for="pageHeader">Page Header <span class="text-danger">*</span></label>
+                            <InputText id="pageHeader" class="form-control custom-input" @bind-Value="Page.PageHeader"
+                                       placeholder="Enter Form Title" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Configuration Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header">
+                    <div class="card-title">Add Field</div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label class="form-label" for="labelName">Label Name <span class="text-danger">*</span></label>
+                            <InputText id="labelName" class="form-control custom-input" @bind-Value="NewField.Label"
+                                       placeholder="Enter label name" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-3 mt-md-0">
+                            <label class="form-label" for="inputType">Input Type <span class="text-danger">*</span></label>
+                            <SfDropDownList TItem="string" TValue="string" id="inputType" CssClass="custom-input"
+                                            DataSource="InputTypes" Placeholder="--" @bind-Value="NewField.InputType" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label class="form-label" for="columnSize">Column Size</label>
+                            <InputNumber id="columnSize" class="form-control custom-input" @bind-Value="NewField.ColSize" min="1" max="12" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-3 mt-md-0">
+                            <label class="form-label" for="fieldOptions">Options (comma-separated)</label>
+                            <InputText id="fieldOptions" class="form-control custom-input" @bind-Value="NewField.OptionsRaw"
+                                       placeholder="e.g. Option 1, Option 2, Option 3" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <InputCheckbox class="form-check-input" id="isRequiredCheck" @bind-Value="NewField.IsRequired" />
+                        <label class="form-check-label" for="isRequiredCheck">
+                            Required Field
+                        </label>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <button class="btn btn-primary" @onclick="AddField">
+                                <i class="ri-add-line me-1"></i> Add Field
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON Preview Action Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header">
+                    <div class="card-title">Generate JSON</div>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Generate JSON representation of your form that can be used with the JSON to Form Generator.</p>
+                    <button class="btn btn-primary w-100" @onclick="ToggleJsonPreview">
+                        <i class="ri-code-line me-2"></i> @((ShowJson) ? "Hide JSON" : "Generate JSON")
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Form Preview and JSON Output -->
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <!-- Form Preview Card -->
+            <div class="card custom-card mb-4">
+                <div class="card-header">
+                    <div class="card-title">Form Preview</div>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">@Page.PageHeader</h5>
+                    <div class="row g-3">
+                        @foreach (var field in Page.Rows.FirstOrDefault()?.Fields ?? new List<DynamicFieldForm>())
+                        {
+                            <div class="col-md-@field.ColSize mb-3">
+                                <label class="form-label">
+                                    @field.Label
+                                    @if (field.IsRequired)
+                                    {
+                                        <span class="text-danger">*</span>
+                                    }
+                                </label>
+                                @switch (field.InputType)
+                                {
+                                    case "textbox":
+                                        <InputText class="form-control custom-input" @bind-Value="field.Value"
+                                                   placeholder="@($"Enter {field.Label.ToLower()}")" />
+                                        break;
+                                    case "textarea":
+                                        <InputTextArea class="form-control custom-input" @bind-Value="field.Value"
+                                                       placeholder="@($"Enter {field.Label.ToLower()}")" rows="3" />
+                                        break;
+                                    case "dropdown":
+                                        <SfDropDownList TValue="string" TItem="string" CssClass="custom-input"
+                                                        Placeholder="--" DataSource="field.Options" @bind-Value="field.Value" />
+                                        break;
+                                    case "multiddl":
+                                        <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+                                                       Placeholder="Select Multiple" DataSource="field.Options" @bind-Value="field.MultiValue" />
+                                        break;
+                                    case "tags":
+                                        <SfMultiSelect TValue="List<string>" TItem="string" CssClass="custom-input"
+                                                       @bind-Value="field.MultiValue"
+                                                       DataSource="AllTags"
+                                                       Placeholder="Enter tags"
+                                                       Mode="VisualMode.Box"
+                                                       AllowCustomValue="true"
+                                                       AllowFiltering="true"
+                                                       ShowClearButton="true"
+                                                       Delimiter="," />
+                                        break;
+                                    case "radio":
+                                        <InputRadioGroup @bind-Value="field.Value" Name="@field.Label">
+                                            @foreach (var opt in field.Options)
+                                            {
+                                                <div class="form-check">
+                                                    <InputRadio class="form-check-input" Value="@opt" />
+                                                    <label class="form-check-label">@opt</label>
+                                                </div>
+                                            }
+                                        </InputRadioGroup>
+                                        break;
+                                    case "checkbox":
+                                        @foreach (var opt in field.Options)
+                                        {
+                                            if (!field.CheckboxValues.ContainsKey(opt))
+                                                field.CheckboxValues[opt] = false;
+
+                                            <div class="form-check">
+                                                <InputCheckbox class="form-check-input" @bind-Value="field.CheckboxValues[opt]" />
+                                                <label class="form-check-label">@opt</label>
+                                            </div>
+                                        }
+                                        break;
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Empty State if No Fields -->
+                    @if (!(Page.Rows.FirstOrDefault()?.Fields?.Any() == true))
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="ri-layout-4-line" style="font-size: 48px;"></i>
+                            <p class="mt-2">Add fields to start building your form</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- JSON Output Card -->
+            @if (ShowJson)
+            {
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">JSON Output</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="position-relative">
+                            <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2 me-2" @onclick="CopyJson">
+                                <i class="ri-file-copy-line me-1"></i> Copy
+                            </button>
+                            <textarea class="form-control custom-input" style="font-family: monospace; min-height: 300px;" readonly>@GeneratedJson</textarea>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom card styling to match the form builder example */
+    .custom-card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 0;
+    }
+
+        .custom-card .card-header {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .custom-card .card-title {
+            margin-bottom: 0;
+            font-weight: 500;
+            color: #495057;
+            position: relative;
+            padding-left: 12px;
+        }
+
+            .custom-card .card-title::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background-color: #8F69E1;
+                border-radius: 2px;
+            }
+
+    .custom-input {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .form-label {
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    /* Add responsive styling for mobile devices */
+    @@media (max-width: 767.98px) {
+        .breadcrumb
+
+    {
+        margin-top: 0.5rem;
+    }
+
+    }
+</style>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        BreadcrumbService.SetBreadcrumbPath(
+            "Form to Json Generator",
+            ("Home", "/"),
+            ("Form to Json Generator", null!)
+        );
+    }
+
+    private DynamicPage Page = new DynamicPage
+        {
+            PageHeader = "My Form",
+            Rows = new List<DynamicCardRow> { new DynamicCardRow() }
+        };
+
+    private List<string> InputTypes = new List<string> { "textbox", "textarea", "dropdown", "multiddl", "tags", "radio", "checkbox" };
+    private List<string> AllTags = new List<string>();
+    private string GeneratedJson = string.Empty;
+    private bool ShowJson = false;
+
+    private DynamicFieldForm NewField = new DynamicFieldForm { ColSize = 6 };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize notification service if available
+            if (NotificationService != null)
+            {
+                await NotificationService.InitializeAsync();
+                await NotificationService.ShowInfoAsync("Create a form and generate JSON representation.");
+            }
+        }
+    }
+
+    private void AddField()
+    {
+        if (string.IsNullOrWhiteSpace(NewField.Label) || string.IsNullOrWhiteSpace(NewField.InputType))
+        {
+            NotificationService?.ShowWarningAsync("Label Name and Input Type are required.");
+            return;
+        }
+
+        if (!Page.Rows.Any())
+            Page.Rows.Add(new DynamicCardRow());
+
+        var newField = new DynamicFieldForm
+            {
+                Label = NewField.Label,
+                InputType = NewField.InputType,
+                ColSize = NewField.ColSize <= 0 ? 6 : NewField.ColSize,
+                IsRequired = NewField.IsRequired,
+                OptionsRaw = NewField.OptionsRaw,
+                Options = string.IsNullOrWhiteSpace(NewField.OptionsRaw)
+                                ? new List<string>()
+                                : NewField.OptionsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+            };
+
+        Page.Rows.First().Fields.Add(newField);
+
+        // Reset input fields but keep previous column size
+        int previousColSize = NewField.ColSize;
+        NewField = new DynamicFieldForm { ColSize = previousColSize };
+
+        NotificationService?.ShowSuccessAsync("Field added successfully.");
+    }
+
+    private void ToggleJsonPreview()
+    {
+        if (!(Page.Rows.FirstOrDefault()?.Fields?.Any() == true))
+        {
+            NotificationService?.ShowWarningAsync("Please add at least one field before generating JSON.");
+            return;
+        }
+
+        foreach (var row in Page.Rows)
+        {
+            foreach (var field in row.Fields)
+            {
+                if (!string.IsNullOrWhiteSpace(field.OptionsRaw))
+                {
+                    field.Options = field.OptionsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                }
+            }
+        }
+
+        GeneratedJson = System.Text.Json.JsonSerializer.Serialize(Page, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        ShowJson = !ShowJson;
+
+        if (ShowJson)
+        {
+            NotificationService?.ShowInfoAsync("JSON generated successfully. You can copy it to use with the JSON to Form Generator.");
+        }
+    }
+
+    private async Task CopyJson()
+    {
+        await FormService.CopyToClipboardAsync(GeneratedJson);
+        NotificationService?.ShowSuccessAsync("JSON copied to clipboard.");
+    }
+}

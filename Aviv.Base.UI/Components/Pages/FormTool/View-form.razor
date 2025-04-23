@@ -1,0 +1,489 @@
+@page "/View-form/{FormId}"
+@using System.Text.Json
+@using System.Collections.ObjectModel
+@using Aviv.Base.UI.Models
+@using Aviv.Base.UI.Models.FormTool
+@using Aviv.Base.UI.Services
+@using Syncfusion.Blazor.DropDowns
+@using Microsoft.AspNetCore.Components.Forms
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject PageBreadcrumbService BreadcrumbService
+@inject NotificationCustomService NotificationService
+@inject CustomFormService FormService
+
+<!-- Breadcrumb Component -->
+<BreadcrumbComponent />
+
+@if (IsLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (LoadError)
+{
+    <div class="alert alert-danger mt-4 shadow-sm">
+        <h5 class="mb-2">Form Not Found</h5>
+        <p class="mb-3">The requested form could not be found. It may have been removed or the link is incorrect.</p>
+        <button class="btn btn-outline-primary" @onclick="NavigateToFormBuilder">Return to Form Builder</button>
+    </div>
+}
+else
+{
+    <div class="container-fluid p-0">
+        <EditForm Model="FormData" OnValidSubmit="SubmitForm">
+            <div class="row">
+                @foreach (var card in FormData.Cards)
+                {
+                    <div class="col-12 col-sm-12 col-md-@card.CardSize col-lg-@card.CardSize col-xl-@card.CardSize mb-4">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">@card.CardTitle</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @foreach (var field in card.Fields)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-@field.ColumnSize col-lg-@field.ColumnSize col-xl-@field.ColumnSize mb-3">
+                                            <label class="form-label" for="@($"field_{field.LabelName.Replace(" ", "_")}")">
+                                                @field.LabelName
+                                                @if (field.IsRequired)
+                                                {
+                                                    <span class="text-danger">*</span>
+                                                }
+                                            </label>
+                                            
+                                            @{
+                                                var fieldClass = ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired 
+                                                    ? "form-control custom-input error-border" 
+                                                    : "form-control custom-input";
+                                            }
+                                            
+                                            @switch (field.InputType.ToLower())
+                                            {
+                                                case "textbox":
+                                                    <InputText id="@($"field_{field.LabelName.Replace(" ", "_")}")" 
+                                                               class="@fieldClass" 
+                                                               @bind-Value="field.Value" 
+                                                               placeholder="@($"Enter {field.LabelName.ToLower()}")" />
+                                                    break;
+
+                                                case "textarea":
+                                                    <InputTextArea id="@($"field_{field.LabelName.Replace(" ", "_")}")" 
+                                                                   class="@fieldClass" 
+                                                                   @bind-Value="field.Value" 
+                                                                   placeholder="@($"Enter {field.LabelName.ToLower()}")" 
+                                                                   rows="3" />
+                                                    break;
+
+                                                case "ddl":
+                                                    var ddlOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+                                                    <SfDropDownList TValue="string" TItem="string"
+                                                                    ID="@($"field_{field.LabelName.Replace(" ", "_")}")"
+                                                                    CssClass="@(ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired ? "custom-input error-border" : "custom-input")"
+                                                                    Placeholder="--"
+                                                                    DataSource="ddlOptions" @bind-Value="field.Value">
+                                                    </SfDropDownList>
+                                                    break;
+
+                                                case "multiddl":
+                                                    var multiOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+                                                    <SfMultiSelect TValue="List<string>" TItem="string"
+                                                                   ID="@($"field_{field.LabelName.Replace(" ", "_")}")"
+                                                                   CssClass="@(ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired ? "custom-input error-border" : "custom-input")"
+                                                                   Placeholder="Select Multiple"
+                                                                   DataSource="multiOptions" @bind-Value="field.MultiValue" />
+                                                    break;
+
+                                                case "radio":
+                                                    var radioOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+                                                    <InputRadioGroup @bind-Value="field.Value" 
+                                                                    id="@($"field_{field.LabelName.Replace(" ", "_")}")">
+                                                        @foreach (var opt in radioOptions)
+                                                        {
+                                                            <div class="form-check">
+                                                                <InputRadio class="form-check-input" Value="@opt" />
+                                                                <label class="form-check-label">@opt</label>
+                                                            </div>
+                                                        }
+                                                    </InputRadioGroup>
+                                                    break;
+
+                                                case "checkbox":
+                                                    var checkOptions = field.Options?.Split(',') ?? Array.Empty<string>();
+                                                    @foreach (var opt in checkOptions)
+                                                    {
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input"
+                                                                   id="@($"field_{field.LabelName.Replace(" ", "_")}_{opt.Replace(" ", "_")}")"
+                                                                   value="@opt"
+                                                                   @onchange="e => OnCheckboxChanged(e, field, opt)"
+                                                                   checked="@field.MultiValue?.Contains(opt)" />
+                                                            <label class="form-check-label" for="@($"field_{field.LabelName.Replace(" ", "_")}_{opt.Replace(" ", "_")}")">@opt</label>
+                                                        </div>
+                                                    }
+                                                    break;
+
+                                                case "tags":
+                                                    <SfMultiSelect TValue="List<string>" TItem="string"
+                                                                   ID="@($"field_{field.LabelName.Replace(" ", "_")}")"
+                                                                   CssClass="@(ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired ? "custom-input error-border" : "custom-input")"
+                                                                   @bind-Value="field.MultiValue"
+                                                                   Placeholder="Enter tags"
+                                                                   Mode="VisualMode.Box"
+                                                                   AllowCustomValue="true"
+                                                                   AllowFiltering="true"
+                                                                   ShowClearButton="true"
+                                                                   EnableGroupCheckBox="true"
+                                                                   MaximumSelectionLength="10"
+                                                                   ShowSelectAll="true">
+                                                    </SfMultiSelect>
+                                                    break;
+                                            }
+                                            
+                                            @if (ValidationErrors.ContainsKey(field.LabelName) && field.IsRequired)
+                                            {
+                                                <span class="error-text">@ValidationErrors[field.LabelName]</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-end mb-4">
+                        <button type="submit" class="btn btn-primary">Submit Form</button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    @if (IsSubmitted)
+    {
+        <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">
+                            <i class="ri-check-line me-2"></i>
+                            Form Submitted Successfully
+                        </h5>
+                        <button type="button" class="btn-close" @onclick="CloseSuccessModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Thank you for your submission. Your information has been saved.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success me-2" @onclick="ResetForm">Submit Another Response</button>
+                        <button type="button" class="btn btn-primary" @onclick="NavigateToFormBuilder">Return to Form Builder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<style>
+    /* Custom card styling to match the lead form example */
+    .custom-card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 0;
+    }
+    
+    .custom-card .card-header {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .custom-card .card-title {
+        margin-bottom: 0;
+        font-weight: 500;
+        color: #495057;
+        position: relative;
+        padding-left: 12px;
+    }
+    
+    .custom-card .card-title::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #8F69E1;
+        border-radius: 2px;
+    }
+    
+    .custom-input {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+    }
+    
+    .error-border {
+        border-color: #dc3545 !important;
+    }
+    
+    .error-text {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+    }
+    
+    .form-label {
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .fixed-bottom {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1030;
+        background-color: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string FormId { get; set; }
+
+    private bool IsLoading = true;
+    private bool LoadError = false;
+    private bool IsSubmitted = false;
+    private Dictionary<string, string> ValidationErrors = new Dictionary<string, string>();
+
+    private FormModel FormData { get; set; } = new FormModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Set initial breadcrumb with placeholder for form name
+        BreadcrumbService.SetBreadcrumbPath(
+            "View Form",
+            ("Home", "/"),
+            ("Forms", "/forms"),
+            ("View Form", null)
+        );
+        
+        await LoadFormData();
+    }
+
+    private async Task LoadFormData()
+    {
+        try
+        {
+            IsLoading = true;
+            
+            // Use the FormService to retrieve the form data
+            FormData = await FormService.GetFormAsync(FormId);
+            
+            if (FormData == null)
+            {
+                LoadError = true;
+                return;
+            }
+            
+            // Update the breadcrumb with the actual form name and items
+            UpdateBreadcrumbs();
+            
+            // Initialize MultiValue lists if needed
+            foreach (var card in FormData.Cards)
+            {
+                foreach (var field in card.Fields)
+                {
+                    if (field.MultiValue == null)
+                    {
+                        field.MultiValue = new List<string>();
+                    }
+                }
+            }
+            
+            // Show success notification if NotificationService available
+            if (NotificationService != null)
+            {
+                await NotificationService.ShowInfoAsync($"Form '{FormData.PageHeader}' loaded successfully");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading form: {ex.Message}");
+            LoadError = true;
+            
+            // Show error notification if NotificationService available
+            if (NotificationService != null)
+            {
+                await NotificationService.ShowErrorAsync($"Error loading form: {ex.Message}", true);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+    private void UpdateBreadcrumbs()
+    {
+        if (FormData == null)
+            return;
+            
+        var pageTitle = string.IsNullOrEmpty(FormData.PageHeader) ? "View Form" : FormData.PageHeader;
+        
+        // Check if we have custom breadcrumbs
+        if (FormData.BreadcrumbItems != null && FormData.BreadcrumbItems.Count > 0)
+        {
+            var breadcrumbArray = FormData.BreadcrumbItems
+                .Where(b => !b.IsActive)
+                .Select(b => (b.Text, b.Url))
+                .ToList();
+            
+            // Add the active breadcrumb at the end
+            var activeBreadcrumb = FormData.BreadcrumbItems.FirstOrDefault(b => b.IsActive);
+            if (activeBreadcrumb != null)
+            {
+                breadcrumbArray.Add((activeBreadcrumb.Text, null));
+            }
+            
+            BreadcrumbService.SetBreadcrumbPath(pageTitle, breadcrumbArray.ToArray());
+        }
+        else 
+        {
+            // Use default breadcrumbs
+            BreadcrumbService.SetBreadcrumbPath(
+                pageTitle,
+                ("Home", "/"),
+                ("Forms", "/forms"),
+                (FormData.PageHeader ?? "Form", null)
+            );
+        }
+    }
+
+    private void OnCheckboxChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e, FieldModel field, string option)
+    {
+        bool isChecked = e?.Value?.ToString() == "true";
+        if (field.MultiValue == null)
+        {
+            field.MultiValue = new List<string>();
+        }
+        
+        if (isChecked)
+        {
+            if (!field.MultiValue.Contains(option))
+                field.MultiValue.Add(option);
+        }
+        else
+        {
+            field.MultiValue.Remove(option);
+        }
+    }
+
+    private bool ValidateForm()
+    {
+        ValidationErrors.Clear();
+        bool isValid = true;
+        
+        foreach (var card in FormData.Cards)
+        {
+            foreach (var field in card.Fields)
+            {
+                if (field.IsRequired)
+                {
+                    if (string.IsNullOrWhiteSpace(field.Value) && 
+                        (field.InputType.ToLower() == "textbox" || field.InputType.ToLower() == "textarea" || 
+                         field.InputType.ToLower() == "ddl" || field.InputType.ToLower() == "radio"))
+                    {
+                        ValidationErrors[field.LabelName] = $"{field.LabelName} is required.";
+                        isValid = false;
+                    }
+                    else if ((field.MultiValue == null || field.MultiValue.Count == 0) && 
+                             (field.InputType.ToLower() == "multiddl" || field.InputType.ToLower() == "checkbox" || 
+                              field.InputType.ToLower() == "tags"))
+                    {
+                        ValidationErrors[field.LabelName] = $"{field.LabelName} is required.";
+                        isValid = false;
+                    }
+                }
+            }
+        }
+        
+        return isValid;
+    }
+
+    private async Task SubmitForm()
+    {
+        if (!ValidateForm())
+        {
+            // Show validation error notification if NotificationService available
+            if (NotificationService != null)
+            {
+                await NotificationService.ShowWarningAsync("Please fill in all required fields");
+            }
+            
+            StateHasChanged();
+            return;
+        }
+        
+        // In a real application, you would submit the form data to an API
+        IsSubmitted = true;
+        
+        // Show success notification if NotificationService available
+        if (NotificationService != null)
+        {
+            await NotificationService.ShowSuccessAsync("Form submitted successfully!");
+        }
+        
+        // Example of data that would be submitted
+        var formDataToSubmit = new
+        {
+            FormId = FormId,
+            PageHeader = FormData.PageHeader,
+            SubmittedValues = FormData.Cards.SelectMany(c => c.Fields.Select(f => new
+            {
+                Label = f.LabelName,
+                Value = f.InputType.ToLower() == "multiddl" || f.InputType.ToLower() == "checkbox" || f.InputType.ToLower() == "tags" 
+                    ? string.Join(",", f.MultiValue ?? new List<string>()) 
+                    : f.Value
+            })).ToList()
+        };
+        
+        // For demonstration, we'll log this to console
+        Console.WriteLine(JsonSerializer.Serialize(formDataToSubmit));
+    }
+
+    private void CloseSuccessModal()
+    {
+        IsSubmitted = false;
+        StateHasChanged();
+    }
+
+    private async Task ResetForm()
+    {
+        IsSubmitted = false;
+        await LoadFormData();
+    }
+    
+    private void NavigateToFormBuilder()
+    {
+        NavigationManager.NavigateTo("/FormTool/DynamicFormBuilder");
+    }
+}
