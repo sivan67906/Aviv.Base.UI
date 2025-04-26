@@ -2,6 +2,7 @@ using System.IO.Compression;
 using Aviv.Base.UI.Components;
 using Aviv.Base.UI.Helper;
 using Aviv.Base.UI.Services;
+using Aviv.Base.UI.Services.SalesTask;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Radzen;
@@ -72,6 +73,7 @@ builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<NotificationCustomService>();
 
 builder.Services.AddScoped<CustomFormService>();
+builder.Services.AddScoped<SalesTaskInfoService>();
 
 // Add Memory Cache for performance improvement
 builder.Services.AddMemoryCache();
