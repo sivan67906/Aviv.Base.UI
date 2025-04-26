@@ -68,7 +68,9 @@
 </head>
 
 <body>
-	<Routes @rendermode="InteractiveServer" />
+    <CascadingAuthenticationState>
+	    <Routes @rendermode="InteractiveServer" />
+    </CascadingAuthenticationState>
 
 	<!-- Notification Component -->
 	<NotificationComponent />

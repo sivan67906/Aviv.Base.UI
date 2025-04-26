@@ -2,8 +2,10 @@ using System.IO.Compression;
 using Aviv.Base.UI.Components;
 using Aviv.Base.UI.Helper;
 using Aviv.Base.UI.Services;
+using Aviv.Base.UI.Services.Authentication;
 using Aviv.Base.UI.Services.SalesTask;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 using Radzen;
 using Syncfusion.Blazor;
@@ -42,6 +44,11 @@ else
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// Authentication services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddAuthorizationCore();
 
 // Register services with appropriate lifetimes
 // Singletons - shared across all users of the application
@@ -100,18 +107,42 @@ builder.Services.AddDistributedMemoryCache(options =>
     options.SizeLimit = 50 * 1024 * 1024; // 50MB
 });
 
-// Authentication configuration
+// Authentication configuration - Updated for security
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/login";
-        options.AccessDeniedPath = "/accessdenied";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/unauthorized";
         options.Cookie.Name = "AviVendorAuth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
         options.SlidingExpiration = true;
+
+        // Additional security options
+        options.Cookie.IsEssential = true;
+        options.ReturnUrlParameter = "returnUrl";
+
+        // Events for additional handling
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                // For API requests, return 401 instead of redirecting
+                if (context.Request.Path.StartsWithSegments("/api") &&
+                    context.Response.StatusCode == 200)
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                }
+
+                // Normal login redirect
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Configure CORS if needed
@@ -168,7 +199,7 @@ app.UseRouting();
 // Add CORS
 app.UseCors("AllowedOrigins");
 
-// Authentication and authorization middleware
+// Authentication and authorization middleware - Order is important!
 app.UseAuthentication();
 app.UseAuthorization();
 

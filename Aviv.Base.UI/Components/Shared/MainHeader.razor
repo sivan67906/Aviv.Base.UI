@@ -1,6 +1,10 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Aviv.Base.UI.Services.Authentication
 @inject StateService stateService
 @inject IJSRuntime JSRuntime
 @inject NotificationCustomService NotificationService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 @implements IDisposable
 
 <header class="app-header">
@@ -38,71 +42,85 @@
 			</div>
 
 			<!-- User Profile Dropdown -->
-			<div class="header-element">
-				<a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" aria-expanded="false">
-					<div class="d-flex align-items-center">
-						<div class="me-sm-2 me-0">
-							<img src="../assets/images/faces/9.jpg" alt="Profile" width="32" height="32" class="rounded-circle">
-						</div>
-						<div class="d-sm-block d-none">
-							<p class="fw-semibold mb-0 lh-1">Eli Ya`aqov</p>
-							<span class="op-7 fw-normal d-block fs-11">Vendor Admin</span>
+			<AuthorizeView>
+				<Authorized>
+					<div class="header-element">
+						<a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="d-flex align-items-center">
+								<div class="me-sm-2 me-0">
+									<img src="../assets/images/faces/9.jpg" alt="Profile" width="32" height="32" class="rounded-circle">
+								</div>
+								<div class="d-sm-block d-none">
+									<p class="fw-semibold mb-0 lh-1">@context.User.Identity?.Name</p>
+									<span class="op-7 fw-normal d-block fs-11">Vendor Admin</span>
+								</div>
+							</div>
+						</a>
+						<ul class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end" aria-labelledby="mainHeaderProfile">
+							<li><a class="dropdown-item d-flex" href="Vendors/Profile"><i class="ti ti-user-circle fs-18 me-2 op-7"></i>Profile</a></li>
+							<li><a class="dropdown-item d-flex" href="ResetPassword"><i class="ti ti-lock fs-18 me-2 op-7"></i>Change Password</a></li>
+							<li><a class="dropdown-item d-flex" href="mail"><i class="ti ti-inbox fs-18 me-2 op-7"></i>Stock <span class="badge bg-success-transparent ms-auto">25</span></a></li>
+							<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("product_manager")' href="javascript:void(0)"><i class="ti ti-clipboard-check fs-18 me-2 op-7"></i>Product Manager</a></li>
+							<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("support")' href="javascript:void(0)"><i class="ti ti-headset fs-18 me-2 op-7"></i>Support</a></li>
+							<li><a class="dropdown-item d-flex" href="FAQ"><i class="ti ti-receipt fs-18 me-2 op-7"></i>FAQ</a></li>
+							<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("default")' href="javascript:void(0)"><i class="ti ti-home fs-18 me-2 op-7"></i>Back to Main</a></li>
+							<li><a class="dropdown-item d-flex" href="/logout"><i class="ti ti-logout fs-18 me-2 op-7"></i>Log Out</a></li>
+							<li><a class="dropdown-item d-flex" @onclick="ToggleThemeModal"><i class="ti ti-palette fs-18 me-2 op-7"></i>Select Theme</a></li>
+						</ul>
+					</div>
+				</Authorized>
+				<NotAuthorized>
+					<div class="header-element">
+						<a href="/login" class="header-link">
+							<div class="d-flex align-items-center">
+								<i class="bx bx-log-in me-1"></i>
+								<span>Sign In</span>
+							</div>
+						</a>
+					</div>
+				</NotAuthorized>
+			</AuthorizeView>
+
+			@if (isThemeModalOpen)
+			{
+				<div class="modal fade show d-block" id="themeModal" tabindex="-1" aria-labelledby="themeModalLabel" style="display: block; background: rgba(0, 0, 0, 0.5);">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="themeModalLabel">Select Theme Color</h5>
+								<button type="button" class="btn-close" @onclick="ToggleThemeModal"></button>
+							</div>
+							<div class="modal-body">
+								<lable>Theme Color</lable>
+								<select class="form-select" id="themeDropdown" @onchange="OnThemeChange">
+									<option value="" selected>--select color--</option>
+									<option value="20, 30, 96">Blue</option>
+									<option value="8, 78, 115">Teal</option>
+									<option value="90, 37, 135">Purple</option>
+									<option value="24, 101, 51">Green</option>
+									<option value="120, 66, 20">Brown</option>
+								</select>
+							</div>
+							<div class="modal-body">
+								<lable>Background Color</lable>
+								<select class="form-select" id="themebgDropdown" @onchange="OnThemebgChange">
+									<option value="" selected>--select color--</option>
+									<option value="20, 30, 96">Blue</option>
+									<option value="8, 78, 115">Teal</option>
+									<option value="90, 37, 135">Purple</option>
+									<option value="24, 101, 51">Green</option>
+									<option value="120, 66, 20">Brown</option>
+								</select>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" @onclick="ToggleThemeModal">Close</button>
+								<button type="button" class="btn btn-primary" @onclick="reset">Reset</button>
+							</div>
 						</div>
 					</div>
-				</a>
-				<ul class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end" aria-labelledby="mainHeaderProfile">
-					<li><a class="dropdown-item d-flex" href="Vendors/Profile"><i class="ti ti-user-circle fs-18 me-2 op-7"></i>Profile</a></li>
-					<li><a class="dropdown-item d-flex" href="ResetPassword"><i class="ti ti-lock fs-18 me-2 op-7"></i>Change Password</a></li>
-					<li><a class="dropdown-item d-flex" href="mail"><i class="ti ti-inbox fs-18 me-2 op-7"></i>Stock <span class="badge bg-success-transparent ms-auto">25</span></a></li>
-					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("product_manager")' href="javascript:void(0)"><i class="ti ti-clipboard-check fs-18 me-2 op-7"></i>Product Manager</a></li>
-					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("support")' href="javascript:void(0)"><i class="ti ti-headset fs-18 me-2 op-7"></i>Support</a></li>
-					<li><a class="dropdown-item d-flex" href="FAQ"><i class="ti ti-receipt fs-18 me-2 op-7"></i>FAQ</a></li>
-					<li><a class="dropdown-item d-flex" @onclick='() => SwitchTheme("default")' href="javascript:void(0)"><i class="ti ti-home fs-18 me-2 op-7"></i>Back to Main</a></li>
-					<li><a class="dropdown-item d-flex" href=""><i class="ti ti-logout fs-18 me-2 op-7"></i>Log Out</a></li>
-                    <li><a class="dropdown-item d-flex" @onclick="ToggleThemeModal"><i class="ti ti-palette fs-18 me-2 op-7"></i>Select Theme</a></li>
-                </ul>
-			</div>
-
-            @if (isThemeModalOpen)
-            {
-                <div class="modal fade show d-block" id="themeModal" tabindex="-1" aria-labelledby="themeModalLabel" style="display: block; background: rgba(0, 0, 0, 0.5);">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="themeModalLabel">Select Theme Color</h5>
-                                <button type="button" class="btn-close" @onclick="ToggleThemeModal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <lable>Theme Color</lable>
-                                <select class="form-select" id="themeDropdown" @onchange="OnThemeChange">
-                                    <option value="" selected>--select color--</option>
-                                    <option value="20, 30, 96">Blue</option>
-                                    <option value="8, 78, 115">Teal</option>
-                                    <option value="90, 37, 135">Purple</option>
-                                    <option value="24, 101, 51">Green</option>
-                                    <option value="120, 66, 20">Brown</option>
-                                </select>
-                            </div>
-                            <div class="modal-body">
-                                <lable>Background Color</lable>
-                                <select class="form-select" id="themebgDropdown" @onchange="OnThemebgChange">
-                                    <option value=""selected>--select color--</option>
-                                    <option value="20, 30, 96">Blue</option>
-                                    <option value="8, 78, 115">Teal</option>
-                                    <option value="90, 37, 135">Purple</option>
-                                    <option value="24, 101, 51">Green</option>
-                                    <option value="120, 66, 20">Brown</option>
-                                </select>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" @onclick="ToggleThemeModal">Close</button>
-                                <button type="button" class="btn btn-primary" @onclick="reset">Reset</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+				</div>
+			}
+		</div>
 	</div>
 </header>
 
@@ -250,46 +268,46 @@
 	}
 
 
-    // Kansheyam Theme Color
+	// Kansheyam Theme Color
 
-    private bool isThemeModalOpen = false;
+	private bool isThemeModalOpen = false;
 
-    private void ToggleThemeModal()
-    {
-        isThemeModalOpen = !isThemeModalOpen;
-    }
+	private void ToggleThemeModal()
+	{
+		isThemeModalOpen = !isThemeModalOpen;
+	}
 
-    private void OnThemebgChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
-    {
-        string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default value as fallback
-        themeBackgroundFn(selectedValue, selectedValue);
-    }
+	private void OnThemebgChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+	{
+		string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default value as fallback
+		themeBackgroundFn(selectedValue, selectedValue);
+	}
 
-    private async void OnThemeChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
-    {
-        string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default fallback value
-        await themePrimaryFn(selectedValue); // Calls the async function
-    }
+	private async void OnThemeChange(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+	{
+		string selectedValue = e.Value?.ToString() ?? "20, 30, 96"; // Default fallback value
+		await themePrimaryFn(selectedValue); // Calls the async function
+	}
 
 
-    private async Task themePrimaryFn(string val)
-    {
-        //Localstorage
-        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexprimaryRGB", val);
-        await stateService.themePrimaryFn(val);
-        StateHasChanged(); // Force re-render
-    }
-    private async void themeBackgroundFn(string val, string val2)
-    {
-        //Localstorage
-        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor", val);
-        await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor1", val2);
-        await stateService.themeBackgroundFn(val, val2, true);
-        StateHasChanged(); // Force re-render
-    }
-    private async void reset()
-    {
-        await stateService.reset();
-        StateHasChanged(); // Force re-render
-    }
+	private async Task themePrimaryFn(string val)
+	{
+		//Localstorage
+		await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexprimaryRGB", val);
+		await stateService.themePrimaryFn(val);
+		StateHasChanged(); // Force re-render
+	}
+	private async void themeBackgroundFn(string val, string val2)
+	{
+		//Localstorage
+		await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor", val);
+		await JSRuntime.InvokeAsync<string>("interop.setLocalStorageItem", "ynexbgColor1", val2);
+		await stateService.themeBackgroundFn(val, val2, true);
+		StateHasChanged(); // Force re-render
+	}
+	private async void reset()
+	{
+		await stateService.reset();
+		StateHasChanged(); // Force re-render
+	}
 }

@@ -1,0 +1,186 @@
+﻿@page "/profile"
+@using Aviv.Base.UI.Models.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
+@using Aviv.Base.UI.Services.Authentication
+@inject IAuthService AuthService
+@inject NotificationCustomService NotificationService
+
+<style>
+	.profile-page {
+		padding: 20px;
+	}
+
+	.profile-header {
+		background-color: var(--primary-rgb, rgba(109, 56, 224, 0.1));
+		border-radius: 0.5rem;
+		padding: 2rem;
+		margin-bottom: 2rem;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.profile-avatar {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		background-color: var(--primary-rgb, rgba(109, 56, 224, 0.2));
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 2rem;
+		color: var(--primary-color);
+		font-weight: 600;
+		margin-bottom: 1rem;
+	}
+
+	.profile-info-card {
+		background-color: #fff;
+		border-radius: 0.5rem;
+		padding: 1.5rem;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		margin-bottom: 1.5rem;
+	}
+
+	.info-item {
+		display: flex;
+		margin-bottom: 1rem;
+		border-bottom: 1px solid #f5f5f5;
+		padding-bottom: 1rem;
+	}
+
+	.info-label {
+		font-weight: 600;
+		width: 150px;
+		color: #495057;
+	}
+
+	.info-value {
+		flex: 1;
+		color: #212529;
+	}
+
+	.role-badge {
+		display: inline-block;
+		padding: 0.25rem 0.5rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		border-radius: 0.25rem;
+		background-color: var(--primary-rgb, rgba(109, 56, 224, 0.1));
+		color: var(--primary-color);
+		margin-right: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+</style>
+
+<div class="profile-page">
+	<AuthorizeView>
+		<Authorized>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="profile-header">
+						<div class="d-flex align-items-center">
+							<div class="profile-avatar">
+								@(userInfo?.Username?[0].ToString().ToUpper() ?? "U")
+							</div>
+							<div class="ms-4">
+								<h3 class="mb-1">@(userInfo?.FullName ?? "Loading...")</h3>
+								<p class="text-muted mb-0">@(userInfo?.Email ?? "Loading...")</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="profile-info-card">
+						<h5 class="mb-3">Personal Information</h5>
+
+						<div class="info-item">
+							<div class="info-label">Username</div>
+							<div class="info-value">@(userInfo?.Username ?? "Loading...")</div>
+						</div>
+
+						<div class="info-item">
+							<div class="info-label">Full Name</div>
+							<div class="info-value">@(userInfo?.FullName ?? "Loading...")</div>
+						</div>
+
+						<div class="info-item">
+							<div class="info-label">Email</div>
+							<div class="info-value">@(userInfo?.Email ?? "Loading...")</div>
+						</div>
+
+						<div class="info-item">
+							<div class="info-label">Roles</div>
+							<div class="info-value">
+								@if (userInfo?.Roles != null)
+								{
+									foreach (var role in userInfo.Roles)
+									{
+										<span class="role-badge">@role</span>
+									}
+								}
+								else
+								{
+									<span>Loading...</span>
+								}
+							</div>
+						</div>
+
+						<div class="info-item">
+							<div class="info-label">Last Login</div>
+							<div class="info-value">@DateTime.Now.ToString("g")</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="profile-info-card">
+						<h5 class="mb-3">Account Settings</h5>
+
+						<p>You can manage your account settings here.</p>
+
+						<div class="mt-4">
+							<a href="/ResetPassword" class="btn btn-primary">
+								<i class="ri-lock-password-line me-2"></i> Change Password
+							</a>
+
+							<a href="/logout" class="btn btn-outline-danger ms-2">
+								<i class="ri-logout-box-line me-2"></i> Logout
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</Authorized>
+		<NotAuthorized>
+			<div class="alert alert-warning">
+				<h4>Authentication Required</h4>
+				<p>You must be logged in to view this page.</p>
+				<a href="/login" class="btn btn-primary">Sign In</a>
+			</div>
+		</NotAuthorized>
+	</AuthorizeView>
+</div>
+
+@code {
+	private UserInfo? userInfo;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadUserInfo();
+	}
+
+	private async Task LoadUserInfo()
+	{
+		try
+		{
+			userInfo = await AuthService.GetCurrentUserAsync();
+		}
+		catch (Exception ex)
+		{
+			await NotificationService.ShowErrorAsync($"Error loading profile: {ex.Message}");
+		}
+	}
+}

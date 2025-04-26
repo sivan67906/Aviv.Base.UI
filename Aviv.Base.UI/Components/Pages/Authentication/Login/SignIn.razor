@@ -1,7 +1,14 @@
 @page "/"
 @page "/Login"
 @using Aviv.Base.UI.Components.Layout
+@using Aviv.Base.UI.Models.Authentication
+@using Aviv.Base.UI.Services.Authentication
+@using Microsoft.AspNetCore.Components.Forms
 @layout CustomLayout
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+@inject NotificationCustomService NotificationService
+@inject IJSRuntime JSRuntime
 
 <style>
 	.authentication-basic {
@@ -26,6 +33,21 @@
 			width: 100% !important;
 		}
 	}
+
+	.validation-message {
+		color: #dc3545;
+		font-size: 0.8rem;
+		margin-top: 0.25rem;
+	}
+
+	.error-alert {
+		margin-top: 1rem;
+		padding: 0.75rem 1.25rem;
+		color: #721c24;
+		background-color: #f8d7da;
+		border-color: #f5c6cb;
+		border-radius: 0.25rem;
+	}
 </style>
 
 <div class="container-fluid" style="background-color: #1c2e4a; height: 100%;">
@@ -47,27 +69,53 @@
 					</div>
 				</div>
 				<div class="card-body p-5 pt-0">
-					<div class="row mt-3 mb-5 gy-3">
-						<div class="col-xl-12">
-							<label for="signin-username" class="form-label text-default">User Name</label>
-							<input type="text" class="form-control form-control-lg" id="signin-username" placeholder="">
-						</div>
-						<div class="col-xl-12 mb-2">
-							<label for="signin-password" class="form-label text-default d-block">Password<a href="reset-password-basic" class="float-end text-danger">Forget password ?</a></label>
-							<PasswordToggle @bind-Password="password" />
-							<div class="mt-2">
-								<div class="form-check">
-									<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-									<label class="form-check-label text-muted fw-normal" for="defaultCheck1">
-										Remember password ?
-									</label>
+					<EditForm Model="@loginModel" OnValidSubmit="HandleValidSubmit">
+						<DataAnnotationsValidator />
+
+						@if (!string.IsNullOrEmpty(errorMessage))
+						{
+							<div class="error-alert">
+								<i class="ri-error-warning-line me-2"></i> @errorMessage
+							</div>
+						}
+
+						<div class="row mt-3 mb-5 gy-3">
+							<div class="col-xl-12">
+								<label for="signin-username" class="form-label text-default">User Name</label>
+								<InputText id="signin-username" class="form-control form-control-lg" @bind-Value="loginModel.Username" placeholder="Enter username" />
+								<ValidationMessage For="@(() => loginModel.Username)" class="validation-message" />
+							</div>
+							<div class="col-xl-12 mb-2">
+								<label for="signin-password" class="form-label text-default d-block">
+									Password
+									<a href="reset-password-basic" class="float-end text-danger">Forget password ?</a>
+								</label>
+								<PasswordToggle @bind-Password="loginModel.Password" />
+								<ValidationMessage For="@(() => loginModel.Password)" class="validation-message" />
+								<div class="mt-2">
+									<div class="form-check">
+										<InputCheckbox class="form-check-input" id="rememberMe" @bind-Value="loginModel.RememberMe" />
+										<label class="form-check-label text-muted fw-normal" for="rememberMe">
+											Remember password ?
+										</label>
+									</div>
 								</div>
 							</div>
+							<div class="col-xl-12 d-grid mt-2">
+								<button type="submit" class="btn btn-lg btn-primary" disabled="@isLoading">
+									@if (isLoading)
+									{
+										<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+										<span>Signing in...</span>
+									}
+									else
+									{
+										<span>Sign In</span>
+									}
+								</button>
+							</div>
 						</div>
-						<div class="col-xl-12 d-grid mt-2">
-							<a href="Dashboard" class="btn btn-lg btn-primary">Sign In</a>
-						</div>
-					</div>
+					</EditForm>
 					<div class="text-center">
 						<p class="fs-12 text-muted mt-3">Dont have an account? <a href="SignUp" class="text-primary">Sign Up</a></p>
 					</div>
@@ -79,9 +127,49 @@
 </div>
 
 @code {
-	private string password = "";
+	private LoginViewModel loginModel = new();
+	private bool isLoading;
+	private string? errorMessage;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Check if user is already authenticated
+		if (await AuthService.IsAuthenticatedAsync())
+		{
+			NavigationManager.NavigateTo("/dashboard");
+		}
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			isLoading = true;
+			errorMessage = null;
+
+			var result = await AuthService.LoginAsync(loginModel);
+
+			if (result)
+			{
+				// Login successful
+				await NotificationService.ShowSuccessAsync("Login successful!");
+				NavigationManager.NavigateTo("/dashboard");
+			}
+			else
+			{
+				// Login failed
+				errorMessage = "Invalid username or password. Please try again.";
+				await NotificationService.ShowErrorAsync("Login failed. Please check your credentials.");
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = "An error occurred during login. Please try again.";
+			await NotificationService.ShowErrorAsync("Login error: " + ex.Message);
+		}
+		finally
+		{
+			isLoading = false;
+		}
+	}
 }
-
-
-
-

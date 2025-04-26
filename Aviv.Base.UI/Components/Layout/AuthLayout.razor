@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@inherits LayoutComponentBase
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            @Body
+        </Authorized>
+        <NotAuthorized>
+            <RedirectToLogin />
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+@code {
+    // Nested component to handle login redirection
+    private class RedirectToLogin : ComponentBase
+    {
+        [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+        protected override void OnInitialized()
+        {
+            string returnUrl = Uri.EscapeDataString(NavigationManager.Uri);
+            NavigationManager.NavigateTo($"/login?returnUrl={returnUrl}", true);
+        }
+    }
+}

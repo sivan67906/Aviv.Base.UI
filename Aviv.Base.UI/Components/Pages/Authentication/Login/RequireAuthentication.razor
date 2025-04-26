@@ -1,0 +1,43 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+@ChildContent
+
+@code {
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	[Parameter]
+	public string? Roles { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (!user.Identity?.IsAuthenticated ?? true)
+		{
+			// User is not authenticated, redirect to login page
+			string returnUrl = Uri.EscapeDataString(NavigationManager.Uri);
+			NavigationManager.NavigateTo($"/login?returnUrl={returnUrl}");
+			return;
+		}
+
+		// Check roles if specified
+		if (!string.IsNullOrEmpty(Roles))
+		{
+			var requiredRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries);
+			bool hasAnyRole = requiredRoles.Any(role => user.IsInRole(role.Trim()));
+
+			if (!hasAnyRole)
+			{
+				// User doesn't have any of the required roles
+				NavigationManager.NavigateTo("/unauthorized");
+				return;
+			}
+		}
+	}
+}

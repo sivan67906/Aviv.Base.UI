@@ -1,0 +1,41 @@
+@page "/Unauthorized"
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid" style="height: 100vh; background-color: #f8f9fa;">
+	<div class="row justify-content-center">
+		<div class="col-md-6 mt-5">
+			<div class="card custom-card">
+				<div class="card-body text-center p-5">
+					<div class="mb-4">
+						<i class="ri-lock-2-line text-danger" style="font-size: 5rem;"></i>
+					</div>
+					<h2 class="mb-4 fw-bold">Access Denied</h2>
+					<p class="mb-4 text-muted fs-16">
+						You don't have permission to access this resource.
+						Please contact your administrator if you believe this is a mistake.
+					</p>
+					<div class="mt-4">
+						<button class="btn btn-primary me-2" @onclick="GoToDashboard">
+							<i class="ri-dashboard-line me-1"></i> Go to Dashboard
+						</button>
+						<button class="btn btn-outline-secondary" @onclick="GoBack">
+							<i class="ri-arrow-go-back-line me-1"></i> Go Back
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private void GoToDashboard()
+	{
+		NavigationManager.NavigateTo("/dashboard");
+	}
+
+	private void GoBack()
+	{
+		NavigationManager.NavigateTo(NavigationManager.BaseUri);
+	}
+}
