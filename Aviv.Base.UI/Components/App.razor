@@ -17,8 +17,17 @@
 	<link rel="stylesheet" href="@Assets["assets/css/dragula.min.css"]" />
 	<link rel="stylesheet" href="@Assets["assets/css/CustomNotification.css"]" />
 
+	<!-- Syncfusion Style -->
+	<link href="_content/Syncfusion.Blazor.Themes/bootstrap5.css" rel="stylesheet" />
+	<link id="syncfusion-theme" href="https://cdn.syncfusion.com/ej2/material-dark.css" rel="stylesheet">
+
+	<!-- Radzen Style -->
+	<link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
+	<link id="radzen-theme" href="_content/Radzen.Blazor/css/default.css" rel="stylesheet">
+	<link id="radzen-theme-dark" href="_content/Radzen.Blazor/css/dark.css" rel="stylesheet" disabled>
+
 	<link href="@Assets["assets/css/icons.css"]" rel="stylesheet">
-	
+
 	<!-- Icons Css -->
 	<link href="@Assets["assets/css/iconsOverall.css"]" rel="stylesheet">
 	<link href="@Assets["assets/css/uicons-thin-straight.css"]" rel="stylesheet">
@@ -33,36 +42,37 @@
 
 	<link href="@Assets["assets/css/styles.css"]" rel="stylesheet">
 
-	<!-- Syncfusion Style -->
-	<link href="_content/Syncfusion.Blazor.Themes/bootstrap5.css" rel="stylesheet" />
-	
-	<!-- Radzen Style -->
-	<link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
-	<link id="radzen-theme" href="_content/Radzen.Blazor/css/default.css" rel="stylesheet">
-	<link id="radzen-theme-dark" href="_content/Radzen.Blazor/css/dark.css" rel="stylesheet" disabled>
+
+
+	<!-- Delete popup Style -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
 
 	<link rel="stylesheet" href="@Assets["avivcustom.css"]" />
+	<link rel="stylesheet" href="@Assets["Custom/css/avivformstyle.css"]" />
 
 	<!-- jquery -->
 	<script src="@Assets["lib/jquery/jquery.min.js"]"></script>
+	<link href="@Assets["lib/jqueryui/themes/base/jquery-ui.css"]" rel="stylesheet" />
+	<script src="@Assets["lib/jqueryui/jquery-ui.min.js"]"></script>
 
 	<!--Boxicon-->
 	<script src="@Assets["assets/js/boxicons.min.js"]"></script>
 
 	<!-- Favicon -->
 	<link rel="icon" href="@Assets["assets/images/brand-logos/favicon.ico"]" type="image/x-icon">
-	
-    <ImportMap />		
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet @rendermode="InteractiveServer" />
+
+	<ImportMap />
+	<link rel="icon" type="image/png" href="favicon.png" />
+	<HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <Routes @rendermode="InteractiveServer" />
-	
+	<Routes @rendermode="InteractiveServer" />
+
 	<!-- Notification Component -->
 	<NotificationComponent />
-	
+
 	<!-- Popper JS -->
 	<script src="@Assets["assets/js/popper.min.js"]"></script>
 
@@ -90,6 +100,7 @@
 	</script>
 
 	<script src="@Assets["avivcustom.js"]"></script>
+	<script src="@Assets["Custom/js/avivformscript.js"]"></script>
 	<script src="_framework/blazor.web.js"></script>
 
 </body>

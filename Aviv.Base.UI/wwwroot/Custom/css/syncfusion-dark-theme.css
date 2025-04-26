@@ -1,0 +1,43 @@
+/* Base theme import - use the appropriate path for your project */
+@import url("/_content/Syncfusion.Blazor.Themes/material-dark.css");
+
+/* Custom overrides for dropdown components */
+.e-ddl.e-control.e-lib.e-input-group,
+.e-dropdownlist.e-control.e-lib,
+.e-multiselect.e-control.e-lib {
+    background-color: #333333 !important;
+    border-color: #555555 !important;
+}
+
+.e-ddl .e-input-group .e-input-value,
+.e-ddl .e-input-group .e-input,
+.e-ddl .e-ddl-text {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+}
+
+.e-ddl .e-input-group-icon,
+.e-ddl .e-ddl-icon {
+    color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.e-popup.e-ddl-popup {
+    background-color: #333333 !important;
+    border-color: #555555 !important;
+}
+
+.e-dropdownbase .e-list-item {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+}
+
+    .e-dropdownbase .e-list-item.e-hover {
+        background-color: #4d4d4d !important;
+    }
+
+    .e-dropdownbase .e-list-item.e-active,
+    .e-dropdownbase .e-list-item.e-active.e-hover {
+        background-color: rgba(162, 129, 232, 0.4) !important;
+        color: #ffffff !important;
+    }

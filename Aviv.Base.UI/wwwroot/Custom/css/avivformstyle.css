@@ -1,0 +1,315 @@
+/* Card Styling */
+.custom-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+    .custom-card .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .custom-card .card-title {
+        margin-bottom: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .custom-card .card-body {
+        padding: 1.25rem;
+    }
+
+/* Override Default Validation Styling */
+.custom-input.invalid,
+.custom-input.valid {
+    background-image: none !important;
+    border-color: #ced4da !important;
+}
+
+.custom-input.modified.invalid,
+.field-validation-error {
+    background-image: none !important;
+    border-color: #ced4da !important;
+}
+
+/* Hide Default Validation Messages */
+.validation-message {
+    display: none !important;
+}
+
+/* Form Control Styling */
+.form-control:focus {
+    border-color: #8F69E1 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.form-control {
+    border: 1px solid #ced4da !important;
+}
+
+/* Syncfusion Dropdown Styling */
+.e-ddl .e-input-group {
+    border-color: #ced4da !important;
+}
+
+    .e-ddl .e-input-group.e-input-focus {
+        border-color: #8F69E1 !important;
+        box-shadow: none !important;
+    }
+
+.e-ddl.e-valid-input {
+    border-color: #ced4da !important;
+}
+
+/* Override Syncfusion Success/Error States */
+.e-input-group.e-success,
+.e-input-group.e-success:not(.e-success):hover:not(.e-input-focus),
+.e-ddl.e-input-group.e-control-wrapper.e-success {
+    border-color: #ced4da !important;
+}
+
+.e-input-group.e-error,
+.e-input-group.e-error:not(.e-error):hover:not(.e-input-focus) {
+    border-color: #ced4da !important;
+}
+
+/* Validation Error Styling - Only apply when form is submitted */
+/* Modified to ensure error styling always appears */
+.form-submitted .error-border,
+.form-submitted .e-ddl.error-border .e-input-group {
+    border-color: #dc3545 !important;
+    background-color: #fff8f8 !important;
+}
+
+/* Ensure error styling is visible in all contexts */
+.error-border,
+.e-ddl.error-border .e-input-group {
+    border-color: #dc3545 !important;
+}
+
+.form-submitted .error-border,
+.form-submitted .e-ddl.error-border .e-input-group {
+    background-color: #fff8f8 !important;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block !important; /* Always display error text */
+    font-weight: 500;
+}
+
+/* Focus State Styling */
+.e-control-wrapper.e-input-group:focus-within,
+.e-control-wrapper.e-input-group.e-input-focus,
+.e-ddl.e-input-group:focus-within,
+.e-ddl.e-input-group.e-input-focus,
+.e-ddl:focus-within .e-input-group,
+.e-ddl.e-input-focus .e-input-group {
+    border-color: #8F69E1 !important;
+    box-shadow: none !important;
+}
+
+.e-control-wrapper.e-input-group,
+.e-ddl .e-input-group {
+    border-color: #ced4da !important;
+}
+
+/* Fix to ensure error borders are shown properly */
+.form-submitted .e-ddl.error-border,
+.form-submitted .error-border,
+.form-submitted .e-ddl.error-border .e-input-group,
+.form-submitted .error-border.form-control {
+    border-color: #dc3545 !important;
+    background-color: #fff8f8 !important;
+}
+
+/* Ensure error messages are displayed for dropdowns */
+.e-ddl + .error-text {
+    display: block !important;
+}
+
+/* File Type Icon Styling */
+.ri-image-2-line {
+    color: #8e44ad; /* Purple for images */
+}
+
+.ri-file-pdf-line {
+    color: #e74c3c; /* Red for PDF files */
+}
+
+.ri-file-word-line {
+    color: #2980b9; /* Blue for Word documents */
+}
+
+.ri-file-excel-line {
+    color: #27ae60; /* Green for Excel files */
+}
+
+.ri-file-ppt-line {
+    color: #d35400; /* Orange for PowerPoint files */
+}
+
+.ri-file-zip-line {
+    color: #f39c12; /* Yellow/Orange for archive files */
+}
+
+.ri-file-text-line {
+    color: #7f8c8d; /* Gray for text files */
+}
+
+.ri-file-line {
+    color: #34495e; /* Dark blue/gray for other files */
+}
+
+/* Icon Hover Effects */
+[class^="ri-file"], [class*=" ri-file"], .ri-image-2-line {
+    transition: color 0.2s ease-in-out;
+    font-size: 1.1rem;
+}
+
+    [class^="ri-file"]:hover, [class*=" ri-file"]:hover, .ri-image-2-line:hover {
+        color: #1e1e1e; /* Darken on hover */
+    }
+
+/* MultiSelect Tag Styling */
+.e-multi-select-wrapper .e-chips {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}
+
+    .e-multi-select-wrapper .e-chips:hover {
+        background-color: #e9ecef;
+    }
+
+    .e-multi-select-wrapper .e-chips .e-chips-close::before {
+        color: #6c757d;
+    }
+
+.toggle-switch-container {
+    margin-bottom: 10px;
+}
+
+.toggle-container {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+.toggle-switch {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    background-color: #ccc;
+    border-radius: 34px;
+    margin-right: 10px;
+    transition: .4s;
+    flex-shrink: 0;
+}
+
+    .toggle-slider:before {
+        position: absolute;
+        content: '';
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: .4s;
+    }
+
+.toggle-switch:checked + .toggle-slider {
+    background-color: #8F69E1;
+}
+
+    .toggle-switch:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+.toggle-switch:focus + .toggle-slider {
+    box-shadow: 0 0 1px #8F69E1;
+}
+
+/* Updated to ensure validation works in all cases */
+.e-ddl .e-input-group.error-border {
+    border-color: #dc3545 !important;
+    background-color: #fff8f8 !important;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #8F69E1;
+    border-color: #8F69E1;
+}
+
+    .btn-primary:hover {
+        background-color: #7e57c2;
+        border-color: #7e57c2;
+    }
+
+.btn-outline-primary {
+    color: #8F69E1;
+    border-color: #8F69E1;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #8F69E1;
+        border-color: #8F69E1;
+    }
+
+/* Improved Form Field Spacing */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #495057;
+}
+
+/* Fix for Syncfusion dropdowns to ensure error styling */
+.form-submitted .e-ddl.error-border .e-input-group::before,
+.form-submitted .e-ddl.error-border .e-input-group::after {
+    background-color: #dc3545 !important;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+
+    .toggle-switch-container {
+        margin-top: 1rem;
+    }
+}
+
+.dark-mode .e-dropdownbase .e-list-item {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+    .dark-mode .e-dropdownbase .e-list-item:hover {
+        background-color: #444444 !important;
+    }

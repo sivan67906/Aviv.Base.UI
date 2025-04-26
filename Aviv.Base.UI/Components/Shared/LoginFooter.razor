@@ -1,0 +1,18 @@
+<footer class="mt-auto py-3 bg-white text-center" style="background-color: #fbf8f8 !important; border-radius: 10px !important;">
+	<span class="text-muted">
+		© @currentYear 
+		 by <a>
+			<span class="fw-semibold text-primary text-decoration-underline">Aviv Solutions Inc</span>
+		</a>
+	</span>
+</footer>
+
+
+@code {
+	private int currentYear;
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		currentYear = DateTime.Now.Year;
+	}
+}

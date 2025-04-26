@@ -38,7 +38,7 @@ input::-moz-placeholder {
     letter-spacing: 0.01em !important;
 }
 
-/* For Microsoft Edge */
+
 input:-moz-placeholder {
     font-size: 14px !important;
     font-weight: 400 !important;
@@ -87,11 +87,11 @@ input:-moz-placeholder {
     /* border-color: #e9edf6 !important; */
     border-color: #ab00f6 !important;
 }
-
+/*
 .e-btn, .e-css.e-btn {
     background: #8F69E1 !important;
     border-color: #8F69E1 !important;
-}
+}*/
 
     .e-btn:hover, .e-css.e-btn:hover {
         background: #8F69E1 !important;
@@ -101,6 +101,8 @@ input:-moz-placeholder {
 .e-multi-select-wrapper .e-chips {
     background-color: #8F69E1 !important; /* Replace with your desired color */
 }
+
+
 
 
 /* Change the background color of the dropdown options */
@@ -198,9 +200,9 @@ div:where(.swal2-container) h2:where(.swal2-title) {
     background-color: #8F69E1 !important;
 }
 
-.e-input-group:not(.e-success):not(.e-warning):not(.e-error), .e-input-group.e-control-wrapper:not(.e-success):not(.e-warning):not(.e-error) {
+/*.e-input-group:not(.e-success):not(.e-warning):not(.e-error), .e-input-group.e-control-wrapper:not(.e-success):not(.e-warning):not(.e-error) {
     border-color: #e9edf6 !important;
-}
+}*/
 
 .swalmixin-content-class {
 }
@@ -496,10 +498,89 @@ div:where(.swal2-container) h2:where(.swal2-title) {
         box-shadow: 0 -2px 0 #343a40 !important;
     }
 
+
+
+
+/* Add these styles to the end of your existing avivcustom.css file */
+
+/* Product Manager Layout Styles */
+[data-profile="productManager"] .main-sidebar-header {
+    background-color: #3a0647;
+}
+
+[data-profile="productManager"] .side-menu__icon {
+    color: #3a0647;
+}
+
+[data-profile="productManager"] .side-menu__item.active {
+    background-color: rgba(58, 6, 71, 0.1);
+}
+
+    [data-profile="productManager"] .side-menu__item.active .side-menu__label {
+        color: #3a0647;
+    }
+
+[data-profile="productManager"] .slide.has-sub.open {
+    border-left: 2px solid #3a0647;
+}
+
+/* Vendor Portal Layout Styles */
+[data-profile="vendor"] .main-sidebar-header {
+    background-color: #0c4a6e;
+}
+
+[data-profile="vendor"] .side-menu__icon {
+    color: #0c4a6e;
+}
+
+[data-profile="vendor"] .side-menu__item.active {
+    background-color: rgba(12, 74, 110, 0.1);
+}
+
+    [data-profile="vendor"] .side-menu__item.active .side-menu__label {
+        color: #0c4a6e;
+    }
+
+[data-profile="vendor"] .slide.has-sub.open {
+    border-left: 2px solid #0c4a6e;
+}
+
+/* Layout Profile Indicator */
+.profile-indicator {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+    .profile-indicator.default {
+        background-color: #4b5563;
+        color: white;
+    }
+
+    .profile-indicator.product-manager {
+        background-color: #3a0647;
+        color: white;
+    }
+
+    .profile-indicator.vendor {
+        background-color: #0c4a6e;
+        color: white;
+    }
+
+
 /*Radzen Grid Design Changes*/
 [data-theme-mode="dark"] .rz-datatable-data td {
-    background-color: rgba(45, 45, 45, 1) !important;
-    color: #fff !important;
+    /*background-color: rgba(45, 45, 45, 1) !important;
+    color: #fff !important;*/
 }
 
 /* Remove vertical lines between Radzen DataGrid columns */
@@ -510,7 +591,7 @@ div:where(.swal2-container) h2:where(.swal2-title) {
 
 /* Change Radzen DataGrid header background color to transparent */
 .rz-grid-table th {
-    background-color: transparent !important;
+    /*background-color: transparent !important;*/
 }
 
 /* Ensure the bottom border of the header remains visible */
@@ -520,17 +601,17 @@ div:where(.swal2-container) h2:where(.swal2-title) {
 
 /* Ensure consistent styling in dark mode */
 [data-theme-mode="dark"] .rz-grid-table th {
-    background-color: rgba(60, 60, 60, 0) !important;
+   /* background-color: rgba(60, 60, 60, 0) !important;
     color: #fff !important;
-    border-color: rgba(70, 70, 70, 1) !important;
+    border-color: rgba(70, 70, 70, 1) !important;*/
 }
 
 /* Make pagination buttons round with no background */
 .rz-pager .rz-pager-pages .rz-pager-page {
     border-radius: 50% !important;
     background-color: transparent !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -540,9 +621,9 @@ div:where(.swal2-container) h2:where(.swal2-title) {
 
     /* Style for the active/current page */
     .rz-pager .rz-pager-pages .rz-pager-page.rz-state-active {
-        background-color: transparent !important;
+        /*background-color: transparent !important;
         color: #007bff !important;
-        border-color: #8F69E1 !important;
+        border-color: #8F69E1 !important;*/
         font-weight: bold !important;
     }
 
@@ -559,9 +640,263 @@ div:where(.swal2-container) h2:where(.swal2-title) {
 /* Hover effect for all pager elements */
 .rz-pager .rz-pager-element:hover {
     background-color: transparent !important;
-    border-color: #8F69E1 !important;
-    color: #007bff !important;
+    /*border-color: #8F69E1 !important;*/
+    /*color: #007bff !important;*/
 }
+
+.rz-pager-element, .rz-button-md {
+    min-height: 2rem !important;
+    min-width: 2rem !important;
+}
+
+
+/*for info-view card styles*/
+/* Media queries for responsive handling */
+@media (max-width: 767px) {
+    .info-label {
+        width: 100%; /* Full width on small screens */
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        width: 100%; /* Full width on small screens */
+    }
+}
+
+.info-row {
+    display: flex;
+    flex-wrap: wrap; /* Allow the row to wrap on small screens */
+    align-items: flex-start;
+    margin-bottom: 15px;
+    width: 100%; /* Ensure row takes full width */
+}
+
+.info-label {
+    font-weight: 600;
+    width: 160px; /* Fixed width instead of min-width */
+    min-width: 160px; /* Keep the min-width for compatibility */
+    color: var(--dark-color);
+    padding-right: 10px; /* Add some padding to keep space between label and value */
+    word-wrap: break-word; /* Allow long words to break */
+    overflow-wrap: break-word; /* Modern property for word breaking */
+}
+
+.info-value {
+    flex: 1;
+    min-width: 0; /* Allow the flex item to shrink below content size */
+    word-wrap: break-word; /* Allow long words to break */
+    overflow-wrap: break-word; /* Modern property for word breaking */
+    max-width: 100%; /* Prevent extending beyond parent */
+}
+
+.icon-circle-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    color: white;
+    margin-right: 5px;
+}
+
+/* Fix for table responsiveness */
+.table-responsive {
+    overflow-x: auto;
+}
+
+    .table-responsive table td,
+    .table-responsive table th {
+        white-space: normal; /* Allow text wrapping in tables */
+        word-wrap: break-word;
+        max-width: 200px; /* Set a max width for table cells */
+    }
+.task-code-icon {
+    margin-right: 8px;
+    font-size: 16px;
+    color: var(--secondary-color);
+}
+
+.task-code-container {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.task-code-badge {
+    background-color: var(--light-color);
+    border: 1px dashed var(--secondary-color);
+    color: var(--secondary-color);
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    word-wrap: break-word; /* Allow text breaking */
+    max-width: 100%;
+}
+
+
+
+/* Widget styling - UPDATED */
+.border-top-card {
+    border-top-width: 3px !important;
+    border-radius: 0 0 10px 10px !important;
+    border: 1px solid #e9ecef !important; /* Added visible border on all sides */
+    transition: all 0.3s ease;
+}
+
+    .border-top-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+.border-top-primary {
+    border-top: 3px solid #6259ca !important;
+}
+
+.border-top-secondary {
+    border-top: 3px solid #5D6E88 !important;
+}
+
+.border-top-success {
+    border-top: 3px solid #2ecc71 !important;
+}
+
+.border-top-info {
+    border-top: 3px solid #17a2b8 !important;
+}
+
+.border-top-warning {
+    border-top: 3px solid #ffc107 !important;
+}
+
+.border-top-danger {
+    border-top: 3px solid #dc3545 !important;
+}
+
+/* Gradient Badges */
+.bg-primary-gradient {
+    background-image: linear-gradient(to right, #6259ca, #8076c6);
+}
+
+.bg-secondary-gradient {
+    background-image: linear-gradient(to right, #5D6E88, #7a8ca8);
+}
+
+.bg-success-gradient {
+    background-image: linear-gradient(to right, #2ecc71, #4cd787);
+}
+
+.bg-danger-gradient {
+    background-image: linear-gradient(to right, #dc3545, #ff5465);
+}
+
+.bg-warning-gradient {
+    background-image: linear-gradient(to right, #ffc107, #ffdb6d);
+    color: #333 !important;
+}
+
+.bg-info-gradient {
+    background-image: linear-gradient(to right, #17a2b8, #45c2d7);
+}
+
+.bg-orange-gradient {
+    background-image: linear-gradient(to right, #fd7e14, #ffaa66);
+}
+
+.bg-purple-gradient {
+    background-image: linear-gradient(to right, #6f42c1, #9b6ff3);
+}
+.form-label {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+}
+/*.rz-grid-table thead th .rz-column-title-content{
+    font-size: 16px !important;
+}*/
+
+
+
+/*CRM Timeline additional Vertical Lines remove*/
+.crm-recent-activity:before {
+    display: none;
+}
+
+.btn-list button {
+    border-radius: 0.3rem 0.3rem 0.5rem 0.5rem; /* Top-left, top-right, bottom-right, bottom-left */
+}
+
+.btn-list button, .btn-list div, .btn-list a, .btn-list input {
+    margin: 0 !important;
+}
+
+.btn-list {
+    margin-block-end: 0rem !important;
+}
+
+/* Change header height */
+.rz-grid-table thead th .rz-column-title {
+    height: 25px !important; /* Adjust height as needed */
+    font-weight: 600 !important;
+    font-style: normal !important;
+    /*color: rgb(51,51,53) !important;*/
+    font-size: 14px !important;
+    line-height: 20px !important;
+    text-transform: none !important;
+}
+
+/* Change row height */
+.rz-grid-table tbody tr {
+    height: 66px !important; /* Adjust height as needed */
+}
+.rz-datatable-data td .rz-cell-data, .rz-grid-table td .rz-cell-data {
+    font-weight: 500 !important;
+    font-style: normal !important;
+    /*color: rgb(51,51,53) !important;*/
+    font-size: 13px !important;
+    line-height: 19px !important;
+    text-transform: none !important;
+}
+
+
+/*Kansheyam add delete popup style*/
+
+.swal-custom-title {
+    font-size: 24px !important;
+    font-weight: 700;
+}
+
+.swal-custom-popup {
+    font-size: 14px !important;
+    padding: 10px !important;
+}
+
+.swal-custom-confirm {
+    font-size: 12px !important;
+    padding: 8px 8px;
+}
+
+.swal-custom-cancel {
+    font-size: 12px !important;
+    padding: 8px 8px;
+}
+
+/*.custom-swal-icon {
+    font-size: 30px !important;*/ /* For emoji-based icons (info/success/etc.) */
+/*}
+
+    .custom-swal-icon .swal2-icon {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 2rem !important;*/ /* fallback */
+    /*}
+
+    .custom-swal-icon .swal2-icon-content {
+        font-size: 3rem !important;
+    }*/
 
 [data-nav-layout="horizontal"] .app-sidebar {
     justify-content: center !important;

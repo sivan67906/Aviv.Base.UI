@@ -553,3 +553,13 @@ window.toggleRadzenTheme = function (isDarkMode) {
         lightTheme.removeAttribute('disabled');
     }
 };
+
+//below the script prevent form submition error handle
+window.preventFormSubmitOnEnter = function () {
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+        }
+    });
+};
+

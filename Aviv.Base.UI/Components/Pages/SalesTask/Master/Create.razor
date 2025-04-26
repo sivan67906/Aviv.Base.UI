@@ -1,0 +1,1158 @@
+@page "/SalesTask/Master/Create"
+@using Aviv.Base.UI.Models.SalesTask
+@using Aviv.Base.UI.Services.SalesTask
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Inputs
+@using System.IO
+@using System.Text.Json
+@inject SalesTaskInfoService SalesTaskService
+@inject IJSRuntime JSRuntime
+@inject PageBreadcrumbService BreadcrumbService
+@inject NotificationCustomService NotificationService
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid">
+    <!-- Add the notification component -->
+    <NotificationComponent />
+
+    <!-- Header card with title and back button -->
+  
+
+    <!-- Main Form -->
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" id="salesTaskForm">
+        <ObjectGraphDataAnnotationsValidator />
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- Task Details Card -->
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Task Details</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label" for="taskTitle">Task Title <span class="text-danger">*</span></label>
+                                @{
+                                    var taskTitleClass = formSubmitted && string.IsNullOrEmpty(model.TaskTitle) 
+                                        ? "form-control custom-input error-border" 
+                                        : "form-control custom-input";
+                                }
+                                <InputText id="taskTitle" @bind-Value="model.TaskTitle" 
+                                         class="@taskTitleClass" 
+                                         data-required="true"
+                                         placeholder="Enter task title" />
+                                @if (formSubmitted && string.IsNullOrEmpty(model.TaskTitle))
+                                {
+                                    <span class="error-text">Task title is required</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="taskType">Task Type <span class="text-danger">*</span></label>
+                                @{
+                                    var taskTypeClass = formSubmitted && (string.IsNullOrEmpty(model.TaskType) || model.TaskType == "--") 
+                                        ? "custom-input error-border" 
+                                        : "custom-input";
+                                }
+                                <SfDropDownList TItem="string" TValue="string"
+                                                Value="model.TaskType"
+                                                ValueChanged="@((value) => HandleDropdownChange(value, "taskType"))"
+                                                ID="taskType"
+                                                CssClass="@taskTypeClass"
+                                                DataSource="@taskTypes"
+                                                data-required="true"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                                @if (formSubmitted && (string.IsNullOrEmpty(model.TaskType) || model.TaskType == "--"))
+                                {
+                                    <span class="error-text">Task type is required</span>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="taskPriority">Task Priority <span class="text-danger">*</span></label>
+                                @{
+                                    var taskPriorityClass = formSubmitted && (string.IsNullOrEmpty(model.TaskPriority) || model.TaskPriority == "--") 
+                                        ? "custom-input error-border" 
+                                        : "custom-input";
+                                }
+                                <SfDropDownList TItem="string" TValue="string"
+                                                Value="model.TaskPriority"
+                                                ValueChanged="@((value) => HandleDropdownChange(value, "taskPriority"))"
+                                                ID="taskPriority"
+                                                CssClass="@taskPriorityClass"
+                                                DataSource="@taskPriorities"
+                                                data-required="true"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                                @if (formSubmitted && (string.IsNullOrEmpty(model.TaskPriority) || model.TaskPriority == "--"))
+                                {
+                                    <span class="error-text">Task priority is required</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="startDateTime">Start Date/Time</label>
+                                <InputDate id="startDateTime" @bind-Value="model.StartDateTime" class="form-control custom-input" placeholder="Select start date/time" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="dueDateTime">Due Date/Time <span class="text-danger">*</span></label>
+                                @{
+                                    var dueDateTimeClass = formSubmitted && !model.DueDateTime.HasValue 
+                                        ? "form-control custom-input error-border" 
+                                        : "form-control custom-input";
+                                }
+                                <InputDate id="dueDateTime" @bind-Value="model.DueDateTime" 
+                                        class="@dueDateTimeClass" 
+                                        data-required="true"
+                                        placeholder="Select due date/time" />
+                                @if (formSubmitted && !model.DueDateTime.HasValue)
+                                {
+                                    <span class="error-text">Due date/time is required</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="taskStatus">Task Status <span class="text-danger">*</span></label>
+                                @{
+                                    var taskStatusClass = formSubmitted && (string.IsNullOrEmpty(model.TaskStatus) || model.TaskStatus == "--") 
+                                        ? "custom-input error-border" 
+                                        : "custom-input";
+                                }
+                                <SfDropDownList TItem="string" TValue="string"
+                                                Value="model.TaskStatus"
+                                                ValueChanged="@((value) => HandleDropdownChange(value, "taskStatus"))"
+                                                ID="taskStatus"
+                                                CssClass="@taskStatusClass"
+                                                DataSource="@taskStatuses"
+                                                data-required="true"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                                @if (formSubmitted && (string.IsNullOrEmpty(model.TaskStatus) || model.TaskStatus == "--"))
+                                {
+                                    <span class="error-text">Task status is required</span>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="associatedModule">Associated Module <span class="text-danger">*</span></label>
+                                @{
+                                    var associatedModuleClass = formSubmitted && (string.IsNullOrEmpty(model.AssociatedModule) || model.AssociatedModule == "--") 
+                                        ? "custom-input error-border" 
+                                        : "custom-input";
+                                }
+                                <SfDropDownList TItem="string" TValue="string"
+                                                Value="model.AssociatedModule"
+                                                ValueChanged="@((value) => HandleDropdownChange(value, "associatedModule"))"
+                                                ID="associatedModule"
+                                                CssClass="@associatedModuleClass"
+                                                DataSource="@associatedModules"
+                                                data-required="true"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                                @if (formSubmitted && (string.IsNullOrEmpty(model.AssociatedModule) || model.AssociatedModule == "--"))
+                                {
+                                    <span class="error-text">Associated module is required</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="associatedRecordId">Associated Record</label>
+                                <SfDropDownList TItem="KeyValuePair<Guid, string>" TValue="Guid?"
+                                                @bind-Value="model.AssociatedRecordId"
+                                                ID="associatedRecordId"
+                                                CssClass="custom-input"
+                                                DataSource="@associatedRecords"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never"
+                                                Enabled="@(!string.IsNullOrEmpty(model.AssociatedModule) && model.AssociatedModule != "--")">
+                                    <DropDownListFieldSettings Value="Key" Text="Value"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="sourceChannel">Source Channel</label>
+                                <SfDropDownList TItem="string" TValue="string"
+                                                @bind-Value="model.SourceChannel"
+                                                ID="sourceChannel"
+                                                CssClass="custom-input"
+                                                DataSource="@sourceChannels"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="expectedOutcome">Expected Outcome</label>
+                                <InputText id="expectedOutcome" @bind-Value="model.ExpectedOutcome" class="form-control custom-input" placeholder="Enter expected outcome" />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="toggle-switch-container mt-4">
+                                    <div class="toggle-container">
+                                        <label class="toggle-label" for="isClientFacing">
+                                            <input type="checkbox" id="isClientFacing" @bind="model.IsClientFacing" class="toggle-switch" />
+                                            <span class="toggle-slider"></span>
+                                            Is Client Facing?
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="toggle-switch-container mt-2">
+                                    <div class="toggle-container">
+                                        <label class="toggle-label" for="hasAttachment">
+                                            <input type="checkbox" id="hasAttachment" @bind="model.HasAttachment" class="toggle-switch" />
+                                            <span class="toggle-slider"></span>
+                                            Has Attachment?
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label" for="taskDescription">Task Description</label>
+                                <InputTextArea id="taskDescription" @bind-Value="model.TaskDescription" class="form-control custom-input" rows="3" placeholder="Enter detailed task description" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment & Ownership Card -->
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Assignment & Ownership</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="assignedToUserId">Assigned To <span class="text-danger">*</span></label>
+                                @{
+                                    var assignedToUserIdClass = formSubmitted && model.AssignedToUserId == Guid.Empty 
+                                        ? "custom-input error-border" 
+                                        : "custom-input";
+                                }
+                                <SfDropDownList TItem="UserViewModel" TValue="Guid"
+                                                Value="model.AssignedToUserId"
+                                                ValueChanged="@((value) => HandleUserDropdownChange(value, "assignedToUserId"))"
+                                                ID="assignedToUserId"
+                                                CssClass="@assignedToUserIdClass"
+                                                DataSource="@usersWithImages"
+                                                data-required="true"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="UserId" Text="UserName"></DropDownListFieldSettings>
+                                    <DropDownListTemplates TItem="UserViewModel">
+                                        <ItemTemplate Context="userItem">
+                                            <div class="d-flex align-items-center">
+                                                    <img src="@(userItem.ImagePath)" alt="@(userItem.UserName)" class="rounded-circle me-2" width="24" height="24" style="object-fit: cover;" />
+                                                <span>@userItem.UserName</span>
+                                            </div>
+                                        </ItemTemplate>
+                                    </DropDownListTemplates>
+                                </SfDropDownList>
+                                @if (formSubmitted && model.AssignedToUserId == Guid.Empty)
+                                {
+                                    <span class="error-text">Assigned user is required</span>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="assignedToRoleId">Assigned Role</label>
+                                <SfDropDownList TItem="KeyValuePair<Guid, string>" TValue="Guid?"
+                                                @bind-Value="model.AssignedToRoleId"
+                                                ID="assignedToRoleId"
+                                                CssClass="custom-input"
+                                                DataSource="@roles"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="Key" Text="Value"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="delegatedToUserId">Delegated To</label>
+                                <SfDropDownList TItem="UserViewModel" TValue="Guid?"
+                                                @bind-Value="model.DelegatedToUserId"
+                                                ID="delegatedToUserId"
+                                                CssClass="custom-input"
+                                                DataSource="@usersWithImages"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="UserId" Text="UserName"></DropDownListFieldSettings>
+                                    <DropDownListTemplates TItem="UserViewModel">
+                                        <ItemTemplate Context="delegatedItem">
+                                            <div class="d-flex align-items-center">
+                                                <img src="@(delegatedItem.ImagePath)" alt="@(delegatedItem.UserName)" class="rounded-circle me-2" width="24" height="24" style="object-fit: cover;" />
+                                                <span>@delegatedItem.UserName</span>
+                                            </div>
+                                        </ItemTemplate>
+                                    </DropDownListTemplates>
+                                </SfDropDownList>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="escalatedToUserId">Escalated To</label>
+                                <SfDropDownList TItem="UserViewModel" TValue="Guid?"
+                                                @bind-Value="model.EscalatedToUserId"
+                                                ID="escalatedToUserId"
+                                                CssClass="custom-input"
+                                                DataSource="@usersWithImages"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="UserId" Text="UserName"></DropDownListFieldSettings>
+                                    <DropDownListTemplates TItem="UserViewModel">
+                                        <ItemTemplate Context="escalatedItem">
+                                            <div class="d-flex align-items-center">
+                                                <img src="@(escalatedItem.ImagePath)" alt="@(escalatedItem.UserName)" class="rounded-circle me-2" width="24" height="24" style="object-fit: cover;" />
+                                                <span>@escalatedItem.UserName</span>
+                                            </div>
+                                        </ItemTemplate>
+                                    </DropDownListTemplates>
+                                </SfDropDownList>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="toggle-switch-container">
+                                    <div class="toggle-container">
+                                        <label class="toggle-label" for="isRecurringTask">
+                                            <input type="checkbox" id="isRecurringTask" @bind="isRecurringTaskValue" class="toggle-switch" />
+                                            <span class="toggle-slider"></span>
+                                            Is Recurring Task?
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                @if (model.IsRecurringTask)
+                                {
+                                    <label class="form-label" for="recurrencePattern">Recurrence Pattern</label>
+                                    <SfDropDownList TItem="string" TValue="string"
+                                                    @bind-Value="model.RecurrencePattern"
+                                                    ID="recurrencePattern"
+                                                    CssClass="custom-input"
+                                                    DataSource="@recurrencePatterns"
+                                                    Placeholder="--"
+                                                    FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    </SfDropDownList>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label" for="taskTags">Task Tags</label>
+                                <SfMultiSelect TItem="string" TValue="List<string>"
+                                           @bind-Value="model.TaskTags"
+                                           ID="taskTags"
+                                           CssClass="custom-input"
+                                           Placeholder="--"
+                                           Mode="VisualMode.Box"
+                                           AllowCustomValue="true"
+                                           DataSource="@sampleTags"
+                                           Delimiter=",">
+                                    <MultiSelectEvents TItem="string" TValue="List<string>" Created="OnTagsCreated"></MultiSelectEvents>
+                                </SfMultiSelect>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <!-- Metadata & Context Card -->
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Metadata & Context</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="relatedCampaignId">Related Campaign</label>
+                                <SfDropDownList TItem="KeyValuePair<Guid, string>" TValue="Guid?"
+                                                @bind-Value="model.RelatedCampaignId"
+                                                ID="relatedCampaignId"
+                                                CssClass="custom-input"
+                                                DataSource="@campaigns"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="Key" Text="Value"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="relatedProductId">Related Product</label>
+                                <SfDropDownList TItem="KeyValuePair<Guid, string>" TValue="Guid?"
+                                                @bind-Value="model.RelatedProductId"
+                                                ID="relatedProductId"
+                                                CssClass="custom-input"
+                                                DataSource="@products"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                    <DropDownListFieldSettings Value="Key" Text="Value"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="customerVisibilityLevel">Customer Visibility Level</label>
+                                <SfDropDownList TItem="string" TValue="string"
+                                                @bind-Value="model.CustomerVisibilityLevel"
+                                                ID="customerVisibilityLevel"
+                                                CssClass="custom-input"
+                                                DataSource="@customerVisibilityLevels"
+                                                Placeholder="--"
+                                                FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Never">
+                                </SfDropDownList>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Placeholder for balance -->
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label" for="customFieldsJson">Custom Fields (JSON)</label>
+                                <InputTextArea id="customFieldsJson" @bind-Value="model.CustomFieldsJson" class="form-control custom-input" rows="4" placeholder="Enter custom fields in JSON format" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Upload Card -->
+                <div class="card custom-card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">Upload Documents</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <InputFile id="uploadedDocs" OnChange="HandleFileSelection" class="form-control custom-input" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                <small class="text-muted">Accepted file types: PDF, DOC, JPG, PNG. Maximum file size: 5MB</small>
+
+                                @if (model.UploadedDocuments.Any())
+                                {
+                                    <div class="mt-3">
+                                        <div class="list-group">
+                                            @foreach (var fileDetail in model.UploadedDocuments)
+                                            {
+                                                <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                                                    <div>
+                                                        @{
+                                                            string extension = Path.GetExtension(fileDetail.FileName).ToLowerInvariant();
+                                                            string iconClass = GetFileIconClass(extension);
+                                                        }
+                                                        <i class="@iconClass me-2"></i>
+                                                        <span>@fileDetail.FileName (@FormatFileSize(fileDetail.FileSize))</span>
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFile(fileDetail.FileName)">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="fixed-bottom me-4 mb-5">
+            <div class="card-body py-3">
+                <div class="row">
+                    <div class="col-md-12 d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-2" @onclick="NavigateBack">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-line me-1"></i>Save Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private ST_MasterViewModel model = new ST_MasterViewModel();
+    private bool formSubmitted = false;
+    
+    // New UserViewModel class to hold user data with images
+    public class UserViewModel
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; }
+        public string ImagePath { get; set; }
+    }
+    
+    // Modified lists for users with images
+    private List<UserViewModel> usersWithImages = new List<UserViewModel>();
+    
+    // Property to handle the IsRecurringTask checkbox with special logic
+    private bool isRecurringTaskValue
+    {
+        get => model.IsRecurringTask;
+        set
+        {
+            model.IsRecurringTask = value;
+            
+            // If not recurring, clear the recurrence pattern
+            if (!value)
+            {
+                model.RecurrencePattern = null;
+            }
+            
+            StateHasChanged();
+        }
+    }
+    
+    // List of required fields for validation
+    private List<string> requiredFields = new List<string>
+    {
+        "taskTitle", 
+        "taskType",
+        "taskPriority",
+        "dueDateTime",
+        "taskStatus",
+        "associatedModule",
+        "assignedToUserId"
+    };
+    
+    // Dropdown options
+    private List<string> taskTypes = new List<string>();
+    private List<string> taskPriorities = new List<string>();
+    private List<string> taskStatuses = new List<string>();
+    private List<string> associatedModules = new List<string>();
+    private List<string> sourceChannels = new List<string>();
+    private List<string> customerVisibilityLevels = new List<string>();
+    private List<string> recurrencePatterns = new List<string> { "--", "Daily", "Weekly", "Monthly", "Custom" };
+    private List<KeyValuePair<Guid, string>> users = new List<KeyValuePair<Guid, string>>();
+    private List<KeyValuePair<Guid, string>> roles = new List<KeyValuePair<Guid, string>>();
+    private List<KeyValuePair<Guid, string>> campaigns = new List<KeyValuePair<Guid, string>>();
+    private List<KeyValuePair<Guid, string>> products = new List<KeyValuePair<Guid, string>>();
+    private List<KeyValuePair<Guid, string>> associatedRecords = new List<KeyValuePair<Guid, string>>();
+    
+    // Common lists for MultiSelect tags
+    private List<string> sampleTags = new List<string> { 
+        "Urgent", "FollowUp", "Client", "Internal", 
+        "Documentation", "Training", "KeyAccount", "Support", 
+        "Proposal", "Meeting", "Demo", "Technical" 
+    };
+
+    // File handling
+    private long maxFileSize = 5 * 1024 * 1024; // 5MB
+    private string[] allowedFileTypes = { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        BreadcrumbService.SetBreadcrumbPath(
+            "Create Sales Task",
+            ("Sales Task", null!),
+            ("Master", "/SalesTask/Master/Summary"),
+            ("Create", "/SalesTask/Master/Create")
+        );
+
+        // Load dropdown options
+        await LoadDropdownOptions();
+
+        // Set default values
+        model.TaskStatus = "Open";
+        model.CustomerVisibilityLevel = "Internal Only";
+        model.DueDateTime = DateTime.Now.AddDays(1);
+        model.StartDateTime = DateTime.Now;
+        model.TaskTags = new List<string>();
+        model.SourceChannel = "Manual";
+        model.UploadedDocuments = new List<DocumentFileInfo>();
+        
+        // Get the current user ID (for now use a sample ID)
+        model.CreatedByUserId = Guid.Parse("6A32E379-D3A8-4BB6-9C1A-7637F59ADC08"); // Amir
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize notification service
+            await NotificationService.InitializeAsync();
+            
+            // Load CSS and JS files and initialize the form validation
+            await LoadFormResourcesAsync();
+
+            // Show info toast
+            await NotificationService.ShowInfoAsync("Creating new sales task");
+            
+            // Initialize the custom JavaScript function for dropdown validation
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                // Add dropdown validation JavaScript function
+                window.applyDropdownValidation = function(elementId, isError) {
+                    const element = document.getElementById(elementId);
+                    if (!element) return;
+                    
+                    const dropdown = element.classList.contains('e-ddl') ? element : element.closest('.e-ddl');
+                    const inputGroup = dropdown?.querySelector('.e-input-group');
+                    
+                    if (dropdown) {
+                        if (isError) {
+                            dropdown.classList.add('error-border');
+                        } else {
+                            dropdown.classList.remove('error-border');
+                        }
+                    }
+                    
+                    if (inputGroup) {
+                        if (isError) {
+                            inputGroup.classList.add('error-border');
+                            inputGroup.style.borderColor = '#dc3545';
+                        } else {
+                            inputGroup.classList.remove('error-border');
+                            inputGroup.style.borderColor = '#ced4da';
+                        }
+                    }
+                };
+            ");
+        }
+    }
+    
+    private async Task LoadFormResourcesAsync()
+    {
+        try {
+            // Load CSS
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = '/Custom/css/avivformstyle.css';
+                document.head.appendChild(link);
+            ");
+            
+            // Load JS and initialize FormValidation
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                var script = document.createElement('script');
+                script.src = '/Custom/js/avivformscript.js';
+                script.onload = function() {
+                    // Initialize FormValidation with custom config
+                    if (typeof FormValidation !== 'undefined') {
+                        FormValidation.init({
+                            focusColor: '#8F69E1',
+                            normalColor: '#ced4da',
+                            errorColor: '#dc3545',
+                            formSelector: '#salesTaskForm'
+                        });
+                    }
+                };
+                document.head.appendChild(script);
+            ");
+        }
+        catch (Exception ex) {
+            await NotificationService.ShowErrorAsync($"Error loading form resources: {ex.Message}", true);
+        }
+    }
+
+    private async Task LoadDropdownOptions()
+    {
+        try
+        {
+            // Show loading
+            await NotificationService.ShowLineToastAsync("info");
+
+            // Load dropdown options from service
+            var serviceTaskTypes = SalesTaskService.GetTaskTypes();
+            var serviceTaskPriorities = SalesTaskService.GetTaskPriorities();
+            var serviceTaskStatuses = SalesTaskService.GetTaskStatuses();
+            var serviceAssociatedModules = SalesTaskService.GetAssociatedModules();
+            var serviceSourceChannels = SalesTaskService.GetSourceChannels();
+            var serviceCustomerVisibilityLevels = SalesTaskService.GetCustomerVisibilityLevels();
+            var serviceUsers = SalesTaskService.GetUsers();
+            var serviceRoles = SalesTaskService.GetRoles();
+            var serviceCampaigns = SalesTaskService.GetCampaigns();
+            var serviceProducts = SalesTaskService.GetProducts();
+
+            // Add "--" as the first option for string-based dropdowns
+            taskTypes = new List<string> { "--" };
+            taskTypes.AddRange(serviceTaskTypes);
+
+            taskPriorities = new List<string> { "--" };
+            taskPriorities.AddRange(serviceTaskPriorities);
+
+            taskStatuses = new List<string> { "--" };
+            taskStatuses.AddRange(serviceTaskStatuses);
+
+            associatedModules = new List<string> { "--" };
+            associatedModules.AddRange(serviceAssociatedModules);
+
+            sourceChannels = new List<string> { "--" };
+            sourceChannels.AddRange(serviceSourceChannels);
+
+            customerVisibilityLevels = new List<string> { "--" };
+            customerVisibilityLevels.AddRange(serviceCustomerVisibilityLevels);
+
+            // Add placeholder options for object-based dropdowns
+            var emptyGuid = Guid.Empty;
+            
+            users = new List<KeyValuePair<Guid, string>> 
+            {
+                new KeyValuePair<Guid, string>(emptyGuid, "--")
+            };
+            users.AddRange(serviceUsers);
+
+            // Convert users to usersWithImages
+            usersWithImages = new List<UserViewModel> {
+                new UserViewModel { UserId = emptyGuid, UserName = "--", ImagePath = "/assets/images/faces/21.jpg" }
+            };
+            
+            // Add users with images
+            foreach (var user in serviceUsers)
+            {
+                // Generate user ID-based image path
+                int imageId = (Math.Abs(user.Key.GetHashCode()) % 10) + 1; // Get a number between 1-10 based on GUID
+                string imagePath = $"/assets/images/faces/{imageId}.jpg";
+                
+                usersWithImages.Add(new UserViewModel {
+                    UserId = user.Key,
+                    UserName = user.Value,
+                    ImagePath = imagePath
+                });
+            }
+
+            roles = new List<KeyValuePair<Guid, string>> 
+            {
+                new KeyValuePair<Guid, string>(emptyGuid, "--")
+            };
+            roles.AddRange(serviceRoles);
+
+            campaigns = new List<KeyValuePair<Guid, string>> 
+            {
+                new KeyValuePair<Guid, string>(emptyGuid, "--")
+            };
+            campaigns.AddRange(serviceCampaigns);
+
+            products = new List<KeyValuePair<Guid, string>> 
+            {
+                new KeyValuePair<Guid, string>(emptyGuid, "--")
+            };
+            products.AddRange(serviceProducts);
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error loading dropdown options: {ex.Message}", true);
+        }
+    }
+
+    // Handle string dropdowns value changes
+    private async Task HandleDropdownChange(string value, string fieldId)
+    {
+        // First update the model with the new value
+        switch (fieldId)
+        {
+            case "taskType":
+                model.TaskType = value;
+                break;
+            case "taskPriority":
+                model.TaskPriority = value;
+                break;
+            case "taskStatus":
+                model.TaskStatus = value;
+                break;
+            case "associatedModule":
+                // For associated module, also handle associated records
+                await AssociatedModuleChanged(value);
+                return; // AssociatedModuleChanged already handles state updates
+            // Add cases for other dropdowns as needed
+        }
+
+        // Check if the form has been submitted (we only show validation errors after first submit)
+        if (formSubmitted)
+        {
+            // Apply validation styling right away
+            await ApplyValidationForField(fieldId);
+        }
+        
+        StateHasChanged();
+    }
+
+    // Handle Guid dropdowns value changes
+    private async Task HandleUserDropdownChange(Guid value, string fieldId)
+    {
+        // First update the model with the new value
+        switch (fieldId)
+        {
+            case "assignedToUserId":
+                model.AssignedToUserId = value;
+                // Update the user name based on the selected user
+                var selectedUser = usersWithImages.FirstOrDefault(u => u.UserId == value);
+                if (selectedUser != null && selectedUser.UserName != "--")
+                {
+                    model.AssignedToUserName = selectedUser.UserName;
+                }
+                else
+                {
+                    model.AssignedToUserName = null;
+                }
+                break;
+            // Add cases for other guid dropdowns as needed
+        }
+
+        // Check if the form has been submitted (we only show validation errors after first submit)
+        if (formSubmitted)
+        {
+            // Apply validation styling right away
+            bool hasError = false;
+            
+            switch (fieldId)
+            {
+                case "assignedToUserId":
+                    hasError = model.AssignedToUserId == Guid.Empty;
+                    break;
+                // Add cases for other guid dropdowns
+            }
+            
+            // Apply validation styling using JavaScript
+            await JSRuntime.InvokeVoidAsync("applyDropdownValidation", fieldId, hasError);
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task ApplyValidationForField(string fieldId)
+    {
+        // Determine if the field is in an error state
+        bool hasError = false;
+        
+        switch (fieldId)
+        {
+            case "taskType":
+                hasError = string.IsNullOrEmpty(model.TaskType) || model.TaskType == "--";
+                break;
+            case "taskPriority":
+                hasError = string.IsNullOrEmpty(model.TaskPriority) || model.TaskPriority == "--";
+                break;
+            case "taskStatus":
+                hasError = string.IsNullOrEmpty(model.TaskStatus) || model.TaskStatus == "--";
+                break;
+            case "associatedModule":
+                hasError = string.IsNullOrEmpty(model.AssociatedModule) || model.AssociatedModule == "--";
+                break;
+            // Add cases for other dropdowns as needed
+        }
+        
+        // Apply validation styling using JavaScript
+        await JSRuntime.InvokeVoidAsync("applyDropdownValidation", fieldId, hasError);
+    }
+
+    private async Task AssociatedModuleChanged(string value)
+    {
+        try
+        {
+            model.AssociatedModule = value;
+            model.AssociatedRecordId = null;
+            
+            // If "--" is selected, clear the associated record
+            if (value == "--")
+            {
+                associatedRecords = new List<KeyValuePair<Guid, string>>();
+                
+                // Apply validation if form was already submitted
+                if (formSubmitted)
+                {
+                    await ApplyValidationForField("associatedModule");
+                }
+                
+                StateHasChanged();
+                return;
+            }
+            
+            // Load associated records based on the selected module
+            switch (value)
+            {
+                case "Lead":
+                case "Customer":
+                case "Account":
+                case "Contact":
+                    var serviceCustomers = SalesTaskService.GetCustomers();
+                    associatedRecords = new List<KeyValuePair<Guid, string>> 
+                    {
+                        new KeyValuePair<Guid, string>(Guid.Empty, "--")
+                    };
+                    associatedRecords.AddRange(serviceCustomers);
+                    break;
+                case "Campaign":
+                    var serviceCampaigns = SalesTaskService.GetCampaigns();
+                    associatedRecords = new List<KeyValuePair<Guid, string>> 
+                    {
+                        new KeyValuePair<Guid, string>(Guid.Empty, "--")
+                    };
+                    associatedRecords.AddRange(serviceCampaigns);
+                    break;
+                case "Opportunity":
+                    var serviceOpportunities = SalesTaskService.GetOpportunities();
+                    associatedRecords = new List<KeyValuePair<Guid, string>> 
+                    {
+                        new KeyValuePair<Guid, string>(Guid.Empty, "--")
+                    };
+                    associatedRecords.AddRange(serviceOpportunities);
+                    break;
+                case "Internal":
+                    // No associated record needed
+                    associatedRecords = new List<KeyValuePair<Guid, string>>
+                    {
+                        new KeyValuePair<Guid, string>(Guid.Empty, "--")
+                    };
+                    break;
+                default:
+                    associatedRecords = new List<KeyValuePair<Guid, string>>
+                    {
+                        new KeyValuePair<Guid, string>(Guid.Empty, "--")
+                    };
+                    break;
+            }
+            
+            // Apply validation if form was already submitted
+            if (formSubmitted)
+            {
+                await ApplyValidationForField("associatedModule");
+            }
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error loading associated records: {ex.Message}", true);
+        }
+    }
+
+    // HandleRecurringChange logic is now handled in the isRecurringTaskValue property setter
+
+    private void OnTagsCreated()
+    {
+        // Initialize the task tags list if needed
+        if (model.TaskTags == null)
+        {
+            model.TaskTags = new List<string>();
+        }
+        
+        // Make sure sampleTags is populated
+        if (sampleTags == null || !sampleTags.Any())
+        {
+            sampleTags = new List<string> { 
+                "Urgent", "FollowUp", "Client", "Internal", 
+                "Documentation", "Training", "KeyAccount", "Support", 
+                "Proposal", "Meeting", "Demo", "Technical" 
+            };
+        }
+    }
+
+    private async Task HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            // Show processing notification
+            await NotificationService.ShowLineToastAsync("info");
+
+            var files = e.GetMultipleFiles();
+
+            foreach (var file in files)
+            {
+                // Check file size
+                if (file.Size > maxFileSize)
+                {
+                    await NotificationService.ShowWarningAsync($"File {file.Name} exceeds the 5MB limit and was skipped.", true);
+                    continue;
+                }
+
+                // Check file type
+                string extension = Path.GetExtension(file.Name).ToLowerInvariant();
+                if (!allowedFileTypes.Contains(extension))
+                {
+                    await NotificationService.ShowWarningAsync($"File {file.Name} has invalid file type and was skipped.", true);
+                    continue;
+                }
+
+                // Add to uploaded docs if not already added
+                if (!model.UploadedDocuments.Any(d => d.FileName == file.Name))
+                {
+                    // Create a new document file info object with all details
+                    var documentFileInfo = new DocumentFileInfo
+                    {
+                        FileName = file.Name,
+                        FileSize = file.Size,
+                        ContentType = file.ContentType,
+                        UploadDate = DateTime.Now,
+                        UploadedBy = "System" // In a real app, this would be the logged-in user
+                    };
+                    
+                    model.UploadedDocuments.Add(documentFileInfo);
+                    model.HasAttachment = true;
+                }
+            }
+
+            if (files.Count > 0)
+            {
+                await NotificationService.ShowSuccessAsync($"Added {files.Count} file(s)");
+            }
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error processing files: {ex.Message}", true);
+        }
+    }
+
+    private async Task RemoveFile(string fileName)
+    {
+        try
+        {
+            // Show processing notification
+            await NotificationService.ShowLineToastAsync("warning");
+
+            // Remove from the documents collection
+            var fileToRemove = model.UploadedDocuments.FirstOrDefault(d => d.FileName == fileName);
+            if (fileToRemove != null)
+            {
+                model.UploadedDocuments.Remove(fileToRemove);
+                
+                // Update HasAttachment flag if no documents left
+                if (!model.UploadedDocuments.Any())
+                {
+                    model.HasAttachment = false;
+                }
+                
+                await NotificationService.ShowInfoAsync($"Removed file: {fileName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error removing file: {ex.Message}", true);
+        }
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] suffixes = { "B", "KB", "MB", "GB" };
+        int counter = 0;
+        decimal number = bytes;
+        
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number /= 1024;
+            counter++;
+        }
+        
+        return $"{number:N1} {suffixes[counter]}";
+    }
+
+    private string GetFileIconClass(string extension)
+    {
+        switch (extension)
+        {
+            case ".jpg":
+            case ".jpeg":
+            case ".png":
+            case ".gif":
+            case ".bmp":
+            case ".svg":
+                return "ri-image-2-line";
+            case ".pdf":
+                return "ri-file-pdf-line";
+            case ".doc":
+            case ".docx":
+                return "ri-file-word-line";
+            case ".xls":
+            case ".xlsx":
+                return "ri-file-excel-line";
+            case ".ppt":
+            case ".pptx":
+                return "ri-file-ppt-line";
+            case ".zip":
+            case ".rar":
+            case ".7z":
+                return "ri-file-zip-line";
+            case ".txt":
+            case ".log":
+                return "ri-file-text-line";
+            default:
+                return "ri-file-line";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        formSubmitted = true;
+        
+        // Apply validation using our JS module
+        var isValid = await JSRuntime.InvokeAsync<bool>("validateForm", "salesTaskForm", requiredFields);
+        
+        // Check if validation passed
+        if (!isValid || 
+            string.IsNullOrEmpty(model.TaskTitle) || 
+            string.IsNullOrEmpty(model.TaskType) || model.TaskType == "--" || 
+            string.IsNullOrEmpty(model.TaskPriority) || model.TaskPriority == "--" ||
+            !model.DueDateTime.HasValue ||
+            string.IsNullOrEmpty(model.TaskStatus) || model.TaskStatus == "--" ||
+            string.IsNullOrEmpty(model.AssociatedModule) || model.AssociatedModule == "--" ||
+            model.AssignedToUserId == Guid.Empty)
+        {
+            await NotificationService.ShowErrorAsync("Please fill in all required fields.", true);
+            
+            // Ensure error styling is applied to dropdowns by manually triggering CSS updates
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                setTimeout(function() {
+                    const form = document.getElementById('salesTaskForm');
+                    const dropdowns = form.querySelectorAll('.e-ddl');
+                    dropdowns.forEach(function(dropdown) {
+                        const input = dropdown.querySelector('input');
+                        const inputGroup = dropdown.querySelector('.e-input-group');
+                        if (dropdown.classList.contains('error-border') && inputGroup) {
+                            inputGroup.style.borderColor = '#dc3545';
+                        }
+                    });
+                }, 50);
+            ");
+            
+            return;
+        }
+
+        try
+        {
+            // Show processing notification
+            await NotificationService.ShowLineToastAsync("success");
+
+            // Create the task
+            var result = await SalesTaskService.CreateSalesTaskAsync(model);
+
+            // Show success notification
+            await NotificationService.ShowSuccessAsync("Sales task created successfully!", true);
+
+            // Navigate back to summary
+            NavigateBack();
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error creating task: {ex.Message}", true);
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/SalesTask/Master/Summary");
+    }
+}

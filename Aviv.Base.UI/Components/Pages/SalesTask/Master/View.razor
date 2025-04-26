@@ -1,0 +1,1510 @@
+@page "/SalesTask/Master/View"
+@using Aviv.Base.UI.Models.SalesTask
+@using Aviv.Base.UI.Services.SalesTask
+@inject SalesTaskInfoService SalesTaskService
+@inject IJSRuntime JSRuntime
+@inject PageBreadcrumbService BreadcrumbService
+@inject NotificationCustomService NotificationService
+@inject NavigationManager NavigationManager
+
+<style>
+	:root {
+		--primary-color: #4B77BE; /* Changed to a more professional blue */
+		--secondary-color: #5D6E88; /* Muted blue-gray for secondary elements */
+		--accent-color: #F39C12; /* Accent color for highlights */
+		--light-color: #f5f6fa;
+		--dark-color: #2d3436;
+	}
+
+	
+
+	.client-card {
+		padding: 15px;
+		border-left: 3px solid var(--secondary-color);
+		background-color: var(--light-color);
+		margin-bottom: 15px;
+		border-radius: 4px;
+		word-wrap: break-word; /* Allow text breaking in description */
+	}
+
+	.badge-custom {
+		background-color: var(--secondary-color);
+		color: white;
+		font-weight: 500;
+		padding: 4px 10px;
+		border-radius: 4px;
+		margin-right: 6px;
+		margin-bottom: 6px;
+		display: inline-flex;
+		align-items: center;
+		font-size: 12px;
+	}
+
+		.badge-custom i {
+			margin-right: 5px;
+			font-size: 12px;
+		}
+
+	.section-card {
+		background-color: white;
+		border-radius: 10px;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		padding: 20px;
+		margin-bottom: 20px;
+	}
+
+	.custom-card {
+		border-radius: 10px;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		margin-bottom: 20px;
+	}
+
+	.card-title {
+		color: var(--dark-color);
+		font-weight: 600;
+	}
+
+	
+
+	.stats-card {
+		text-align: center;
+		padding: 15px 10px;
+		border-radius: 8px;
+		background-color: var(--light-color);
+		margin-bottom: 15px;
+	}
+
+	.stats-number {
+		font-size: 24px;
+		font-weight: 700;
+		color: var(--secondary-color);
+		margin-bottom: 5px;
+	}
+
+	.stats-label {
+		font-size: 14px;
+		color: var(--dark-color);
+	}
+
+	.document-item {
+		transition: all 0.3s ease;
+		position: relative;
+	}
+
+		.document-item:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+		}
+
+	/* Fixed tooltip positioning to appear ABOVE the element on hover */
+	.document-tooltip {
+		position: absolute;
+		top: -85px; /* Changed from bottom: -70px to top: -85px */
+		left: 0;
+		right: 0;
+		background-color: rgba(0,0,0,0.8);
+		color: white;
+		padding: 8px;
+		border-radius: 4px;
+		font-size: 12px;
+		opacity: 0;
+		visibility: hidden;
+		transition: all 0.3s ease;
+		z-index: 10;
+	}
+
+		/* Add a small arrow at the bottom of the tooltip pointing to the element */
+		.document-tooltip::after {
+			content: '';
+			position: absolute;
+			bottom: -8px;
+			left: 50%;
+			transform: translateX(-50%);
+			border-width: 8px 8px 0;
+			border-style: solid;
+			border-color: rgba(0,0,0,0.8) transparent transparent transparent;
+		}
+
+	.document-item:hover .document-tooltip {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.task-summary-text {
+		color: #000;
+		line-height: 1.6;
+		font-weight: 400;
+		word-wrap: break-word; /* Allow text breaking */
+	}
+
+	/* Progress Custom */
+	.progress-custom {
+		height: 30px;
+		position: relative;
+		overflow: visible;
+	}
+
+	.progress-bar-title {
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 100%;
+		padding: 5px 15px;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		border-radius: 5px 0 0 5px;
+		font-weight: 600;
+		color: white;
+	}
+
+	.progress-bar-value {
+		position: absolute;
+		right: -12px;
+		top: -12px;
+		padding: 3px 10px;
+		border-radius: 15px;
+		font-weight: 600;
+		font-size: 12px;
+		color: white;
+	}
+
+	.progress-animate .progress-bar {
+		position: relative;
+		overflow: visible;
+		border-radius: 0 5px 5px 0;
+	}
+
+	/* Timeline styling */
+	.order-track .accordion-item {
+		position: relative;
+	}
+
+		.order-track .accordion-item:not(:last-child)::before {
+			content: "";
+			position: absolute;
+			top: 40px;
+			left: 20px;
+			height: calc(100% - 40px);
+			border-left: 2px dashed #e9ecef;
+			z-index: 1;
+		}
+
+	.order-track .next-step::before {
+		border-left: 2px dashed #ccc !important;
+	}
+
+	.order-track .accordion-header {
+		margin-bottom: 20px;
+	}
+
+	/* New Tab Styling */
+	.tab-style-2 {
+		border-bottom: 1px solid #dee2e6;
+	}
+
+		.tab-style-2 .nav-link {
+			border: 0;
+			position: relative;
+			color: #555;
+			font-weight: 500;
+			padding: 12px 20px;
+			transition: all 0.3s ease;
+		}
+
+			.tab-style-2 .nav-link i {
+				display: inline-block;
+				margin-right: 5px;
+			}
+
+			.tab-style-2 .nav-link.active {
+				color: var(--secondary-color);
+				background-color: transparent;
+			}
+
+				.tab-style-2 .nav-link.active::after {
+					content: '';
+					position: absolute;
+					bottom: -1px;
+					left: 0;
+					width: 100%;
+					height: 3px;
+					background: var(--secondary-color);
+				}
+
+	
+
+	
+</style>
+
+<div class="container-fluid">
+	<!-- Add the notification component -->
+	<NotificationComponent />
+
+	<!-- Start::row-1 -->
+	<div class="row">
+		<div class="col-xl-12">
+			<div class="card custom-card">
+				<div class="card-body">
+					<div class="d-flex align-items-center flex-wrap justify-content-between gap-2">
+						<div class="d-flex flex-wrap gap-2">
+							<div>
+								<span class="avatar avatar-xxl avatar-rounded">
+									<i class="ri-task-line fs-1 text-secondary"></i>
+								</span>
+							</div>
+							<div class="ms-3">
+								<h4 class="fw-bold mb-0 d-flex align-items-center">
+									<a href="javascript:void(0);">
+										@(model?.TaskTitle ?? "")
+										@if (model != null)
+										{
+											@if (model.TaskStatus == "Completed")
+											{
+														<i class="bi bi-check-circle-fill text-success fs-16 ms-2" data-bs-toggle="tooltip" title="Task completed"></i>
+											}
+											else if (model.TaskStatus == "In Progress")
+											{
+														<i class="bi bi-play-circle-fill text-info fs-16 ms-2" data-bs-toggle="tooltip" title="Task in progress"></i>
+											}
+											else if (model.TaskStatus == "On Hold")
+											{
+														<i class="bi bi-pause-circle-fill text-warning fs-16 ms-2" data-bs-toggle="tooltip" title="Task on hold"></i>
+											}
+											else if (model.TaskStatus == "Cancelled")
+											{
+														<i class="bi bi-x-circle-fill text-secondary fs-16 ms-2" data-bs-toggle="tooltip" title="Task cancelled"></i>
+											}
+											else if (model.TaskStatus == "Escalated")
+											{
+														<i class="bi bi-exclamation-circle-fill text-danger fs-16 ms-2" data-bs-toggle="tooltip" title="Task escalated"></i>
+											}
+											else
+											{
+														<i class="bi bi-circle-fill text-secondary fs-16 ms-2" data-bs-toggle="tooltip" title="Task open"></i>
+											}
+										}
+									</a>
+								</h4>
+								<a href="javascript:void(0);" class="fw-semibold"><i class="ri-task-line me-1"></i> @(model?.TaskType ?? "")</a>
+								<div class="d-flex fs-14 mt-3">
+									<div>
+										<p class="mb-1">
+											<i class="ri-time-line me-2"></i>
+											Due: @(model?.DueDateTime.HasValue == true ? model.DueDateTime.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+										</p>
+									</div>
+									<div class="ms-4">
+										<p class="mb-1">
+											<i class="ri-user-line me-2" data-bs-toggle="tooltip" title="Assigned User"></i>Assigned to: @(model?.AssignedToUserName ?? "")
+										</p>
+									</div>
+								</div>
+								@if (model != null)
+								{
+										<div class="popular-tags">
+										@{
+											string statusBadgeClass = model.TaskStatus switch
+											{
+												"Open" => "badge bg-primary-gradient rounded-pill",
+												"In Progress" => "badge bg-info-gradient rounded-pill",
+												"Completed" => "badge bg-success-gradient rounded-pill",
+												"On Hold" => "badge bg-warning-gradient rounded-pill",
+												"Cancelled" => "badge bg-secondary-gradient rounded-pill",
+												"Escalated" => "badge bg-danger-gradient rounded-pill",
+												_ => "badge bg-secondary-gradient rounded-pill"
+											};
+										}
+											<a href="javascript:void(0);" class="@statusBadgeClass me-2"><i class="ri-flag-line me-1"></i>@model.TaskStatus</a>
+
+										@{
+											string priorityBadgeClass = model.TaskPriority switch
+											{
+												"Low" => "badge bg-secondary-gradient rounded-pill",
+												"Medium" => "badge bg-info-gradient rounded-pill",
+												"High" => "badge bg-warning-gradient rounded-pill",
+												"Critical" => "badge bg-danger-gradient rounded-pill",
+												_ => "badge bg-secondary-gradient rounded-pill"
+											};
+										}
+											<a href="javascript:void(0);" class="@priorityBadgeClass"><i class="ri-arrow-up-line me-1"></i>@model.TaskPriority Priority</a>
+										</div>
+								}
+							</div>
+						</div>
+						<div class="btn-list">
+							<button class="btn btn-secondary me-1" type="button" @onclick="NavigateBack">
+								<i class="ri-arrow-left-line me-1"></i>Back
+							</button>
+							@* @if (model != null)
+							{
+								<button class="btn btn-sm btn-primary" type="button" @onclick="() => NavigateToEdit(model.TaskId)">
+									<i class="ri-pencil-line me-1"></i>Edit
+								</button>
+							} *@
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--End::row-1 -->
+	<!-- Start::row-2 -->
+	<div class="row">
+		@if (isLoading)
+		{
+				<div class="col-12">
+					<div class="d-flex justify-content-center my-5">
+						<div class="spinner-border text-secondary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				</div>
+		}
+		else if (model == null)
+		{
+				<div class="col-12">
+					<div class="alert alert-danger" role="alert">
+						Sales task not found or could not be loaded.
+					</div>
+				</div>
+		}
+		else
+		{
+				<div class="col-lg-8">
+					<!-- Task Details Card -->
+					<div class="card custom-card">
+						<div class="card-header d-flex justify-content-between align-items-center">
+							<div class="card-title">
+								<h5 class="">Task Details</h5>
+							</div>
+						@if (model != null)
+						{
+									<div class="task-code-container">
+										<div class="task-code-badge">
+											<i class="ri-key-2-line task-code-icon" data-bs-toggle="tooltip" title="Task Reference Code"></i>
+											Task Code: @model.TaskCode
+										</div>
+									</div>
+						}
+						</div>
+						<div class="card-body p-0">
+							<div class="row card-body pb-0">
+								<!-- Left Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Task Title</div>
+										<div class="info-value">@model.TaskTitle</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Task Type</div>
+										<div class="info-value">@model.TaskType</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Task Priority</div>
+										<div class="info-value">
+										@{
+											string priorityClass = model.TaskPriority switch
+											{
+												"Low" => "badge bg-secondary-gradient",
+												"Medium" => "badge bg-info-gradient",
+												"High" => "badge bg-warning-gradient",
+												"Critical" => "badge bg-danger-gradient",
+												_ => "badge bg-secondary-gradient"
+											};
+										}
+											<span class="@priorityClass">@model.TaskPriority</span>
+										</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Start Date/Time</div>
+										<div class="info-value">@(model.StartDateTime.HasValue ? model.StartDateTime.Value.ToString("dd/MM/yyyy HH:mm") : "-")</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Due Date/Time</div>
+										<div class="info-value">
+										@{
+											string dueDateClass = model.DueDateTime < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled"
+											? "text-danger fw-semibold"
+											: "";
+										}
+											<span class="@dueDateClass">@(model.DueDateTime.HasValue ? model.DueDateTime.Value.ToString("dd/MM/yyyy HH:mm") : "-")</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- Right Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Task Status</div>
+										<div class="info-value">
+										@{
+											string statusClass = model.TaskStatus switch
+											{
+												"Open" => "badge bg-primary-gradient",
+												"In Progress" => "badge bg-info-gradient",
+												"Completed" => "badge bg-success-gradient",
+												"On Hold" => "badge bg-warning-gradient",
+												"Cancelled" => "badge bg-secondary-gradient",
+												"Escalated" => "badge bg-danger-gradient",
+												_ => "badge bg-secondary-gradient"
+											};
+										}
+											<span class="@statusClass">@model.TaskStatus</span>
+										</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Associated Module</div>
+										<div class="info-value">@model.AssociatedModule</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Associated Record</div>
+										<div class="info-value">@(model.AssociatedRecordId.HasValue ? model.AssociatedRecordId.ToString() : "-")</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Source Channel</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.SourceChannel) ? "-" : model.SourceChannel)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Expected Outcome</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.ExpectedOutcome) ? "-" : model.ExpectedOutcome)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Tags</div>
+										<div class="info-value">
+										@if (model.TaskTags != null && model.TaskTags.Any())
+										{
+											@foreach (var tag in model.TaskTags)
+											{
+															<span class="badge-custom">
+													@{
+														string tagIcon = tag.ToLower() switch
+														{
+															var t when t.Contains("urgent") => "ri-alarm-warning-line",
+															var t when t.Contains("client") => "ri-user-line",
+															var t when t.Contains("follow") => "ri-calendar-check-line",
+															var t when t.Contains("report") => "ri-file-chart-line",
+															var t when t.Contains("review") => "ri-eye-line",
+															var t when t.Contains("meeting") => "ri-team-line",
+															var t when t.Contains("call") => "ri-phone-line",
+															var t when t.Contains("email") => "ri-mail-line",
+															var t when t.Contains("document") => "ri-file-text-line",
+															var t when t.Contains("project") => "ri-projector-line",
+															_ => "ri-price-tag-3-line"
+														};
+
+														string tagTooltip = tag.ToLower() switch
+														{
+															var t when t.Contains("urgent") => "Urgent Task",
+															var t when t.Contains("client") => "Client-Related Task",
+															var t when t.Contains("follow") => "Follow-up Required",
+															var t when t.Contains("report") => "Reporting Task",
+															var t when t.Contains("review") => "Review Required",
+															var t when t.Contains("meeting") => "Meeting Task",
+															var t when t.Contains("call") => "Call Task",
+															var t when t.Contains("email") => "Email Communication",
+															var t when t.Contains("document") => "Documentation Task",
+															var t when t.Contains("project") => "Project-Related Task",
+															_ => "Task Tag"
+														};
+													}
+																<i class="@tagIcon" data-bs-toggle="tooltip" title="@tagTooltip"></i>
+													@tag
+															</span>
+											}
+										}
+										else
+										{
+													<span>-</span>
+										}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row card-body">
+								<div class="d-flex align-items-center mb-2">
+									<div class="icon-circle-small"><i class="ri-file-text-line" data-bs-toggle="tooltip" title="Task Description"></i></div>
+									<h6 class="mb-0">Task Description</h6>
+								</div>
+								<div class="col-12">
+									<div class="client-card">
+									@if (string.IsNullOrEmpty(model.TaskDescription))
+									{
+												<span class="text-muted">No description available</span>
+									}
+									else
+									{
+										@((MarkupString)model.TaskDescription)
+									}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Assignment & Ownership Card -->
+					<div class="card custom-card">
+						<div class="card-header">
+							<div class="card-title">
+								<h5 class="">Assignment & Ownership</h5>
+							</div>
+						</div>
+						<div class="card-body p-0">
+							<div class="row card-body pb-0">
+								<!-- Left Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Created By</div>
+										<div class="info-value">@model.CreatedByUserName</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Assigned To</div>
+										<div class="info-value">@model.AssignedToUserName</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Assigned Role</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.AssignedToRoleName) ? "-" : model.AssignedToRoleName)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Created Date</div>
+										<div class="info-value">@model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</div>
+									</div>
+								</div>
+
+								<!-- Right Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Delegated To</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.DelegatedToUserName) ? "-" : model.DelegatedToUserName)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Escalated To</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.EscalatedToUserName) ? "-" : model.EscalatedToUserName)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Is Recurring Task</div>
+										<div class="info-value">@(model.IsRecurringTask ? "Yes" : "No")</div>
+									</div>
+								@if (model.IsRecurringTask)
+								{
+											<div class="info-row">
+												<div class="info-label">Recurrence Pattern</div>
+												<div class="info-value">@(string.IsNullOrEmpty(model.RecurrencePattern) ? "-" : model.RecurrencePattern)</div>
+											</div>
+								}
+									<div class="info-row">
+										<div class="info-label">Last Modified</div>
+										<div class="info-value">@(model.LastModifiedDate.HasValue ? model.LastModifiedDate.Value.ToString("dd/MM/yyyy HH:mm") : "-")</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Metadata & Context Card -->
+					<div class="card custom-card">
+						<div class="card-header">
+							<div class="card-title">
+								<h5 class="">Metadata & Context</h5>
+							</div>
+						</div>
+						<div class="card-body p-0">
+							<div class="row card-body">
+								<!-- Left Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Related Campaign</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.RelatedCampaignName) ? "-" : model.RelatedCampaignName)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Related Product</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.RelatedProductName) ? "-" : model.RelatedProductName)</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Customer Visibility</div>
+										<div class="info-value">@(string.IsNullOrEmpty(model.CustomerVisibilityLevel) ? "-" : model.CustomerVisibilityLevel)</div>
+									</div>
+								</div>
+
+								<!-- Right Column -->
+								<div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+									<div class="info-row">
+										<div class="info-label">Is Client Facing</div>
+										<div class="info-value">@(model.IsClientFacing ? "Yes" : "No")</div>
+									</div>
+									<div class="info-row">
+										<div class="info-label">Has Attachment</div>
+										<div class="info-value">@(model.HasAttachment ? "Yes" : "No")</div>
+									</div>
+								@if (!string.IsNullOrEmpty(model.CustomFieldsJson))
+								{
+											<div class="info-row">
+												<div class="info-label">Custom Fields</div>
+												<div class="info-value">
+													<pre class="border rounded p-2 bg-light">@model.CustomFieldsJson</pre>
+												</div>
+											</div>
+								}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Task Related Information Tabs -->
+					<div class="card custom-card">
+						<div class="card-header">
+							<div class="card-title">
+								<h5 class="mb-0 fw-semibold fs-20">Related Information</h5>
+							</div>
+						</div>
+						<div class="card-body">
+							<ul class="nav nav-tabs tab-style-2 nav-justified mb-3 d-sm-flex d-block" id="taskDetailTabs" role="tablist">
+								<li class="nav-item" role="presentation">
+									<button class="nav-link active" id="assignment-log-tab" data-bs-toggle="tab" data-bs-target="#assignment-log" type="button" role="tab" aria-controls="assignment-log" aria-selected="true">
+									@{
+										var assignmentCount = fullTaskData?.AssignmentLogs?.Count ?? 0;
+									}
+										<i class="ri-exchange-line me-1 align-middle"></i>Assignment Log (@assignmentCount)
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link" id="status-timeline-tab" data-bs-toggle="tab" data-bs-target="#status-timeline" type="button" role="tab" aria-controls="status-timeline" aria-selected="false">
+									@{
+										var statusCount = fullTaskData?.StatusTimelines?.Count ?? 0;
+									}
+										<i class="ri-time-line me-1 align-middle"></i>Status Timeline (@statusCount)
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab" aria-controls="logs" aria-selected="false">
+									@{
+										var logsCount = fullTaskData?.Logs?.Count ?? 0;
+									}
+										<i class="ri-history-line me-1 align-middle"></i>Activity Logs (@logsCount)
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link" id="follow-ups-tab" data-bs-toggle="tab" data-bs-target="#follow-ups" type="button" role="tab" aria-controls="follow-ups" aria-selected="false">
+									@{
+										var followUpsCount = fullTaskData?.FollowUps?.Count ?? 0;
+									}
+										<i class="ri-calendar-check-line me-1 align-middle"></i>Follow-Ups (@followUpsCount)
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link" id="outcome-logs-tab" data-bs-toggle="tab" data-bs-target="#outcome-logs" type="button" role="tab" aria-controls="outcome-logs" aria-selected="false">
+									@{
+										var outcomeCount = fullTaskData?.OutcomeLogs?.Count ?? 0;
+									}
+										<i class="ri-file-list-3-line me-1 align-middle"></i>Outcome Logs (@outcomeCount)
+									</button>
+								</li>
+							</ul>
+							<div class="tab-content p-3 border border-top-0 rounded-bottom" id="taskDetailTabsContent">
+								<!-- Assignment Log Tab -->
+								<div class="tab-pane fade show active" id="assignment-log" role="tabpanel" aria-labelledby="assignment-log-tab">
+								@if (fullTaskData?.AssignmentLogs == null || !fullTaskData.AssignmentLogs.Any())
+								{
+											<div class="alert alert-info">
+												No assignment logs available for this task.
+											</div>
+								}
+								else
+								{
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th>Action</th>
+															<th>From</th>
+															<th>To</th>
+															<th>By</th>
+															<th>Date/Time</th>
+															<th>Note</th>
+														</tr>
+													</thead>
+													<tbody>
+												@foreach (var log in fullTaskData.AssignmentLogs.OrderByDescending(l => l.ActionTimestamp))
+												{
+																<tr>
+																	<td>
+															@{
+																string actionBadgeClass = log.ActionType switch
+																{
+																	"Assigned" => "badge bg-success-gradient",
+																	"Reassigned" => "badge bg-info-gradient",
+																	"Delegated" => "badge bg-primary-gradient",
+																	"AutoAssigned" => "badge bg-secondary-gradient",
+																	"Escalated" => "badge bg-danger-gradient",
+																	"Completed" => "badge bg-success-gradient",
+																	"Cancelled" => "badge bg-secondary-gradient",
+																	"MarkedUrgent" => "badge bg-warning-gradient",
+																	_ => "badge bg-secondary-gradient"
+																};
+															}
+																		<span class="@actionBadgeClass">@log.ActionType</span>
+																	</td>
+																	<td>@(log.FromUserName ?? "-")</td>
+																	<td>@log.ToUserName</td>
+																	<td>@log.PerformedByUserName</td>
+																	<td>@(((DateTime)log.ActionTimestamp!).ToString("dd/MM/yyyy HH:mm"))</td>
+																	<td>@(string.IsNullOrEmpty(log.AssignmentNote) ? "-" : log.AssignmentNote)</td>
+																</tr>
+												}
+													</tbody>
+												</table>
+											</div>
+								}
+								</div>
+
+								<!-- Status Timeline Tab -->
+								<div class="tab-pane fade" id="status-timeline" role="tabpanel" aria-labelledby="status-timeline-tab">
+								@if (fullTaskData?.StatusTimelines == null || !fullTaskData.StatusTimelines.Any())
+								{
+											<div class="alert alert-info">
+												No status timeline entries available for this task.
+											</div>
+								}
+								else
+								{
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th>From Status</th>
+															<th>To Status</th>
+															<th>Changed By</th>
+															<th>Changed On</th>
+															<th>Channel</th>
+															<th>Note</th>
+														</tr>
+													</thead>
+													<tbody>
+												@foreach (var timeline in fullTaskData.StatusTimelines.OrderByDescending(t => t.StatusChangedOn))
+												{
+																<tr>
+																	<td>@timeline.PreviousStatus</td>
+																	<td>
+															@{
+																string timelineStatusBadgeClass = timeline.NewStatus switch
+																{
+																	"Open" => "badge bg-primary-gradient",
+																	"In Progress" => "badge bg-info-gradient",
+																	"Completed" => "badge bg-success-gradient",
+																	"On Hold" => "badge bg-warning-gradient",
+																	"Cancelled" => "badge bg-secondary-gradient",
+																	"Escalated" => "badge bg-danger-gradient",
+																	_ => "badge bg-secondary-gradient"
+																};
+															}
+																		<span class="@timelineStatusBadgeClass">@timeline.NewStatus</span>
+																	</td>
+																	<td>@timeline.StatusChangedByUserName</td>
+																	<td>@timeline.StatusChangedOn!.Value.ToString("dd/MM/yyyy HH:mm")</td>
+																	<td>@timeline.StatusChangeChannel</td>
+																	<td>@(string.IsNullOrEmpty(timeline.StatusChangeNote) ? "-" : timeline.StatusChangeNote)</td>
+																</tr>
+												}
+													</tbody>
+												</table>
+											</div>
+								}
+								</div>
+
+								<!-- Activity Logs Tab -->
+								<div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+								@if (fullTaskData?.Logs == null || !fullTaskData.Logs.Any())
+								{
+											<div class="alert alert-info">
+												No activity logs available for this task.
+											</div>
+								}
+								else
+								{
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th>Activity Type</th>
+															<th>Performed By</th>
+															<th>Date/Time</th>
+															<th>Channel</th>
+															<th>Description</th>
+															<th>Result</th>
+														</tr>
+													</thead>
+													<tbody>
+												@foreach (var log in fullTaskData.Logs.OrderByDescending(l => l.PerformedOn))
+												{
+																<tr>
+																	<td>
+															@{
+																string activityBadgeClass = log.ActivityType switch
+																{
+																	"Call" => "badge bg-info-gradient",
+																	"Meeting" => "badge bg-primary-gradient",
+																	"Note" => "badge bg-secondary-gradient",
+																	"Email" => "badge bg-success-gradient",
+																	"SMS" => "badge bg-info-gradient",
+																	"FileUpload" => "badge bg-warning-gradient",
+																	"WhatsApp" => "badge bg-success-gradient",
+																	"FollowUp" => "badge bg-primary-gradient",
+																	"Reminder" => "badge bg-warning-gradient",
+																	"SystemUpdate" => "badge bg-secondary-gradient",
+																	"Reschedule" => "badge bg-info-gradient",
+																	"EscalationNote" => "badge bg-danger-gradient",
+																	_ => "badge bg-secondary-gradient"
+																};
+															}
+																		<span class="@activityBadgeClass">@log.ActivityType</span>
+																	</td>
+																	<td>@log.PerformedByUserName</td>
+																	<td>@log.PerformedOn!.Value.ToString("dd/MM/yyyy HH:mm")</td>
+																	<td>@log.ActivityChannel</td>
+																	<td>@log.ActivityDescription</td>
+																	<td>@(string.IsNullOrEmpty(log.ActivityResult) ? "-" : log.ActivityResult)</td>
+																</tr>
+												}
+													</tbody>
+												</table>
+											</div>
+								}
+								</div>
+
+								<!-- Follow-Ups Tab -->
+								<div class="tab-pane fade" id="follow-ups" role="tabpanel" aria-labelledby="follow-ups-tab">
+								@if (fullTaskData?.FollowUps == null || !fullTaskData.FollowUps.Any())
+								{
+											<div class="alert alert-info">
+												No follow-ups available for this task.
+											</div>
+								}
+								else
+								{
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th>Reason</th>
+															<th>Scheduled</th>
+															<th>Due</th>
+															<th>Assigned To</th>
+															<th>Status</th>
+															<th>Outcome</th>
+														</tr>
+													</thead>
+													<tbody>
+												@foreach (var followUp in fullTaskData.FollowUps.OrderByDescending(f => f.ScheduledDateTime))
+												{
+																<tr>
+																	<td>@followUp.FollowUpReason</td>
+																	<td>@followUp.ScheduledDateTime!.Value.ToString("dd/MM/yyyy HH:mm")</td>
+																	<td>
+															@if (followUp.DueDateTime.HasValue)
+															{
+																string followUpDueDateClass = followUp.DueDateTime < DateTime.Now && followUp.FollowUpStatus != "Completed" && followUp.FollowUpStatus != "Cancelled"
+																? "text-danger"
+																: "";
+																				<span class="@followUpDueDateClass">@followUp.DueDateTime.Value.ToString("dd/MM/yyyy HH:mm")</span>
+															}
+															else
+															{
+																				<span>-</span>
+															}
+																	</td>
+																	<td>@followUp.AssignedToUserName</td>
+																	<td>
+															@{
+																string followUpStatusBadgeClass = followUp.FollowUpStatus switch
+																{
+																	"Pending" => "badge bg-primary-gradient",
+																	"Completed" => "badge bg-success-gradient",
+																	"Rescheduled" => "badge bg-info-gradient",
+																	"Missed" => "badge bg-danger-gradient",
+																	"Cancelled" => "badge bg-secondary-gradient",
+																	"Delegated" => "badge bg-warning-gradient",
+																	_ => "badge bg-secondary-gradient"
+																};
+															}
+																		<span class="@followUpStatusBadgeClass">@followUp.FollowUpStatus</span>
+																	</td>
+																	<td>@(string.IsNullOrEmpty(followUp.OutcomeNotes) ? "-" : followUp.OutcomeNotes)</td>
+																</tr>
+												}
+													</tbody>
+												</table>
+											</div>
+								}
+								</div>
+
+								<!-- Outcome Logs Tab -->
+								<div class="tab-pane fade" id="outcome-logs" role="tabpanel" aria-labelledby="outcome-logs-tab">
+								@if (fullTaskData?.OutcomeLogs == null || !fullTaskData.OutcomeLogs.Any())
+								{
+											<div class="alert alert-info">
+												No outcome logs available for this task.
+											</div>
+								}
+								else
+								{
+											<div class="table-responsive">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<th>Outcome Type</th>
+															<th>Status</th>
+															<th>Date</th>
+															<th>Summary</th>
+															<th>Customer Reaction</th>
+															<th>Next Action</th>
+														</tr>
+													</thead>
+													<tbody>
+												@foreach (var outcome in fullTaskData.OutcomeLogs.OrderByDescending(o => o.OutcomeDate))
+												{
+																<tr>
+																	<td>@outcome.OutcomeType</td>
+																	<td>
+															@{
+																string outcomeStatusBadgeClass = outcome.OutcomeStatus switch
+																{
+																	"Success" => "badge bg-success-gradient",
+																	"Partial" => "badge bg-info-gradient",
+																	"Failed" => "badge bg-danger-gradient",
+																	"PendingFollowUp" => "badge bg-warning-gradient",
+																	"Deferred" => "badge bg-secondary-gradient",
+																	"Escalated" => "badge bg-danger-gradient",
+																	_ => "badge bg-secondary-gradient"
+																};
+															}
+																		<span class="@outcomeStatusBadgeClass">@outcome.OutcomeStatus</span>
+																	</td>
+																	<td>@outcome.OutcomeDate!.Value.ToString("dd/MM/yyyy HH:mm")</td>
+																	<td>@outcome.EngagementSummary</td>
+																	<td>@(string.IsNullOrEmpty(outcome.CustomerReaction) ? "-" : outcome.CustomerReaction)</td>
+																	<td>
+															@if (outcome.NextActionRequired)
+															{
+																if (outcome.NextFollowUpDueDate.HasValue)
+																{
+																						<span>Follow-up on @outcome.NextFollowUpDueDate.Value.ToString("dd/MM/yyyy")</span>
+																}
+																else
+																{
+																						<span>Required (no date)</span>
+																}
+															}
+															else
+															{
+																				<span>None required</span>
+															}
+																	</td>
+																</tr>
+												}
+													</tbody>
+												</table>
+											</div>
+								}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-4">
+					<!-- Task Summary Card -->
+					<div class="card custom-card mb-4">
+						<div class="card-header">
+							<div class="card-title">Task Summary</div>
+						</div>
+						<div class="card-body">
+							<p class="card-text task-summary-text mb-3">
+								<b>@model.TaskCode:</b> @model.TaskTitle is a @model.TaskPriority priority @model.TaskType task
+							@(model.TaskStatus == "Completed" ? "that was completed" : "currently " + model.TaskStatus.ToLower())
+								and assigned to @model.AssignedToUserName.
+							</p>
+						@if (model.DueDateTime.HasValue && model.DueDateTime.Value < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled")
+						{
+									<div class="alert alert-danger mt-3">
+										<i class="ri-alarm-warning-line me-2"></i> This task is overdue by @((DateTime.Now - model.DueDateTime.Value).Days) days.
+									</div>
+						}
+						</div>
+					</div>
+
+					<!-- Uploaded Documents Card -->
+					<div class="card custom-card mb-4">
+						<div class="card-header">
+							<div class="card-title">Uploaded Documents</div>
+						</div>
+						<div class="card-body">
+						@if (!model.UploadedDocuments.Any())
+						{
+									<div class="alert alert-info">
+										No documents uploaded.
+									</div>
+						}
+						else
+						{
+									<div class="list-group">
+								@foreach (var document in model.UploadedDocuments)
+								{
+												<div class="list-group-item d-flex align-items-center document-item">
+										@{
+											string iconClass = document.FileExtension switch
+											{
+												".pdf" => "ri-file-pdf-line text-danger",
+												".doc" or ".docx" => "ri-file-word-line text-primary",
+												".jpg" or ".jpeg" or ".png" => "ri-image-line text-info",
+												_ => "ri-file-line text-muted"
+											};
+										}
+													<i class="@iconClass me-2 fs-4"></i>
+													<div>
+														<p class="mb-0 fw-medium">@document.FileName</p>
+														<small class="text-muted">
+												@FormatFileSize(document.FileSize)
+															<span class="ms-2">•</span>
+															<span class="ms-2">Uploaded on @document.UploadDate.ToString("dd/MM/yyyy")</span>
+														</small>
+													</div>
+													<div class="document-tooltip">
+														<p class="mb-1">Name: @document.FileName</p>
+														<p class="mb-1">Size: @FormatFileSize(document.FileSize)</p>
+														<p class="mb-1">Type: @document.FileExtension</p>
+														<p class="mb-0">Uploaded: @document.UploadDate.ToString("dd/MM/yyyy HH:mm")</p>
+													</div>
+												</div>
+								}
+									</div>
+						}
+						</div>
+					</div>
+
+					<!-- Task Stats Card -->
+					<div class="card custom-card mb-4">
+						<div class="card-header">
+							<div class="card-title">Task Statistics</div>
+						</div>
+						<div class="card-body">
+							<div class="row">
+							@{
+								// Create a shuffled list of border colors to ensure each widget gets a unique color
+								var shuffledColors = borderColors.OrderBy(x => random.Next()).ToList();
+								int colorIndex = 0;
+
+								string GetUniqueColorClass()
+								{
+									// Take colors in sequence from the shuffled list
+									string color = shuffledColors[colorIndex];
+									colorIndex = (colorIndex + 1) % shuffledColors.Count; // Use .Count instead of .Length
+									return $"border-top-{color}";
+								}
+							}
+								<div class="col-xl-6">
+									<div class="card custom-card border-top-card @GetUniqueColorClass() rounded-0 mb-3">
+										<div class="card-body">
+											<div class="text-center">
+												<span class="avatar avatar-md bg-primary-transparent shadow-sm avatar-rounded mb-2">
+													<i class="ri-exchange-line fs-16"></i>
+												</span>
+												<p class="fs-14 fw-semibold mb-2">Assignments</p>
+												<div class="d-flex align-items-center justify-content-center flex-wrap">
+													<h5 class="mb-0 fw-semibold">@(fullTaskData?.AssignmentLogs?.Count ?? 0)</h5>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-6">
+									<div class="card custom-card border-top-card @GetUniqueColorClass() rounded-0 mb-3">
+										<div class="card-body">
+											<div class="text-center">
+												<span class="avatar avatar-md bg-info-transparent shadow-sm avatar-rounded mb-2">
+													<i class="ri-history-line fs-16"></i>
+												</span>
+												<p class="fs-14 fw-semibold mb-2">Activity Logs</p>
+												<div class="d-flex align-items-center justify-content-center flex-wrap">
+													<h5 class="mb-0 fw-semibold">@(fullTaskData?.Logs?.Count ?? 0)</h5>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xl-6">
+									<div class="card custom-card border-top-card @GetUniqueColorClass() rounded-0 mb-3">
+										<div class="card-body">
+											<div class="text-center">
+												<span class="avatar avatar-md bg-success-transparent shadow-sm avatar-rounded mb-2">
+													<i class="ri-calendar-check-line fs-16"></i>
+												</span>
+												<p class="fs-14 fw-semibold mb-2">Follow-ups</p>
+												<div class="d-flex align-items-center justify-content-center flex-wrap">
+													<h5 class="mb-0 fw-semibold">@(fullTaskData?.FollowUps?.Count ?? 0)</h5>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-6">
+									<div class="card custom-card border-top-card @GetUniqueColorClass() rounded-0 mb-3">
+										<div class="card-body">
+											<div class="text-center">
+												<span class="avatar avatar-md bg-warning-transparent shadow-sm avatar-rounded mb-2">
+													<i class="ri-file-text-line fs-16"></i>
+												</span>
+												<p class="fs-14 fw-semibold mb-2">Documents</p>
+												<div class="d-flex align-items-center justify-content-center flex-wrap">
+													<h5 class="mb-0 fw-semibold">@(model.UploadedDocuments?.Count ?? 0)</h5>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						@if (model.DueDateTime.HasValue)
+						{
+									<div class="d-flex align-items-center mb-2 mt-3">
+										<div class="icon-circle-small">
+											<i class="ri-timer-line" data-bs-toggle="tooltip" title="Task Progress"></i>
+										</div>
+										<h6 class="mb-0">Time Remaining</h6>
+									</div>
+
+							@if (model.TaskStatus == "Completed" || model.TaskStatus == "Cancelled")
+							{
+											<div class="progress" style="height: 30px;">
+												<div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100">
+													Task @model.TaskStatus
+												</div>
+											</div>
+							}
+							else if (model.DueDateTime.Value < DateTime.Now)
+							{
+											<div class="progress" style="height: 30px;">
+												<div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100">
+													Overdue by @((DateTime.Now - model.DueDateTime.Value).Days) days
+												</div>
+											</div>
+							}
+							else
+							{
+								var totalDays = (model.DueDateTime.Value - model.CreatedDate).TotalDays;
+								var daysRemaining = (model.DueDateTime.Value - DateTime.Now).TotalDays;
+								var percentComplete = Math.Min(100, Math.Max(0, ((totalDays - daysRemaining) / totalDays) * 100));
+
+											<div class="progress" style="height: 30px;">
+												<div class="progress-bar bg-primary" role="progressbar"
+													 style="@string.Format("width: {0}%", percentComplete)"
+													 aria-valuenow="@Math.Round(percentComplete)">
+										@Math.Round(percentComplete)% Complete
+												</div>
+											</div>
+
+											<div class="text-end mt-2">
+												<small class="text-muted">@Math.Ceiling(daysRemaining) days remaining</small>
+											</div>
+							}
+						}
+
+						</div>
+					</div>
+
+					<!-- Task Timeline Card -->
+					<div class="card custom-card">
+						<div class="card-header">
+							<div class="card-title">Task Timeline</div>
+						</div>
+						<div class="card-body">
+							<div class="order-track">
+								<!-- Task Created -->
+								<div class="accordion" id="taskCreatedAccordion">
+									<div class="accordion-item border-0 bg-transparent">
+										<div class="accordion-header" id="headingTaskCreated">
+											<a class="px-0 pt-0" href="javascript:void(0)" role="button" data-bs-toggle="collapse" data-bs-target="#taskCreatedCollapse" aria-expanded="true" aria-controls="taskCreatedCollapse">
+												<div class="d-flex mb-0">
+													<div class="me-2">
+														<span class="avatar avatar-md avatar-rounded bg-primary-transparent text-primary">
+															<i class="ri-task-line fs-16"></i>
+														</span>
+													</div>
+													<div class="flex-fill">
+														<p class="fw-semibold mb-0 fs-14">Task Created</p>
+														<span class="fs-11 text-success">@model.CreatedDate.ToString("dd/MM/yyyy")</span>
+													</div>
+												</div>
+											</a>
+										</div>
+										<div id="taskCreatedCollapse" class="accordion-collapse collapse show" aria-labelledby="headingTaskCreated" data-bs-parent="#taskCreatedAccordion">
+											<div class="accordion-body pt-0 ps-5">
+												<div class="fs-11">
+													<p class="mb-0">Task created by <a href="javascript:void(0);" class="font-weight-semibold text-primary">@model.CreatedByUserName</a></p>
+													<span class="text-muted op-5">@model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Task Started -->
+							@if (model.StartDateTime.HasValue)
+							{
+										<div class="accordion" id="taskStartedAccordion">
+											<div class="accordion-item border-0 bg-transparent">
+												<div class="accordion-header" id="headingTaskStarted">
+													<a class="px-0 pt-0" href="javascript:void(0)" role="button" data-bs-toggle="collapse" data-bs-target="#taskStartedCollapse" aria-expanded="true" aria-controls="taskStartedCollapse">
+														<div class="d-flex mb-0">
+															<div class="me-2">
+																<span class="avatar avatar-md avatar-rounded bg-info-transparent text-info">
+																	<i class="ri-play-circle-line fs-16"></i>
+																</span>
+															</div>
+															<div class="flex-fill">
+																<p class="fw-semibold mb-0 fs-14">Task Started</p>
+																<span class="fs-11">@model.StartDateTime.Value.ToString("dd/MM/yyyy")</span>
+															</div>
+														</div>
+													</a>
+												</div>
+												<div id="taskStartedCollapse" class="accordion-collapse collapse show" aria-labelledby="headingTaskStarted" data-bs-parent="#taskStartedAccordion">
+													<div class="accordion-body pt-0 ps-5">
+														<div class="fs-11">
+															<p class="mb-0">Work started on this task</p>
+															<span class="text-muted op-5">@model.StartDateTime.Value.ToString("dd/MM/yyyy HH:mm")</span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+							}
+
+								<!-- Last Modified -->
+							@if (model.LastModifiedDate.HasValue)
+							{
+										<div class="accordion" id="taskModifiedAccordion">
+											<div class="accordion-item border-0 bg-transparent">
+												<div class="accordion-header" id="headingTaskModified">
+													<a class="px-0 pt-0" href="javascript:void(0)" role="button" data-bs-toggle="collapse" data-bs-target="#taskModifiedCollapse" aria-expanded="true" aria-controls="taskModifiedCollapse">
+														<div class="d-flex mb-0">
+															<div class="me-2">
+																<span class="avatar avatar-md avatar-rounded bg-secondary-transparent text-secondary">
+																	<i class="ri-edit-line fs-16"></i>
+																</span>
+															</div>
+															<div class="flex-fill">
+																<p class="fw-semibold mb-0 fs-14">Last Updated</p>
+																<span class="fs-11">@model.LastModifiedDate.Value.ToString("dd/MM/yyyy")</span>
+															</div>
+														</div>
+													</a>
+												</div>
+												<div id="taskModifiedCollapse" class="accordion-collapse collapse show" aria-labelledby="headingTaskModified" data-bs-parent="#taskModifiedAccordion">
+													<div class="accordion-body pt-0 ps-5">
+														<div class="fs-11">
+															<p class="mb-0">Task was last modified</p>
+															<span class="text-muted op-5">@model.LastModifiedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+							}
+
+								<!-- Due Date -->
+							@if (model.DueDateTime.HasValue)
+							{
+								string dueClass = model.DueDateTime < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled" ? "danger" : "warning";
+
+										<div class="accordion" id="taskDueAccordion">
+											<div class="accordion-item border-0 bg-transparent @(model.DueDateTime < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled" ? "" : "next-step")">
+												<div class="accordion-header" id="headingTaskDue">
+													<a class="px-0 pt-0" href="javascript:void(0)" role="button" data-bs-toggle="collapse" data-bs-target="#taskDueCollapse" aria-expanded="true" aria-controls="taskDueCollapse">
+														<div class="d-flex mb-0">
+															<div class="me-2">
+																<span class="avatar avatar-md avatar-rounded bg-@dueClass-transparent text-@dueClass">
+																	<i class="ri-time-line fs-16"></i>
+																</span>
+															</div>
+															<div class="flex-fill">
+																<p class="fw-semibold mb-0 fs-14">Due Date/Time</p>
+																<span class="fs-11 @(model.DueDateTime < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled" ? "text-danger" : "")">
+															@model.DueDateTime.Value.ToString("dd/MM/yyyy")
+															@if (model.DueDateTime < DateTime.Now && model.TaskStatus != "Completed" && model.TaskStatus != "Cancelled")
+															{
+																			<span>(Overdue)</span>
+															}
+																</span>
+															</div>
+														</div>
+													</a>
+												</div>
+												<div id="taskDueCollapse" class="accordion-collapse collapse show" aria-labelledby="headingTaskDue" data-bs-parent="#taskDueAccordion">
+													<div class="accordion-body pt-0 ps-5">
+														<div class="fs-11">
+															<p class="mb-0">Task is due for completion</p>
+															<span class="text-muted op-5">@model.DueDateTime.Value.ToString("dd/MM/yyyy HH:mm")</span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+							}
+
+								<!-- Completed/Cancelled -->
+							@if (model.TaskStatus == "Completed" || model.TaskStatus == "Cancelled")
+							{
+										<div class="accordion" id="taskCompletedAccordion">
+											<div class="accordion-item border-0 bg-transparent">
+												<div class="accordion-header" id="headingTaskCompleted">
+													<a class="px-0 pt-0" href="javascript:void(0)" role="button" data-bs-toggle="collapse" data-bs-target="#taskCompletedCollapse" aria-expanded="true" aria-controls="taskCompletedCollapse">
+														<div class="d-flex mb-0">
+															<div class="me-2">
+																<span class="avatar avatar-md avatar-rounded bg-@(model.TaskStatus == "Completed" ? "success" : "secondary")-transparent text-@(model.TaskStatus == "Completed" ? "success" : "secondary")">
+																	<i class="ri-@(model.TaskStatus == "Completed" ? "check-double" : "close")-line fs-16"></i>
+																</span>
+															</div>
+															<div class="flex-fill">
+																<p class="fw-semibold mb-0 fs-14">Task @model.TaskStatus</p>
+																<span class="fs-11">@(model.LastModifiedDate?.ToString("dd/MM/yyyy") ?? "-")</span>
+															</div>
+														</div>
+													</a>
+												</div>
+												<div id="taskCompletedCollapse" class="accordion-collapse collapse show" aria-labelledby="headingTaskCompleted" data-bs-parent="#taskCompletedAccordion">
+													<div class="accordion-body pt-0 ps-5">
+														<div class="fs-11">
+															<p class="mb-0">Task was marked as @model.TaskStatus.ToLower()</p>
+															<span class="text-muted op-5">@(model.LastModifiedDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")</span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+							}
+							</div>
+						</div>
+					</div>
+				</div>
+		}
+	</div>
+	<!-- End::row-2 -->
+</div>
+
+@code {
+	[Parameter]
+	[SupplyParameterFromQuery]
+	public Guid? id { get; set; }
+
+	private ST_MasterViewModel model;
+	private SalesTaskInfoViewModel fullTaskData;
+	private bool isLoading = true;
+
+	// Random color generator for widgets
+	private Random random = new Random();
+	private string[] borderColors = { "primary", "secondary", "success", "info", "warning", "danger" };
+
+	protected override async Task OnInitializedAsync()
+	{
+		BreadcrumbService.SetBreadcrumbPath(
+			"View Sales Task",
+			("Sales Task", null!),
+			("Master", "/SalesTask/Master/Summary"),
+			("View", "/SalesTask/Master/View")
+		);
+
+		if (id.HasValue)
+		{
+			await LoadTaskData();
+		}
+		else
+		{
+			isLoading = false;
+			NavigateBack(); // No ID provided, go back to summary
+		}
+
+		await base.OnInitializedAsync();
+	}
+
+	/* JS initialization for tooltips */
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Initialize notification service
+			await NotificationService.InitializeAsync();
+
+			// Initialize tooltips
+			await JSRuntime.InvokeVoidAsync("eval", "var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]')); var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });");
+
+			// Show info toast
+			await NotificationService.ShowInfoAsync("Loading sales task details...");
+		}
+	}
+
+	private async Task LoadTaskData()
+	{
+		try
+		{
+			// Show loading
+			await NotificationService.ShowLineToastAsync("info");
+
+			// Load full task data with all related information
+			fullTaskData = await SalesTaskService.GetFullSalesTaskByIdAsync(id.Value);
+
+			if (fullTaskData == null || fullTaskData.Master == null)
+			{
+				await NotificationService.ShowErrorAsync("Sales task not found.", true);
+				NavigateBack();
+				return;
+			}
+
+			// Set the main model
+			model = fullTaskData.Master;
+
+			await NotificationService.ShowSuccessAsync($"Viewing task: {model.TaskTitle}");
+		}
+		catch (Exception ex)
+		{
+			await NotificationService.ShowErrorAsync($"Error loading task: {ex.Message}", true);
+		}
+		finally
+		{
+			isLoading = false;
+			StateHasChanged();
+		}
+	}
+
+	private string FormatFileSize(long bytes)
+	{
+		string[] suffixes = { "B", "KB", "MB", "GB" };
+		int counter = 0;
+		decimal number = bytes;
+
+		while (Math.Round(number / 1024) >= 1)
+		{
+			number /= 1024;
+			counter++;
+		}
+
+		return $"{number:N1} {suffixes[counter]}";
+	}
+
+	private void NavigateToEdit(Guid id)
+	{
+		NavigationManager.NavigateTo($"/SalesTask/Master/Edit?id={id}");
+	}
+
+	private void NavigateBack()
+	{
+		NavigationManager.NavigateTo("/SalesTask/Master/Summary");
+	}
+}
+
+
+
+

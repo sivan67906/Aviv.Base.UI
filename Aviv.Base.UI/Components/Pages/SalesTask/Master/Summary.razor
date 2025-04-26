@@ -1,0 +1,709 @@
+@page "/SalesTask/Master/Summary"
+@using Aviv.Base.UI.Models.SalesTask
+@using Aviv.Base.UI.Services.SalesTask
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Web
+@inject SalesTaskInfoService SalesTaskService
+@inject IJSRuntime JSRuntime
+@inject PageBreadcrumbService BreadcrumbService
+@inject NotificationCustomService NotificationService
+@inject NavigationManager NavigationManager
+
+@implements IDisposable
+
+<div class="container-fluid">
+    <!-- Add the notification component -->
+    <NotificationComponent />
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="card-title">
+                        Sales Tasks
+                        @if (count > 0)
+                        {
+                            <span class="badge bg-success text-white rounded ms-1 fs-12 align-middle">@count</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-default rounded ms-1 fs-12 align-middle">@count</span>
+                        }
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative me-2">
+                            <input type="text" class="form-control bg-light border-0" style="line-height: 0.6 !important;"
+                                   placeholder="Search tasks..." @bind="searchText" @bind:event="oninput" @onkeyup="HandleSearch" />
+                            <!-- X button - only shown when there's text -->
+                            @if (!string.IsNullOrEmpty(searchText))
+                            {
+                                <button class="btn btn-sm position-absolute end-0 top-0 bottom-0 bg-transparent border-0"
+                                        style="" type="button" @onclick="ClearSearch">
+                                    <span class="fw-bold">X</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm position-absolute end-0 top-0 bottom-0 bg-transparent border-0" type="button" @onclick="HandleSearch">
+                                    <i class="ri-search-line text-muted"></i>
+                                </button>
+                            }
+                        </div>
+                        <button class="btn btn-sm btn-primary" type="button" @onclick="NavigateToCreate">
+                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>New Task
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Status Filter Navigation -->
+                    <div class="status-filter mb-4">
+                        <div class="status-filter-item @(selectedStatus == "All" ? "active" : "")" @onclick="@(() => FilterByStatus("All"))">
+                            All Tasks
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "Open" ? "active" : "")" @onclick="@(() => FilterByStatus("Open"))">
+                            Open
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "In Progress" ? "active" : "")" @onclick="@(() => FilterByStatus("In Progress"))">
+                            In Progress
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "Completed" ? "active" : "")" @onclick="@(() => FilterByStatus("Completed"))">
+                            Completed
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "On Hold" ? "active" : "")" @onclick="@(() => FilterByStatus("On Hold"))">
+                            On Hold
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "Escalated" ? "active" : "")" @onclick="@(() => FilterByStatus("Escalated"))">
+                            Escalated
+                        </div>
+                        <div class="status-filter-item @(selectedStatus == "Cancelled" ? "active" : "")" @onclick="@(() => FilterByStatus("Cancelled"))">
+                            Cancelled
+                        </div>
+                    </div>
+
+                    <RadzenDataGrid @ref="grid"
+                                    Data="@salesTasks"
+                                    TItem="ST_MasterViewModel"
+                                    LoadData="@LoadData"
+                                    Count="@count"
+                                    AllowAlternatingRows="false"
+                                    AllowPaging="true"
+                                    PageSize="10"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    ShowPagingSummary="false"
+                                    AllowSorting="true"
+                                    PageSizeOptions="@(new int[] {5, 10, 15, 20})"
+                                    RowRender="@RowRender"
+                                    DataChanged="@OnDataChanged"
+                                    class="@GetGridCssClass()">
+                        <Columns>
+                            @if (enableSerialNumberColumn)
+                            {
+                                <RadzenDataGridColumn TItem="ST_MasterViewModel" Title="S No" Width="70px" TextAlign="TextAlign.Center" Sortable="false">
+                                    <Template Context="task">
+                                        @(salesTasks.IndexOf(task) + 1 + ((grid.CurrentPage > 0 ? grid.CurrentPage : 0) * grid.PageSize))
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            }
+
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="TaskCode" Title="Code" Width="140px">
+                                <Template Context="task">
+                                    <span class="">@task.TaskCode</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="TaskTitle" Title="Task Title" Width="250px">
+                                <Template Context="task">
+                                    <span class="">@task.TaskTitle</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="TaskType" Title="Type" Width="120px">
+                                <Template Context="task">
+                                    <span>@task.TaskType</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="AssignedToUserName" Title="Assigned To" Width="150px">
+                                <Template Context="task">
+                                    <span>@task.AssignedToUserName</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="DueDateTime" Title="Due Date" Width="150px">
+                                <Template Context="task">
+                                    <span class="@(task.DueDateTime.HasValue && task.DueDateTime.Value < DateTime.Now &&
+                                        task.TaskStatus != "Completed" && task.TaskStatus != "Cancelled" ? "text-danger fw-semibold": "")">
+                                        @(task.DueDateTime.HasValue ? task.DueDateTime.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                                    </span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="TaskStatus" Title="Status" Width="120px" Visible="@(selectedStatus == "All")">
+                                <Template Context="task">
+                                    @{
+                                        string statusBadgeClass = task.TaskStatus switch
+                                        {
+                                            "Open" => "badge bg-primary-transparent",
+                                            "In Progress" => "badge bg-info-transparent",
+                                            "Completed" => "badge bg-success-transparent",
+                                            "On Hold" => "badge bg-warning-transparent",
+                                            "Cancelled" => "badge bg-secondary-transparent",
+                                            "Escalated" => "badge bg-danger-transparent",
+                                            _ => "badge bg-secondary-transparent"
+                                        };
+                                    }
+                                    <span class="@statusBadgeClass">@task.TaskStatus</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Property="TaskPriority" Title="Priority" Width="120px">
+                                <Template Context="task">
+                                    @{
+                                        string priorityBadgeClass = task.TaskPriority switch
+                                        {
+                                            "Low" => "badge bg-light-transparent text-dark",
+                                            "Medium" => "badge bg-info-transparent",
+                                            "High" => "badge bg-warning-transparent ",
+                                            "Critical" => "badge bg-danger-transparent",
+                                            _ => "badge bg-light-transparent text-dark"
+                                        };
+                                    }
+                                    <span class="@priorityBadgeClass">@task.TaskPriority</span>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ST_MasterViewModel" Title="Action" Width="130px" TextAlign="Radzen.TextAlign.Center">
+                                <Template Context="task">
+                                    <div class="btn-list">
+                                        <button class="btn btn-sm btn-warning-light" @onclick="() => NavigateToView(task.TaskId)">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-info-light" @onclick="() => NavigateToEdit(task.TaskId)">
+                                            <i class="ri-pencil-line"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger-light" @onclick="() => ConfirmDelete(task)">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="ri-task-line" style="font-size: 48px; color: #d1d5db;"></i>
+                                </div>
+                                <p class="text-muted">No tasks found.</p>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Status filter styles */
+    .status-filter {
+        display: flex;
+        gap: 8px;
+        padding: 0;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .status-filter-item {
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .status-filter-item.active {
+            background-color: #4c1d95;
+            color: white;
+        }
+
+    /* Reduce pagination size */
+    .compact-grid .rz-paginator {
+        padding: 0.1rem !important;
+        min-height: 30px !important;
+    }
+
+        .compact-grid .rz-paginator .rz-paginator-element {
+            height: 1.5rem !important;
+            width: 1.5rem !important;
+            min-height: 1.5rem !important;
+            min-width: 1.5rem !important;
+            line-height: 1.5rem !important;
+            font-size: 0.75rem !important;
+            padding: 0 !important;
+            margin: 0 0.1rem !important;
+        }
+
+    .compact-grid .rz-paginator-element.rz-state-active {
+        height: 1.5rem !important;
+        width: 1.5rem !important;
+        line-height: 1.5rem !important;
+    }
+
+    .compact-grid .rz-paginator .rz-dropdown {
+        height: 1.8rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Row hover highlight styles */
+    .grid-row-hover .rz-grid-table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+        .grid-row-hover .rz-grid-table tbody tr:hover:not(.rz-datatable-empty-message) {
+            background-color: rgba(76, 29, 149, 0.05) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 10;
+            position: relative;
+        }
+
+    /* jQuery UI draggable row styles */
+    .draggable-grid .rz-grid-table tbody tr {
+        cursor: move;
+        transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .draggable-grid .ui-sortable-helper {
+        background-color: #f8f9fa !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #4c1d95 !important;
+        z-index: 9999 !important;
+    }
+
+    .draggable-grid .ui-sortable-placeholder {
+        visibility: visible !important;
+        background-color: rgba(76, 29, 149, 0.1) !important;
+        border: 1px dashed #4c1d95 !important;
+        height: 40px !important;
+    }
+</style>
+
+<script>
+    window.initJQueryDragDrop = function (dotnetHelper) {
+        try {
+            // Wait for jQuery and jQuery UI to be loaded
+            if (typeof jQuery !== 'undefined' && typeof jQuery.ui !== 'undefined') {
+                var gridSelector = '.draggable-grid .rz-grid-table tbody';
+
+                // Remove any existing sortable to avoid duplicates
+                if ($(gridSelector).hasClass('ui-sortable')) {
+                    $(gridSelector).sortable('destroy');
+                }
+
+                // Initialize jQuery UI sortable
+                $(gridSelector).sortable({
+                    items: 'tr:not(.rz-datatable-empty-message)',
+                    handle: 'td', // Allow drag from any cell
+                    axis: 'y', // Restrict movement to vertical axis
+                    containment: 'parent',
+                    cursor: 'move',
+                    opacity: 0.7,
+                    placeholder: 'ui-sortable-placeholder',
+                    tolerance: 'pointer',
+                    helper: function(e, ui) {
+                        // Fix cell widths during drag
+                        ui.children().each(function() {
+                            $(this).width($(this).width());
+                        });
+                        return ui;
+                    },
+                    start: function(event, ui) {
+                        // Store the start index
+                        ui.item.data('start-index', ui.item.index());
+                    },
+                    update: function(event, ui) {
+                        // Get start and end positions
+                        var startIndex = ui.item.data('start-index');
+                        var endIndex = ui.item.index();
+
+                        // Call .NET method to update the data
+                        dotnetHelper.invokeMethodAsync('ReorderRows', startIndex, endIndex);
+                    }
+                });
+
+                return true;
+            } else {
+                console.error('jQuery or jQuery UI not loaded');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error initializing jQuery drag and drop:', error);
+            return false;
+        }
+    };
+
+    window.destroyJQueryDragDrop = function () {
+        try {
+            var gridSelector = '.draggable-grid .rz-grid-table tbody';
+            if ($(gridSelector).hasClass('ui-sortable')) {
+                $(gridSelector).sortable('destroy');
+            }
+            return true;
+        } catch (error) {
+            console.error('Error destroying jQuery drag and drop:', error);
+            return false;
+        }
+    };
+</script>
+
+@code {
+    private List<ST_MasterViewModel> salesTasks = new List<ST_MasterViewModel>();
+    private RadzenDataGrid<ST_MasterViewModel> grid;
+    private int count;
+    private bool isLoading = false;
+    private string searchText = "";
+    private string selectedStatus = "All";
+    private List<ST_MasterViewModel> allTasks = new List<ST_MasterViewModel>(); // Added to store all tasks for sorting
+
+    // Configuration flags for the requested features
+    private bool enableSerialNumberColumn = true;
+    private bool enableRowHoverEffect = true;
+    private bool enableRowDragDrop = false;
+
+    // Reference for jQuery UI drag and drop
+    private DotNetObjectReference<Summary> dotNetReference;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BreadcrumbService.SetBreadcrumbPath(
+            "Sales Tasks",
+            ("Sales Task", null!),
+            ("Master", null!),
+            ("Information", "/SalesTask/Master/Summary")
+        );
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize notification service
+            await NotificationService.InitializeAsync();
+
+            // Show info toast for loading
+            await NotificationService.ShowInfoAsync("Loading sales tasks...");
+
+            // Explicitly trigger initial data load
+            await grid.Reload();
+
+            // Initialize jQuery UI drag and drop if enabled
+            if (enableRowDragDrop)
+            {
+                await InitializeJQueryDragDrop();
+            }
+        }
+    }
+
+    private async Task InitializeJQueryDragDrop()
+    {
+        if (!enableRowDragDrop) return;
+
+        try
+        {
+            // Create the .NET reference if not already created
+            if (dotNetReference == null)
+            {
+                dotNetReference = DotNetObjectReference.Create(this);
+            }
+
+            // Initialize jQuery drag and drop
+            await Task.Delay(500); // Give time for the grid to render
+            bool initialized = await JSRuntime.InvokeAsync<bool>("initJQueryDragDrop", dotNetReference);
+
+            if (initialized)
+            {
+                await NotificationService.ShowInfoAsync("Row reordering initialized");
+            }
+            else
+            {
+                await NotificationService.ShowWarningAsync("Row drag and drop functionality could not be initialized");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing jQuery drag and drop: {ex}");
+            await NotificationService.ShowWarningAsync("Row reordering functionality may be limited");
+        }
+    }
+
+    // Method to handle data changes in the grid
+    private async Task OnDataChanged()
+    {
+        if (enableRowDragDrop)
+        {
+            // Re-initialize drag and drop after data changes
+            await Task.Delay(300); // Allow time for the grid to update
+            await InitializeJQueryDragDrop();
+        }
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            // Clean up jQuery UI sortable if enabled
+            if (enableRowDragDrop)
+            {
+                JSRuntime.InvokeVoidAsync("destroyJQueryDragDrop").AsTask().Wait();
+            }
+
+            // Dispose the .NET reference
+            dotNetReference?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during component disposal: {ex}");
+        }
+    }
+
+    private void RowRender(RowRenderEventArgs<ST_MasterViewModel> args)
+    {
+        // jQuery UI sortable will handle the drag and drop functionality
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Check if grid has been initialized
+        if (grid != null)
+        {
+            await grid.Reload();
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task LoadData(LoadDataArgs args)
+    {
+        isLoading = true;
+        try
+        {
+            // Show loading notification
+            await NotificationService.ShowLineToastAsync("info");
+
+            // Get all data for the current filter (without pagination to enable client-side sorting)
+            allTasks = await SalesTaskService.GetSalesTasksAsync(0, 1000, searchText);
+
+            // Apply status filter if not "All"
+            if (selectedStatus != "All")
+            {
+                allTasks = allTasks.Where(c => c.TaskStatus == selectedStatus).ToList();
+            }
+
+            // Get the total count for pagination
+            count = allTasks.Count;
+
+            // Apply sorting
+            if (args.Sorts != null && args.Sorts.Any())
+            {
+                var sortProperty = args.Sorts.First().Property;
+                var sortOrder = args.Sorts.First().SortOrder;
+
+                if (sortOrder == Radzen.SortOrder.Ascending)
+                {
+                    allTasks = allTasks.OrderBy(l => GetPropertyValue(l, sortProperty)).ToList();
+                }
+                else
+                {
+                    allTasks = allTasks.OrderByDescending(l => GetPropertyValue(l, sortProperty)).ToList();
+                }
+            }
+            else
+            {
+                // Default sort by due date (descending)
+                allTasks = allTasks.OrderByDescending(l => l.DueDateTime).ToList();
+            }
+
+            // Apply paging
+            salesTasks = allTasks
+                .Skip(args.Skip ?? 0)
+                .Take(args.Top ?? 10)
+                .ToList();
+
+            // Show appropriate notification based on filters applied
+            if (!string.IsNullOrEmpty(searchText) && selectedStatus == "All")
+            {
+                await NotificationService.ShowInfoAsync($"Found {count} results for '{searchText}'");
+            }
+            else if (!string.IsNullOrEmpty(searchText) && selectedStatus != "All")
+            {
+                await NotificationService.ShowInfoAsync($"Found {salesTasks.Count} results for '{searchText}' with status '{selectedStatus}'");
+            }
+            else if (string.IsNullOrEmpty(searchText) && selectedStatus != "All")
+            {
+                await NotificationService.ShowInfoAsync($"Filtered to show {salesTasks.Count} {selectedStatus} tasks");
+            }
+            else
+            {
+                await NotificationService.ShowInfoAsync($"Loaded {count} sales tasks");
+            }
+
+            // Reinitialize jQuery UI drag and drop after data load if enabled
+            if (enableRowDragDrop)
+            {
+                await Task.Delay(300); // Allow time for the grid to render
+                await InitializeJQueryDragDrop();
+            }
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error loading data: {ex.Message}", true);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private object GetPropertyValue(ST_MasterViewModel model, string propertyName)
+    {
+        var property = typeof(ST_MasterViewModel).GetProperty(propertyName);
+        return property?.GetValue(model) ?? string.Empty;
+    }
+
+    private async Task FilterByStatus(string status)
+    {
+        // Show loading notification
+        await NotificationService.ShowLineToastAsync("info");
+
+        selectedStatus = status;
+
+        // Reload grid with new filter
+        await grid.Reload();
+    }
+
+    private async Task HandleSearch()
+    {
+        // Show loading notification
+        await NotificationService.ShowLineToastAsync("info");
+
+        await grid.Reload();
+    }
+
+    private async Task ClearSearch()
+    {
+        // Clear the search text
+        searchText = "";
+
+        // Show loading notification
+        await NotificationService.ShowLineToastAsync("info");
+
+        // Reload the grid to show all results
+        await grid.Reload();
+    }
+
+    private void NavigateToCreate()
+    {
+        NavigationManager.NavigateTo("/SalesTask/Master/Create");
+    }
+
+    private void NavigateToView(Guid id)
+    {
+        NavigationManager.NavigateTo($"/SalesTask/Master/View?id={id}");
+    }
+
+    private void NavigateToEdit(Guid id)
+    {
+        NavigationManager.NavigateTo($"/SalesTask/Master/Edit?id={id}");
+    }
+
+    private async Task ConfirmDelete(ST_MasterViewModel task)
+    {
+        await NotificationService.ConfirmAndExecuteDeleteAsync(
+            // Delete action to perform if confirmed
+            async () => await DeleteTask(task.TaskId),
+            // Custom title
+            $"Delete {task.TaskTitle}?",
+            // Custom message
+            $"This task and all related data will be permanently removed. This action cannot be undone."
+        );
+    }
+
+    private async Task DeleteTask(Guid id)
+    {
+        try
+        {
+            // Call service to delete record
+            await SalesTaskService.DeleteSalesTaskAsync(id);
+
+            // Reload the grid
+            await grid.Reload();
+        }
+        catch (Exception ex)
+        {
+            await NotificationService.ShowErrorAsync($"Error deleting task: {ex.Message}", true);
+            throw; // Rethrow to be handled by the confirmation service
+        }
+    }
+
+    // Helper method to generate grid CSS classes based on enabled features
+    private string GetGridCssClass()
+    {
+        List<string> classes = new List<string>();
+
+        if (enableRowHoverEffect)
+        {
+            classes.Add("grid-row-hover");
+        }
+
+        if (enableRowDragDrop)
+        {
+            classes.Add("draggable-grid");
+        }
+
+        classes.Add("compact-grid");
+
+        return string.Join(" ", classes);
+    }
+
+    // Method to handle row reordering - called from JavaScript
+    [JSInvokable]
+    public async Task ReorderRows(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || fromIndex >= salesTasks.Count ||
+            toIndex < 0 || toIndex > salesTasks.Count ||
+            fromIndex == toIndex)
+        {
+            return;
+        }
+
+        // Store the task being moved
+        var taskToMove = salesTasks[fromIndex];
+
+        // Remove from original position
+        salesTasks.RemoveAt(fromIndex);
+
+        // Insert at new position
+        if (toIndex > salesTasks.Count)
+        {
+            salesTasks.Add(taskToMove);
+        }
+        else
+        {
+            salesTasks.Insert(toIndex, taskToMove);
+        }
+
+        // Update the source collection
+        int pageStart = (int)(grid.CurrentPage * grid.PageSize);
+        for (int i = 0; i < salesTasks.Count; i++)
+        {
+            if (pageStart + i < allTasks.Count)
+            {
+                allTasks[pageStart + i] = salesTasks[i];
+            }
+        }
+
+        // Notify user of the change
+        await NotificationService.ShowInfoAsync("Task order updated");
+
+        // Force a UI refresh
+        StateHasChanged();
+    }
+}

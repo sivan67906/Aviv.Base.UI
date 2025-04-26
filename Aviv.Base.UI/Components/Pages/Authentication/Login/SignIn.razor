@@ -1,0 +1,86 @@
+@page "/"
+@page "/Login"
+@layout CustomLayout
+
+<style>
+	.authentication-basic {
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+	}
+
+	.custom-card {
+		min-height: 585px;
+		max-width: 490px;
+		margin: 0 auto;
+	}
+
+	.letter-space {
+		letter-spacing: 1px;
+	}
+
+	@@media (min-width: 1200px) {
+		.custom-card {
+			transform: none !important;
+			width: 100% !important;
+		}
+	}
+</style>
+
+<div class="container-fluid" style="background-color: #1c2e4a; height: 100%;">
+	<div class="row justify-content-center align-items-center authentication authentication-basic">
+		<div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
+			<div class="card custom-card">
+				<div class="card-header mt-2 justify-content-center">
+					<div class="row">
+						<div class="col-12 mt-3">
+							<div class="d-flex justify-content-center fw-700 fs-30" style="letter-spacing: 0.15rem">
+								<h1 class="desktop-logo fw-25 letter-space"><span class="text-primary me-1">Oto</span><span class="text-warning">Solve</span></h1>
+								<h1 class="desktop-dark fw-25 letter-space"><span class="text-primary me-1">Oto</span><span class="text-warning">Solve</span></h1>
+							</div>
+						</div>
+						<div class="col-12 mt-2">
+							<p class="h5 fw-semibold mb-2 text-center" style="font-size: 1.15rem !important;">CRM Sign In</p>
+							<p class="mb-2 text-muted op-7 fw-normal text-center"></p>
+						</div>
+					</div>
+				</div>
+				<div class="card-body p-5 pt-0">
+					<div class="row mt-3 mb-5 gy-3">
+						<div class="col-xl-12">
+							<label for="signin-username" class="form-label text-default">User Name</label>
+							<input type="text" class="form-control form-control-lg" id="signin-username" placeholder="">
+						</div>
+						<div class="col-xl-12 mb-2">
+							<label for="signin-password" class="form-label text-default d-block">Password<a href="reset-password-basic" class="float-end text-danger">Forget password ?</a></label>
+							<PasswordToggle @bind-Password="password" />
+							<div class="mt-2">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+									<label class="form-check-label text-muted fw-normal" for="defaultCheck1">
+										Remember password ?
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-12 d-grid mt-2">
+							<a href="Dashboard" class="btn btn-lg btn-primary">Sign In</a>
+						</div>
+					</div>
+					<div class="text-center">
+						<p class="fs-12 text-muted mt-3">Dont have an account? <a href="SignUp" class="text-primary">Sign Up</a></p>
+					</div>
+				</div>
+				<Aviv.Base.UI.Components.Shared.LoginFooter />
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private string password = "";
+}
+
+
+
+
