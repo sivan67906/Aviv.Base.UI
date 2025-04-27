@@ -39,7 +39,17 @@ else
         });
 }
 
-// Add services to the container.
+// Add session services with a timeout of 60 minutes
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".Aviv.Session";
+});
+
+// Add services to the container
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -143,6 +153,9 @@ app.UseRouting();
 
 // Add CORS
 app.UseCors("AllowedOrigins");
+
+// Add session middleware
+app.UseSession();
 
 // Authentication and authorization middleware - Order is important!
 app.UseAuthentication();

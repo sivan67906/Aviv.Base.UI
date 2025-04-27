@@ -11,6 +11,7 @@
 @inject NotificationCustomService NotificationService
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ILogger<SignIn> Logger
 
 <style>
 	.authentication-basic {
@@ -136,9 +137,16 @@
 	protected override async Task OnInitializedAsync()
 	{
 		// Check if user is already authenticated
-		if (await AuthService.IsAuthenticatedAsync())
+		try
 		{
-			NavigationManager.NavigateTo("/dashboard");
+			if (await AuthService.IsAuthenticatedAsync())
+			{
+				NavigationManager.NavigateTo("/dashboard");
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Error checking authentication state");
 		}
 	}
 
@@ -149,10 +157,14 @@
 			isLoading = true;
 			errorMessage = null;
 
+			Logger.LogInformation("Attempting login for user: {Username}", loginModel.Username);
+
 			var result = await AuthService.LoginAsync(loginModel);
 
 			if (result)
 			{
+				Logger.LogInformation("Login successful for user: {Username}", loginModel.Username);
+
 				// Notify authentication state provider to update the state
 				(AuthStateProvider as CustomAuthStateProvider)?.NotifyAuthenticationStateChanged();
 
@@ -162,15 +174,24 @@
 			}
 			else
 			{
+				Logger.LogWarning("Login failed for user: {Username}", loginModel.Username);
+
 				// Login failed
 				errorMessage = "Invalid username or password. Please try again.";
 				await NotificationService.ShowErrorAsync("Login failed. Please check your credentials.");
+
+				// Add JavaScript console logging for debugging
+				await JSRuntime.InvokeVoidAsync("console.log", "Login failed for user: " + loginModel.Username);
 			}
 		}
 		catch (Exception ex)
 		{
+			Logger.LogError(ex, "Error during login for user {Username}", loginModel.Username);
 			errorMessage = "An error occurred during login. Please try again.";
 			await NotificationService.ShowErrorAsync("Login error: " + ex.Message);
+
+			// Add JavaScript console logging for errors
+			await JSRuntime.InvokeVoidAsync("console.log", "Login error: " + ex.Message);
 		}
 		finally
 		{

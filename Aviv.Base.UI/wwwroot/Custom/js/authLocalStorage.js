@@ -5,6 +5,7 @@ window.authLocalStorage = {
     // Set authentication token
     setAuthToken: function (token) {
         localStorage.setItem('aviv_auth_token', token);
+        console.log('Auth token set in localStorage');
     },
 
     // Get authentication token
@@ -15,6 +16,7 @@ window.authLocalStorage = {
     // Remove authentication token
     removeAuthToken: function () {
         localStorage.removeItem('aviv_auth_token');
+        console.log('Auth token removed from localStorage');
     },
 
     // Set user info
@@ -24,6 +26,7 @@ window.authLocalStorage = {
         } else {
             localStorage.setItem('aviv_user_info', userInfo);
         }
+        console.log('User info set in localStorage');
     },
 
     // Get user info
@@ -31,17 +34,13 @@ window.authLocalStorage = {
         const userInfo = localStorage.getItem('aviv_user_info');
         if (!userInfo) return null;
 
-        try {
-            return JSON.parse(userInfo);
-        } catch (e) {
-            console.error('Error parsing user info from localStorage', e);
-            return userInfo;
-        }
+        return userInfo;
     },
 
     // Remove user info
     removeUserInfo: function () {
         localStorage.removeItem('aviv_user_info');
+        console.log('User info removed from localStorage');
     },
 
     // Check if user is authenticated
@@ -53,5 +52,6 @@ window.authLocalStorage = {
     clearAuth: function () {
         this.removeAuthToken();
         this.removeUserInfo();
+        console.log('All auth data cleared from localStorage');
     }
 };

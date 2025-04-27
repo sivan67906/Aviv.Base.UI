@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 public class SessionService
 {
@@ -44,19 +44,34 @@ public class SessionService
             HttpContext? httpContext = _httpContextAccessor.HttpContext;
             if (httpContext != null)
             {
-                // Store in session
-                string jsonState = JsonSerializer.Serialize(state, _jsonOptions);
-                httpContext.Session.SetString(AppStateKey, jsonState);
+                // Check if session is available
+                if (httpContext.Session == null)
+                {
+                    _logger.LogWarning("Session is not available, storing AppState in memory cache only");
+                    // Store in memory cache only
+                    _memoryCache.Set($"AppState_{httpContext.Connection.Id}", state,
+                        new MemoryCacheEntryOptions
+                        {
+                            SlidingExpiration = TimeSpan.FromMinutes(30),
+                            Priority = CacheItemPriority.High
+                        });
+                }
+                else
+                {
+                    // Store in session and memory cache
+                    string jsonState = JsonSerializer.Serialize(state, _jsonOptions);
+                    httpContext.Session.SetString(AppStateKey, jsonState);
 
-                // Also cache in memory for faster access
-                _memoryCache.Set($"AppState_{httpContext.Connection.Id}", state,
-                    new MemoryCacheEntryOptions
-                    {
-                        SlidingExpiration = TimeSpan.FromMinutes(30),
-                        Priority = CacheItemPriority.High
-                    });
+                    // Also cache in memory for faster access
+                    _memoryCache.Set($"AppState_{httpContext.Connection.Id}", state,
+                        new MemoryCacheEntryOptions
+                        {
+                            SlidingExpiration = TimeSpan.FromMinutes(30),
+                            Priority = CacheItemPriority.High
+                        });
 
-                _logger.LogDebug("Successfully set AppState to session");
+                    _logger.LogDebug("Successfully set AppState to session");
+                }
             }
             else
             {
@@ -78,13 +93,23 @@ public class SessionService
             HttpContext? httpContext = _httpContextAccessor?.HttpContext;
             if (httpContext != null)
             {
-                // Remove from session
-                httpContext.Session.Remove(AppStateKey);
-
                 // Remove from memory cache
                 _memoryCache.Remove($"AppState_{httpContext.Connection.Id}");
 
-                _logger.LogDebug("Successfully deleted AppState from session");
+                // Try to remove from session if available
+                try
+                {
+                    if (httpContext.Session != null)
+                    {
+                        httpContext.Session.Remove(AppStateKey);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    _logger.LogWarning("Session not available when trying to delete AppState");
+                }
+
+                _logger.LogDebug("Successfully deleted AppState from storage");
             }
             else
             {
@@ -93,7 +118,7 @@ public class SessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting AppState from session");
+            _logger.LogError(ex, "Error deleting AppState from storage");
         }
     }
 
@@ -103,10 +128,10 @@ public class SessionService
         {
             HttpContext? httpContext = _httpContextAccessor.HttpContext;
 
-            // Check if HttpContext or Session is null
-            if (httpContext == null || httpContext.Session == null)
+            // Check if HttpContext is null
+            if (httpContext == null)
             {
-                _logger.LogWarning("HttpContext or Session was null when getting AppState");
+                _logger.LogWarning("HttpContext was null when getting AppState");
                 return new AppState(); // Return default state
             }
 
@@ -117,37 +142,41 @@ public class SessionService
                 return cachedState;
             }
 
-            // If not in cache, try to get from session
-            string? jsonState = httpContext.Session.GetString(AppStateKey);
-            if (string.IsNullOrEmpty(jsonState))
+            // Try to get from session if available
+            try
             {
-                _logger.LogDebug("No AppState found in session, returning default");
-                return new AppState(); // Return default state if session data is not available
-            }
-
-            // Deserialize the state
-            AppState? appState = JsonSerializer.Deserialize<AppState>(jsonState, _jsonOptions);
-
-            // Check if deserialization succeeded and appState is not null
-            if (appState == null)
-            {
-                _logger.LogWarning("Deserialization of AppState from session returned null");
-                return new AppState(); // Return default state if deserialization failed
-            }
-
-            // Cache the result for faster access next time
-            _memoryCache.Set($"AppState_{connectionId}", appState,
-                new MemoryCacheEntryOptions
+                if (httpContext.Session != null)
                 {
-                    SlidingExpiration = TimeSpan.FromMinutes(30),
-                    Priority = CacheItemPriority.High
-                });
+                    string? jsonState = httpContext.Session.GetString(AppStateKey);
+                    if (!string.IsNullOrEmpty(jsonState))
+                    {
+                        AppState? appState = JsonSerializer.Deserialize<AppState>(jsonState, _jsonOptions);
+                        if (appState != null)
+                        {
+                            // Cache the result for faster access next time
+                            _memoryCache.Set($"AppState_{connectionId}", appState,
+                                new MemoryCacheEntryOptions
+                                {
+                                    SlidingExpiration = TimeSpan.FromMinutes(30),
+                                    Priority = CacheItemPriority.High
+                                });
+                            return appState;
+                        }
+                    }
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.LogWarning("Session not configured or not available when getting AppState");
+                // Continue to return default state
+            }
 
-            return appState;
+            // Return default state if session data is not available
+            return new AppState();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving AppState from session");
+            _logger.LogError(ex, "Error retrieving AppState from storage");
             return new AppState(); // Return default state in case of error
         }
     }
@@ -165,17 +194,28 @@ public class SessionService
             HttpContext? httpContext = _httpContextAccessor.HttpContext;
             if (httpContext != null)
             {
-                string jsonState = JsonSerializer.Serialize(state, _jsonOptions);
-                httpContext.Session.SetString(InitialAppStateKey, jsonState);
-
-                // Also cache in memory
+                // Store in memory cache
                 _memoryCache.Set($"InitialAppState_{httpContext.Connection.Id}", state,
                     new MemoryCacheEntryOptions
                     {
                         SlidingExpiration = TimeSpan.FromMinutes(30)
                     });
 
-                _logger.LogDebug("Successfully set InitialAppState to session");
+                // Try to store in session if available
+                try
+                {
+                    if (httpContext.Session != null)
+                    {
+                        string jsonState = JsonSerializer.Serialize(state, _jsonOptions);
+                        httpContext.Session.SetString(InitialAppStateKey, jsonState);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    _logger.LogWarning("Session not available when trying to set InitialAppState");
+                }
+
+                _logger.LogDebug("Successfully set InitialAppState to storage");
             }
             else
             {
@@ -186,11 +226,11 @@ public class SessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error setting InitialAppState to session");
+            _logger.LogError(ex, "Error setting InitialAppState to storage");
         }
     }
 
-    public  AppState? GetInitalAppStateFromSession()
+    public AppState? GetInitalAppStateFromSession()
     {
         try
         {
@@ -208,36 +248,41 @@ public class SessionService
                 return cachedState;
             }
 
-            ISession? session = httpContext.Session;
-            if (session == null)
+            // Try to get from session if available
+            try
             {
-                _logger.LogWarning("Session was null when getting InitialAppState");
-                return null;
-            }
-
-            string? jsonState = session.GetString(InitialAppStateKey);
-            if (jsonState == null)
-            {
-                return null;
-            }
-
-            var result = JsonSerializer.Deserialize<AppState>(jsonState, _jsonOptions);
-
-            // Cache for future access
-            if (result != null)
-            {
-                _memoryCache.Set($"InitialAppState_{connectionId}", result,
-                    new MemoryCacheEntryOptions
+                if (httpContext.Session != null)
+                {
+                    string? jsonState = httpContext.Session.GetString(InitialAppStateKey);
+                    if (jsonState != null)
                     {
-                        SlidingExpiration = TimeSpan.FromMinutes(30)
-                    });
+                        AppState? result = JsonSerializer.Deserialize<AppState>(jsonState, _jsonOptions);
+
+                        // Cache for future access
+                        if (result != null)
+                        {
+                            _memoryCache.Set($"InitialAppState_{connectionId}", result,
+                                new MemoryCacheEntryOptions
+                                {
+                                    SlidingExpiration = TimeSpan.FromMinutes(30)
+                                });
+                        }
+
+                        return result;
+                    }
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.LogWarning("Session not available when trying to get InitialAppState");
+                // Continue to return null
             }
 
-            return result;
+            return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving InitialAppState from session");
+            _logger.LogError(ex, "Error retrieving InitialAppState from storage");
             return null;
         }
     }

@@ -17,8 +17,6 @@ public class AuthService : IAuthService
     private readonly IJSRuntime _jsRuntime;
     private readonly ILogger<AuthService> _logger;
     private readonly StateService _stateService;
-    private readonly string _authTokenKey = "aviv_auth_token";
-    private readonly string _userInfoKey = "aviv_user_info";
 
     public AuthService(
         IJSRuntime jsRuntime,
@@ -60,9 +58,9 @@ public class AuthService : IAuthService
                 Roles = ["User"]
             };
 
-            // Store auth token and user info in local storage
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", _authTokenKey, authToken);
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", _userInfoKey, JsonSerializer.Serialize(userInfo));
+            // Store auth token and user info in local storage using the helper functions
+            await _jsRuntime.InvokeVoidAsync("authLocalStorage.setAuthToken", authToken);
+            await _jsRuntime.InvokeVoidAsync("authLocalStorage.setUserInfo", userInfo);
 
             // Store app state
             await _stateService.retrieveFromLocalStorage();
@@ -85,9 +83,8 @@ public class AuthService : IAuthService
             UserInfo? userInfo = await GetCurrentUserAsync();
             string username = userInfo?.Username ?? "unknown";
 
-            // Clear authentication data from local storage
-            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", _authTokenKey);
-            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", _userInfoKey);
+            // Clear authentication data from local storage using the helper function
+            await _jsRuntime.InvokeVoidAsync("authLocalStorage.clearAuth");
 
             _logger.LogInformation("User {Username} logged out at {Time}", username, DateTime.UtcNow);
         }
@@ -101,8 +98,8 @@ public class AuthService : IAuthService
     {
         try
         {
-            // Check if we have a user in local storage
-            string userInfoJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", _userInfoKey);
+            // Get user info from local storage using the helper function
+            string userInfoJson = await _jsRuntime.InvokeAsync<string>("authLocalStorage.getUserInfo");
 
             if (string.IsNullOrEmpty(userInfoJson))
             {
@@ -123,9 +120,8 @@ public class AuthService : IAuthService
     {
         try
         {
-            // Check if we have an auth token in local storage
-            string token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", _authTokenKey);
-            return !string.IsNullOrEmpty(token);
+            // Check if we have an auth token in local storage using the helper function
+            return await _jsRuntime.InvokeAsync<bool>("authLocalStorage.isAuthenticated");
         }
         catch (Exception ex)
         {

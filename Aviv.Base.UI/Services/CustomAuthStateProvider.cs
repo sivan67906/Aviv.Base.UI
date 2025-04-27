@@ -11,7 +11,6 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
     private readonly IAuthService _authService;
     private readonly ILogger<CustomAuthStateProvider> _logger;
     private readonly IJSRuntime _jsRuntime;
-    private readonly string _userInfoKey = "aviv_user_info";
 
     public CustomAuthStateProvider(
         IAuthService authService,
@@ -27,8 +26,8 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
     {
         try
         {
-            // Check if we have user info in local storage
-            string userInfoJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", _userInfoKey);
+            // Check if we have user info in local storage using the helper function
+            string userInfoJson = await _jsRuntime.InvokeAsync<string>("authLocalStorage.getUserInfo");
 
             if (string.IsNullOrEmpty(userInfoJson))
             {
@@ -46,11 +45,11 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
             }
 
             // Create claims based on user info
-            List<Claim> claims = new List<Claim>
-            {
+            List<Claim> claims =
+            [
                 new Claim(ClaimTypes.Name, userInfo.Username),
                 new Claim(ClaimTypes.Email, userInfo.Email)
-            };
+            ];
 
             // Add role claims
             foreach (string role in userInfo.Roles)
@@ -66,7 +65,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error determining authentication state");
+            _logger.LogError(ex, "Error determining authentication state: {Message}", ex.Message);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
     }
