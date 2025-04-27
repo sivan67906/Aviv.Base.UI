@@ -55,6 +55,7 @@ builder.Services.AddSingleton<AppState>();
 
 // Scoped - one instance per request/connection
 builder.Services.AddScoped<StateService>();
+builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<IActionService, ActionService>();
 builder.Services.AddScoped<MenuDataService>();
 builder.Services.AddScoped<NavScrollService>();
