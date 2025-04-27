@@ -3,12 +3,14 @@
 @using Aviv.Base.UI.Components.Layout
 @using Aviv.Base.UI.Models.Authentication
 @using Aviv.Base.UI.Services.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @layout CustomLayout
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
 @inject NotificationCustomService NotificationService
 @inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
 
 <style>
 	.authentication-basic {
@@ -151,6 +153,9 @@
 
 			if (result)
 			{
+				// Notify authentication state provider to update the state
+				(AuthStateProvider as CustomAuthStateProvider)?.NotifyAuthenticationStateChanged();
+
 				// Login successful
 				await NotificationService.ShowSuccessAsync("Login successful!");
 				NavigationManager.NavigateTo("/dashboard");

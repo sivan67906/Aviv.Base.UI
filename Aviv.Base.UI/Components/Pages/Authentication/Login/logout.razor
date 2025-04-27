@@ -1,8 +1,10 @@
 @page "/Logout"
 @using Aviv.Base.UI.Services.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject NotificationCustomService NotificationService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
 	<div class="text-center">
@@ -25,6 +27,10 @@
 		try
 		{
 			await AuthService.LogoutAsync();
+
+			// Notify authentication state provider to update the state
+			(AuthStateProvider as CustomAuthStateProvider)?.NotifyAuthenticationStateChanged();
+
 			await NotificationService.ShowInfoAsync("You have been successfully logged out");
 		}
 		catch (Exception ex)

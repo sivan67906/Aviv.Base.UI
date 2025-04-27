@@ -4,7 +4,6 @@ using Aviv.Base.UI.Helper;
 using Aviv.Base.UI.Services;
 using Aviv.Base.UI.Services.Authentication;
 using Aviv.Base.UI.Services.SalesTask;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 using Radzen;
@@ -61,15 +60,6 @@ builder.Services.AddScoped<MenuDataService>();
 builder.Services.AddScoped<NavScrollService>();
 builder.Services.AddSingleton<ThemePresetService>();
 builder.Services.AddWMBOS();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-});
-builder.Services.AddScoped<SessionService>();
 builder.Services.AddPageBreadcrumbService();
 
 // Radzen services
@@ -99,51 +89,8 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Fastest;
 });
 
-// Configure HTTP context accessor for session access
+// Configure HTTP context accessor for access to HttpContext when needed
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDistributedMemoryCache(options =>
-{
-    // Set size limit and expiration scan frequency
-    options.SizeLimit = 50 * 1024 * 1024; // 50MB
-});
-
-// Authentication configuration - Updated for security
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/login";
-        options.LogoutPath = "/logout";
-        options.AccessDeniedPath = "/unauthorized";
-        options.Cookie.Name = "AviVendorAuth";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Strict;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.ExpireTimeSpan = TimeSpan.FromHours(2);
-        options.SlidingExpiration = true;
-
-        // Additional security options
-        options.Cookie.IsEssential = true;
-        options.ReturnUrlParameter = "returnUrl";
-
-        // Events for additional handling
-        options.Events = new CookieAuthenticationEvents
-        {
-            OnRedirectToLogin = context =>
-            {
-                // For API requests, return 401 instead of redirecting
-                if (context.Request.Path.StartsWithSegments("/api") &&
-                    context.Response.StatusCode == 200)
-                {
-                    context.Response.StatusCode = 401;
-                    return Task.CompletedTask;
-                }
-
-                // Normal login redirect
-                context.Response.Redirect(context.RedirectUri);
-                return Task.CompletedTask;
-            }
-        };
-    });
 
 // Configure CORS if needed
 builder.Services.AddCors(options =>
@@ -179,9 +126,6 @@ app.UseResponseCompression();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
-
-// Enable session
-app.UseSession();
 
 // Serve static files with cache headers
 app.UseStaticFiles(new StaticFileOptions

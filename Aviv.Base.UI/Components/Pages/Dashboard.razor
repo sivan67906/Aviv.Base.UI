@@ -115,14 +115,11 @@
 </div>
 
 @code {
-	// Chart Data Classes and properties from the original code...
-	// [Content omitted for brevity]
-
 	protected override async Task OnInitializedAsync()
 	{
 		// Check if user is authenticated, if not redirect to login
 		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-		if (!authState.User.Identity.IsAuthenticated)
+		if (!authState.User.Identity?.IsAuthenticated ?? true)
 		{
 			NavigationManager.NavigateTo("/login");
 		}
